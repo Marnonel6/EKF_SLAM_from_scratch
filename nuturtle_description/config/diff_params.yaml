@@ -1,0 +1,6 @@
+wheelradius: 2.0
+track_width: 160.0
+motor_cmd_max: 265
+motor_cmd_per_rad_sec: 0.024
+encoder_ticks_per_rad: 651.898160011
+collision_radius: 0.11
