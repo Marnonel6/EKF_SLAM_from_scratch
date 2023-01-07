@@ -42,7 +42,7 @@ def generate_launch_description():
             name='rviz2',
             arguments=["-d",
                        PathJoinSubstitution(
-                           [FindPackageShare("nuturtle_description"), "config/basic_purple.rviz"])],
+                      [FindPackageShare("nuturtle_description"), "config/basic_purple.rviz"])],
             condition=LaunchConfigurationEquals("use_rviz", "true"),
             on_exit = Shutdown()
             )
