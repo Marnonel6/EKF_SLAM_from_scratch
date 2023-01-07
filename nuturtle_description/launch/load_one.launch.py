@@ -21,6 +21,10 @@ def generate_launch_description():
                               default_value="true",
                               choices=['true', 'false'],
                               description="true: start rviz, false: don't start rviz"),
+        DeclareLaunchArgument(name="color",
+                              default_value="purple",
+                              choices=['red', 'green', 'blue', 'purple'],
+                              description="Sets color of the turtlebot3 in the urdf."),
         Node(package="joint_state_publisher",
              executable="joint_state_publisher",
              condition= LaunchConfigurationEquals("use_jsp", "true")
