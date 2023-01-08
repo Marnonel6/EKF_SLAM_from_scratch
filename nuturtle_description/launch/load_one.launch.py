@@ -40,14 +40,17 @@ def generate_launch_description():
             executable = "robot_state_publisher",
             namespace = LaunchConfiguration("color"),
             parameters=[
-                {"robot_description" :
-                Command([ExecutableInPackage("xacro", "xacro"), " ",
-                         PathJoinSubstitution(
-                        [FindPackageShare("nuturtle_description"), 
-                                          "urdf/turtlebot3_burger.urdf.xacro"]),
-                        " color:=",
-                        LaunchConfiguration('color')
-                                          ])}
+                {
+                "frame_prefix":
+                    PathJoinSubstitution([(LaunchConfiguration('color')), '']), 
+                "robot_description":
+                    Command([ExecutableInPackage("xacro", "xacro"), " ",
+                            PathJoinSubstitution(
+                            [FindPackageShare("nuturtle_description"), 
+                                            "urdf/turtlebot3_burger.urdf.xacro"]),
+                            " color:=",
+                            LaunchConfiguration('color')
+                                            ])},
                 ]
                 ),
 
