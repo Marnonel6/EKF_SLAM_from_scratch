@@ -29,22 +29,16 @@ def generate_launch_description():
                               choices=['red', 'green', 'blue', 'purple'],
                               description="Sets color of the turtlebot3 in the urdf."),
 
-        # Command([TextSubstitution(text='xacro '),
-        #         TextSubstitution(PathJoinSubstitution([
-        #             FindPackageShare('nuturtle_description'),
-        #             "urdf/turtlebot3_burger.urdf.xacro"
-        #         ])),
-        #         TextSubstitution(text='color:=blue')
-        # ]),
-
-        Node(package="joint_state_publisher",
-             executable="joint_state_publisher",
-             condition= LaunchConfigurationEquals("use_jsp", "true")
+        Node(package = "joint_state_publisher",
+             executable = "joint_state_publisher",
+             namespace = LaunchConfiguration("color"),
+             condition = LaunchConfigurationEquals("use_jsp", "true")
              ),
 
         Node(
-            package="robot_state_publisher",
-            executable="robot_state_publisher",
+            package = "robot_state_publisher",
+            executable = "robot_state_publisher",
+            namespace = LaunchConfiguration("color"),
             parameters=[
                 {"robot_description" :
                 Command([ExecutableInPackage("xacro", "xacro"), " ",
@@ -61,6 +55,7 @@ def generate_launch_description():
             package="rviz2",
             executable="rviz2",
             name='rviz2',
+            namespace = LaunchConfiguration("color"),
             arguments=["-d",
                        PathJoinSubstitution(
                       [FindPackageShare("nuturtle_description"), "config/basic_purple.rviz"])],
