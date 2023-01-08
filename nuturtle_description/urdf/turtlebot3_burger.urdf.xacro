@@ -13,7 +13,7 @@
 <xacro:property name="encoder_ticks_per_rad"  value="${ros__parameters['encoder_ticks_per_rad']}" />
 <xacro:property name="collision_radius"  value="${ros__parameters['collision_radius']}" />
 
-<xacro:arg name="color" default="orange"/>
+<xacro:arg name="color" default="purple"/>
 
   <!-- Init colour -->
   <material name="black">
