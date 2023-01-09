@@ -4,7 +4,7 @@ Starts all the nodes to visualize a turtlebot3 in rviz
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, SetLaunchConfiguration
 from launch.substitutions import Command, PathJoinSubstitution, TextSubstitution, \
                                  LaunchConfiguration
 from launch.conditions import LaunchConfigurationEquals
@@ -29,6 +29,13 @@ def generate_launch_description():
                               choices=['red', 'green', 'blue', 'purple'],
                               description="Sets color of the turtlebot3 in the urdf."),
 
+        SetLaunchConfiguration(name="rviz_color",
+                               value=[FindPackageShare("nuturtle_description"), 
+                                      TextSubstitution(text="/config/basic_"),
+                                      LaunchConfiguration("color"),
+                                      TextSubstitution(text=".rviz")]
+                                ),
+
         Node(package = "joint_state_publisher",
              executable = "joint_state_publisher",
              namespace = LaunchConfiguration("color"),
@@ -51,8 +58,7 @@ def generate_launch_description():
                             " color:=",
                             LaunchConfiguration('color')
                                             ])},
-                ]
-                ),
+                ]),
 
         Node(
             package="rviz2",
@@ -61,7 +67,8 @@ def generate_launch_description():
             namespace = LaunchConfiguration("color"),
             arguments=["-d",
                        PathJoinSubstitution(
-                      [FindPackageShare("nuturtle_description"), "config/basic_purple.rviz"])],
+                      [FindPackageShare("nuturtle_description"),\
+                         LaunchConfiguration("rviz_color")])],
             condition=LaunchConfigurationEquals("use_rviz", "true"),
             on_exit = Shutdown()
             )
