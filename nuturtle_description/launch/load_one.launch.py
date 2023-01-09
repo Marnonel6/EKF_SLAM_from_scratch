@@ -16,13 +16,12 @@ def generate_launch_description():
         DeclareLaunchArgument(name="use_jsp",
                               default_value="true",
                               choices=['true', 'false'],
-                              description="true: use joint_state_publisher, false: no joint states \
-                                           published"),
+                              description="Choose if joint_state_publisher needs to be launched."),
 
         DeclareLaunchArgument(name="use_rviz",
                               default_value="true",
                               choices=['true', 'false'],
-                              description="true: start rviz, false: don't start rviz"),
+                              description="Choose if RVIZ needs to be launched."),
 
         DeclareLaunchArgument(name="color",
                               default_value="purple",

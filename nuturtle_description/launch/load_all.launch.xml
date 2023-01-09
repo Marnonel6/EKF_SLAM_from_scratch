@@ -6,12 +6,6 @@
     <arg name="use_rviz" value="false" />
   </include>
 
-  <!-- args that can be set from the command line or a default will be used -->
-  <arg name="world" default="world"/>
-  <arg name="nusim" default="nusim"/>
-  <arg name="background_b" default="0"/>
-  <arg name="chatter_ns" default="my/chatter/ns"/>
-
   <!-- Launch the Python launch file -->
   <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
     <!-- Pass required arguments to the Python launch file -->
