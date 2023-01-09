@@ -6,6 +6,12 @@
     <arg name="use_rviz" value="false" />
   </include>
 
+  <!-- args that can be set from the command line or a default will be used -->
+  <arg name="world" default="world"/>
+  <arg name="nusim" default="nusim"/>
+  <arg name="background_b" default="0"/>
+  <arg name="chatter_ns" default="my/chatter/ns"/>
+
   <!-- Launch the Python launch file -->
   <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
     <!-- Pass required arguments to the Python launch file -->
@@ -27,4 +33,39 @@
     <arg name="use_rviz" value="false" />
   </include>
 
+  <!-- Declare the RViz node -->
+  <!-- Load the config file -->
+  <node name="rviz2" pkg="rviz2" exec="rviz2" 
+  args="-d $(find-pkg-share nuturtle_description)/basic_all.rviz"/>
+
+  <!-- Declare the static nusim/world broadcaster -->
+  <!-- <node name="nusim" pkg="tf2_ros" exec="static_transform_publisher">
+    <frame
+  </node> -->
+
+  <!-- Declare the static_transform_publisher node -->
+  <!-- <node name="static_transform_publisher" pkg="tf2_ros" exec="static_transform_publisher" output="screen"> -->
+    <!-- Specify the transform parameters -->
+    <!-- <param name="frame-id" value="$(var world)" /> -->
+    <!-- <param name="child-frame-id" value="$(var nusim)" /> -->
+    <!-- <param name="frame_id" value="$(var world)" />
+    <param name="child_frame_id" value="$(var nusim)" />
+    <param name="x" value="0" />
+    <param name="y" value="0" />
+    <param name="z" value="0" />
+    <param name="yaw" value="0" />
+    <param name="pitch" value="0" />
+    <param name="roll" value="0" />
+  </node> -->
+
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_purple" 
+        args="0.25 0 0 0 0 0 nusim/world red/base_footprint"/>
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_purple" 
+        args="0 0.5 0 0 0 0 nusim/world green/base_footprint"/>
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_purple" 
+        args="-0.75 0 0 0 0 0 nusim/world blue/base_footprint"/>
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_purple" 
+        args="0 -1 0 0 0 0 nusim/world purple/base_footprint"/>
+
 </launch>
+
