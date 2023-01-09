@@ -37,3 +37,10 @@ URDF files for Nuturtle <Name Your Robot>
             'color':
                 Sets color of the turtlebot3 in the urdf. Valid choices are: ['red', 'green', 'blue', 'purple', '']
                 (default: 'purple')
+                
+Worked with:
+* James
+* Nick
+* Megan
+* Dilan
+* Liz
