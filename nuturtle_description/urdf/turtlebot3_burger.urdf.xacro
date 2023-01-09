@@ -1,8 +1,8 @@
-<!-- This was modified from the original TurtleBot3 file. -->
-
 <?xml version="1.0" ?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="turtlebot3_burger">
   <!-- <xacro:include filename="$(find turtlebot3_description)/urdf/common_properties.urdf"/> -->
+
+<!-- This was modified from the original TurtleBot3 file. -->
 
 <xacro:property name="yaml_file" value="$(find nuturtle_description)/config/diff_params.yaml" />
 <xacro:property name="props" value="${xacro.load_yaml(yaml_file)}" />
