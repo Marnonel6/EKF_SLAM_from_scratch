@@ -11,6 +11,7 @@ from launch.conditions import LaunchConfigurationEquals
 from launch_ros.substitutions import FindPackageShare, ExecutableInPackage
 from launch.actions import Shutdown
 
+
 def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(name="use_jsp",
@@ -25,35 +26,35 @@ def generate_launch_description():
 
         DeclareLaunchArgument(name="color",
                               default_value="purple",
-                              choices=['red', 'green', 'blue', 'purple',''],
+                              choices=['red', 'green', 'blue', 'purple', ''],
                               description="Sets color of the turtlebot3 in the urdf."),
 
         SetLaunchConfiguration(name="rviz_color",
-                               value=[FindPackageShare("nuturtle_description"), 
+                               value=[FindPackageShare("nuturtle_description"),
                                       TextSubstitution(text="/config/basic_"),
                                       LaunchConfiguration("color"),
                                       TextSubstitution(text=".rviz")]
-                                ),
+                               ),
 
-        Node(package = "joint_state_publisher",
-             executable = "joint_state_publisher",
-             namespace = LaunchConfiguration("color"),
-             condition = LaunchConfigurationEquals("use_jsp", "true")
+        Node(package="joint_state_publisher",
+             executable="joint_state_publisher",
+             namespace=LaunchConfiguration("color"),
+             condition=LaunchConfigurationEquals("use_jsp", "true")
              ),
 
         Node(
-            package = "robot_state_publisher",
-            executable = "robot_state_publisher",
-            namespace = LaunchConfiguration("color"),
+            package="robot_state_publisher",
+            executable="robot_state_publisher",
+            namespace=LaunchConfiguration("color"),
             parameters=[
                 {
-                "frame_prefix":
-                    PathJoinSubstitution([(LaunchConfiguration('color')), '']), 
-                "robot_description":
+                 "frame_prefix":
+                    PathJoinSubstitution([(LaunchConfiguration('color')), '']),
+                 "robot_description":
                     Command([ExecutableInPackage("xacro", "xacro"), " ",
                             PathJoinSubstitution(
-                            [FindPackageShare("nuturtle_description"), 
-                                            "urdf/turtlebot3_burger.urdf.xacro"]),
+                            [FindPackageShare("nuturtle_description"),
+                             "urdf/turtlebot3_burger.urdf.xacro"]),
                             " color:=",
                             LaunchConfiguration('color')
                                             ])},
@@ -63,12 +64,11 @@ def generate_launch_description():
             package="rviz2",
             executable="rviz2",
             name='rviz2',
-            namespace = LaunchConfiguration("color"),
+            namespace=LaunchConfiguration("color"),
             arguments=["-d",
-                       PathJoinSubstitution(
-                      [FindPackageShare("nuturtle_description"),\
-                         LaunchConfiguration("rviz_color")])],
+                       PathJoinSubstitution([FindPackageShare("nuturtle_description"),
+                                             LaunchConfiguration("rviz_color")])],
             condition=LaunchConfigurationEquals("use_rviz", "true"),
-            on_exit = Shutdown()
+            on_exit=Shutdown()
             )
         ])
