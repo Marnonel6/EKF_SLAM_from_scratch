@@ -8,7 +8,7 @@ URDF files for Nuturtle <Name Your Robot>
 # Launch File Details
 * `ros2 launch nuturtle_description load_one.launch.py --show-args`
 
-    Arguments (pass arguments as '<name>:=<value>'):
+    Arguments (pass arguments as `<name>:=<value>`):
 
         'use_jsp':
             Choose if joint_state_publisher needs to be launched. Valid choices are: ['true', 'false']
@@ -24,7 +24,7 @@ URDF files for Nuturtle <Name Your Robot>
     
 * `ros2 launch nuturtle_description load_all.launch.xml --show-args`
 
-    Arguments (pass arguments as '<name>:=<value>'):
+    Arguments (pass arguments as `<name>:=<value>`):
 
         'use_jsp':
             Choose if joint_state_publisher needs to be launched. Valid choices are: ['true', 'false']
