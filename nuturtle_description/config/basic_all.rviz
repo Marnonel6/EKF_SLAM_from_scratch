@@ -6,8 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /RobotModel3
-        - /RobotModel4
       Splitter Ratio: 0.5
     Tree Height: 746
   - Class: rviz_common/Selection
@@ -103,7 +101,7 @@ Visualization Manager:
       Mass Properties:
         Inertia: false
         Mass: false
-      Name: RobotModel
+      Name: BlueRobot
       TF Prefix: blue
       Update Interval: 0
       Value: true
@@ -162,7 +160,7 @@ Visualization Manager:
       Mass Properties:
         Inertia: false
         Mass: false
-      Name: RobotModel
+      Name: GreenRobot
       TF Prefix: green
       Update Interval: 0
       Value: true
@@ -221,7 +219,7 @@ Visualization Manager:
       Mass Properties:
         Inertia: false
         Mass: false
-      Name: RobotModel
+      Name: PurpleRobot
       TF Prefix: purple
       Update Interval: 0
       Value: true
@@ -280,15 +278,135 @@ Visualization Manager:
       Mass Properties:
         Inertia: false
         Mass: false
-      Name: RobotModel
+      Name: RedRobot
       TF Prefix: red
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        blue/base_footprint:
+          Value: false
+        blue/base_link:
+          Value: false
+        blue/base_scan:
+          Value: false
+        blue/caster_back_link:
+          Value: false
+        blue/imu_link:
+          Value: false
+        blue/wheel_left_link:
+          Value: false
+        blue/wheel_right_link:
+          Value: false
+        green/base_footprint:
+          Value: false
+        green/base_link:
+          Value: false
+        green/base_scan:
+          Value: false
+        green/caster_back_link:
+          Value: false
+        green/imu_link:
+          Value: false
+        green/wheel_left_link:
+          Value: false
+        green/wheel_right_link:
+          Value: false
+        nusim/world:
+          Value: true
+        purple/base_footprint:
+          Value: false
+        purple/base_link:
+          Value: false
+        purple/base_scan:
+          Value: false
+        purple/caster_back_link:
+          Value: false
+        purple/imu_link:
+          Value: false
+        purple/wheel_left_link:
+          Value: false
+        purple/wheel_right_link:
+          Value: false
+        red/base_footprint:
+          Value: false
+        red/base_link:
+          Value: false
+        red/base_scan:
+          Value: false
+        red/caster_back_link:
+          Value: false
+        red/imu_link:
+          Value: false
+        red/wheel_left_link:
+          Value: false
+        red/wheel_right_link:
+          Value: false
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: false
+      Tree:
+        nusim/world:
+          blue/base_footprint:
+            blue/base_link:
+              blue/base_scan:
+                {}
+              blue/caster_back_link:
+                {}
+              blue/imu_link:
+                {}
+              blue/wheel_left_link:
+                {}
+              blue/wheel_right_link:
+                {}
+          green/base_footprint:
+            green/base_link:
+              green/base_scan:
+                {}
+              green/caster_back_link:
+                {}
+              green/imu_link:
+                {}
+              green/wheel_left_link:
+                {}
+              green/wheel_right_link:
+                {}
+          purple/base_footprint:
+            purple/base_link:
+              purple/base_scan:
+                {}
+              purple/caster_back_link:
+                {}
+              purple/imu_link:
+                {}
+              purple/wheel_left_link:
+                {}
+              purple/wheel_right_link:
+                {}
+          red/base_footprint:
+            red/base_link:
+              red/base_scan:
+                {}
+              red/caster_back_link:
+                {}
+              red/imu_link:
+                {}
+              red/wheel_left_link:
+                {}
+              red/wheel_right_link:
+                {}
+      Update Interval: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: red/base_link
+    Fixed Frame: nusim/world
     Frame Rate: 30
   Name: root
   Tools:
@@ -331,25 +449,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 1.2933698892593384
+      Distance: 2.1199047565460205
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.05374206230044365
-        Y: -0.006430298089981079
-        Z: 0.08911339938640594
+        X: -0.061192143708467484
+        Y: -0.15381309390068054
+        Z: 0.00010040064807981253
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5403982400894165
+      Pitch: 0.4503984749317169
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.27539828419685364
+      Yaw: 3.6635756492614746
     Saved: ~
 Window Geometry:
   Displays:
@@ -357,7 +475,7 @@ Window Geometry:
   Height: 1043
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000026d00000375fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d00000375000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000375fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003d00000375000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d0065010000000000000780000002fb00fffffffb0000000800540069006d00650100000000000004500000000000000000000003f80000037500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000015600000375fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d00000375000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000375fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000003d00000375000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d0065010000000000000780000002fb00fffffffb0000000800540069006d006501000000000000045000000000000000000000050f0000037500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
