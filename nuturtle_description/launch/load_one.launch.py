@@ -1,6 +1,4 @@
-"""
-Starts all the nodes to visualize a turtlebot3 in rviz
-"""
+"""Starts all the nodes to visualize a turtlebot3 in rviz."""
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
