@@ -26,7 +26,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(name="color",
                               default_value="purple",
-                              choices=['red', 'green', 'blue', 'purple'],
+                              choices=['red', 'green', 'blue', 'purple',''],
                               description="Sets color of the turtlebot3 in the urdf."),
 
         SetLaunchConfiguration(name="rviz_color",

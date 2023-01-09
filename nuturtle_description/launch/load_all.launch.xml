@@ -1,0 +1,30 @@
+<launch>
+  <!-- Launch the Python launch file -->
+  <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
+    <!-- Pass required arguments to the Python launch file -->
+    <arg name="color" value="purple" />
+    <arg name="use_rviz" value="false" />
+  </include>
+
+  <!-- Launch the Python launch file -->
+  <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
+    <!-- Pass required arguments to the Python launch file -->
+    <arg name="color" value="green" />
+    <arg name="use_rviz" value="false" />
+  </include>
+
+  <!-- Launch the Python launch file -->
+  <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
+    <!-- Pass required arguments to the Python launch file -->
+    <arg name="color" value="blue" />
+    <arg name="use_rviz" value="false" />
+  </include>
+
+  <!-- Launch the Python launch file -->
+  <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
+    <!-- Pass required arguments to the Python launch file -->
+    <arg name="color" value="red" />
+    <arg name="use_rviz" value="false" />
+  </include>
+
+</launch>
