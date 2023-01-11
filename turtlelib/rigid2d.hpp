@@ -3,7 +3,6 @@
 /// \file
 /// \brief Two-dimensional rigid body transformations.
 
-
 #include<iosfwd> // contains forward definitions for iostream objects
 
 namespace turtlelib
@@ -22,6 +21,7 @@ namespace turtlelib
     /// if given a compile-time constant as input
     constexpr bool almost_equal(double d1, double d2, double epsilon=1.0e-12)
     {
+        return std::abs(d1 - d2) < epsilon;
     }
 
     /// \brief convert degrees to radians
@@ -29,6 +29,7 @@ namespace turtlelib
     /// \returns radians
     constexpr double deg2rad(double deg)
     {
+        return (deg * PI) / 180;
     }
 
     /// \brief convert radians to degrees
@@ -36,6 +37,7 @@ namespace turtlelib
     /// \returns the angle in degrees
     constexpr double rad2deg(double rad)
     {
+        return (rad * 180) / PI;
     }
 
     /// static_assertions test compile time assumptions.
@@ -59,8 +61,6 @@ namespace turtlelib
         /// \brief the y coordinate
         double y = 0.0;
     };
-
-
 
     /// \brief output a 2 dimensional vector as [xcomponent ycomponent]
     /// os - stream to output to
@@ -87,6 +87,19 @@ namespace turtlelib
     /// When you call std::peek() it will wait for there to be at least one character in the buffer (e.g., the user types a character)
     /// HINT: this function can be written in under 20 lines and uses only std::peek(), std::get(), istream::operator>>() and a little logic
     std::istream & operator>>(std::istream & is, Vector2D & v);
+
+    /// \brief A 2-Dimensional Vector
+    struct Twist2D
+    {
+        /// \brief the w rotation angle
+        double w = 0.0;
+
+        /// \brief the x translation
+        double x = 0.0;
+
+        /// \brief the y translation
+        double y = 0.0;
+    };
 
     /// \brief a rigid body transformation in 2 dimensions
     class Transform2D

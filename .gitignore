@@ -6,3 +6,5 @@ pycache/
 *.so
 
 .vscode
+build/
+rigid2d
