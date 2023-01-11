@@ -1,6 +1,7 @@
 #include <cmath>
 #include"rigid2d.hpp" // contains forward definitions for iostream objects
 
+using namespace turtlelib;
 
 constexpr bool almost_equal(double d1, double d2, double epsilon=1.0e-12)
 {
