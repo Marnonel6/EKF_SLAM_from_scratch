@@ -117,10 +117,11 @@ namespace turtlelib
     /// \brief a rigid body transformation in 2 dimensions
     class Transform2D
     {
-    /// \brief the vector by which to translate in 2D
-    Vector2D tran;
-    /// \brief angle of the rotation, in radians
-    double rot;
+    private:
+        /// \brief the vector by which to translate in 2D
+        Vector2D tran;
+        /// \brief angle of the rotation, in radians
+        double rot;
 
     public:
         /// \brief Create an identity transformation

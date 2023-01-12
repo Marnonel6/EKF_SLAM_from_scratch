@@ -98,5 +98,24 @@ namespace turtlelib
         return trans2D;
     }
 
-    // Transform2D & Transform2D::operator*=(const Transform2D & rhs) : {}
+    Transform2D & Transform2D::operator*=(const Transform2D & rhs)
+    {
+        Transform2D trans2D;
+        trans2D.tran.x = cos(rot)*rhs.tran.x - sin(rot)*rhs.tran.y + tran.x;
+        trans2D.tran.y = sin(rot)*rhs.tran.x + cos(rot)*rhs.tran.y + tran.y;
+        trans2D.rot = -rot+rhs.rot;
+        return *this;
+    }
+
+    Vector2D Transform2D::translation() const
+    {
+        return tran; // TODO WHAT???
+    }
+
+    double Transform2D::rotation() const
+    {
+        return rot; // TODO WHAT???
+    }
+
+    
 }
