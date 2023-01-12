@@ -4,6 +4,7 @@
 /// \brief Two-dimensional rigid body transformations.
 
 #include<iosfwd> // contains forward definitions for iostream objects
+#include<cmath>
 
 namespace turtlelib
 {
@@ -88,22 +89,39 @@ namespace turtlelib
     /// HINT: this function can be written in under 20 lines and uses only std::peek(), std::get(), istream::operator>>() and a little logic
     std::istream & operator>>(std::istream & is, Vector2D & v);
 
-    /// \brief A 2-Dimensional Vector
+    /// \brief A 2-Dimensional Twist
     struct Twist2D
     {
-        /// \brief the w rotation angle
+        /// \brief the w angular velocity
         double w = 0.0;
 
-        /// \brief the x translation
+        /// \brief the x linear velocity
         double x = 0.0;
 
-        /// \brief the y translation
+        /// \brief the y linear velocity
         double y = 0.0;
     };
+
+    /// \brief output a 2 dimensional twist (Twist2D) as [wcomponent xcomponent ycomponent]
+    /// os - stream to output to
+    /// t - the 3 element vector to print
+    std::ostream & operator<<(std::ostream & os, const Twist2D & t);
+
+    /// \brief input a 2 dimensional twist
+    ///   You should be able to read vectors entered as follows:
+    ///   [w x y] or w x y
+    /// \param is - stream from which to read
+    /// \param t [out] - output vector
+    std::istream & operator>>(std::istream & is, Twist2D & t);
 
     /// \brief a rigid body transformation in 2 dimensions
     class Transform2D
     {
+    /// \brief the vector by which to translate in 2D
+    Vector2D tran;
+    /// \brief angle of the rotation, in radians
+    double rot;
+
     public:
         /// \brief Create an identity transformation
         Transform2D();
@@ -119,7 +137,7 @@ namespace turtlelib
         /// \brief Create a transformation with a translational and rotational
         /// component
         /// \param trans - the translation
-        /// \param rot - the rotation, in radians
+        /// \param radians - the rotation, in radians
         Transform2D(Vector2D trans, double radians);
 
         /// \brief apply a transformation to a Vector2D
