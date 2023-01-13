@@ -1,31 +1,32 @@
 #include <cstdio>
 #include <cmath>
 #include <iostream>
-#include "rigid2d.hpp" // contains forward definitions for iostream objects
+#include "rigid2d.hpp"
 
 using turtlelib::Transform2D;
 
-int main()
-{
-    // // When both is input with [] then the twist is printed out as [0 0 0] Why?
-    // turtlelib::Vector2D vec1;
-    // std::cin >> vec1;
-    // std::cout << vec1 << std::endl;
-    //
-    // std::cin.ignore(10000,'\n');
-    //
-    // turtlelib::Twist2D vec2;
-    // std::cin >> vec2;
-    // std::cout << vec2 << std::endl;
 
-    Transform2D T2D;
-    std::cin >> T2D;
-    std::cout << T2D << std::endl;
+// int main()
+// {
+//     // // When both is input with [] then the twist is printed out as [0 0 0] Why?
+//     // turtlelib::Vector2D vec1;
+//     // std::cin >> vec1;
+//     // std::cout << vec1 << std::endl;
+//     //
+//     // std::cin.ignore(10000,'\n');
+//     //
+//     // turtlelib::Twist2D vec2;
+//     // std::cin >> vec2;
+//     // std::cout << vec2 << std::endl;
 
-    printf("Done!\n");
+//     Transform2D T2D;
+//     std::cin >> T2D;
+//     std::cout << T2D << std::endl;
 
-    return 0;
-}
+//     printf("Done!\n");
+
+//     return 0;
+// }
 
 namespace turtlelib
 {
@@ -126,11 +127,31 @@ namespace turtlelib
 
     std::istream & operator>>(std::istream & is, Transform2D & tf)
     {
-        double rot = tf.rotation();
-        Vector2D tran = tf.translation();
-        is >> rot >> tran.x >> tran.y;
+        std::string str, str2, str3;
+        double rot = 0.0;
+        Vector2D tran{0.0,0.0};
+
+        char c = is.peek(); // examine the next character without extracting it
+
+        if (c == 'd')
+        {
+            // remove the 'deg: ' from the stream
+            is >> str; // deg:
+            is >> rot;
+            // remove 'x: ' from the stream
+            is >> str2; // x:
+            is >> tran.x;
+            // remove 'y: ' from the stream
+            is>> str3; // y:
+            is >> tran.y;
+        }
+        else
+        {
+             is >> rot >> tran.x >> tran.y; // Extract values from is buffer
+        }
+
         // Use constructer with values extracted from the is stream
-        tf = Transform2D(tran, rot);
+        tf = Transform2D{tran, rot}; // Use reference to Transform2D objct tf to save input values
         return is;
     }
 

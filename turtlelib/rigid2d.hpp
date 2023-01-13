@@ -146,7 +146,6 @@ namespace turtlelib
         /// \return a vector in the new coordinate system
         Vector2D operator()(Vector2D v) const;
 
-
         /// \brief invert the transformation
         /// \return the inverse transformation. 
         Transform2D inv() const;
@@ -168,6 +167,10 @@ namespace turtlelib
         /// \brief \see operator<<(...) (declared outside this class)
         /// for a description
         friend std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
+
+        /// \brief convert a twist to a different reference frame using the adjoint
+        /// \return the twist in the new reference frame
+        // Adjoint TODO
 
     };
 
@@ -192,8 +195,6 @@ namespace turtlelib
     /// \return the composition of the two transforms
     /// HINT: This function should be implemented in terms of *=
     Transform2D operator*(Transform2D lhs, const Transform2D & rhs);
-
-
 
 }
 
