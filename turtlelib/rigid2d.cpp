@@ -18,6 +18,10 @@ int main()
     // std::cin >> vec2;
     // std::cout << vec2 << std::endl;
 
+    Transform2D T2D;
+    std::cin >> T2D;
+    std::cout << T2D << std::endl;
+
     printf("Done!\n");
 
     return 0;
@@ -33,6 +37,7 @@ namespace turtlelib
     std::istream &operator>>(std::istream &is, Vector2D &v)
     {
         char c = is.peek(); // examine the next character without extracting it
+
         if (c == '[')
         {
             is.get(); // remove the '[' character from the stream
@@ -44,6 +49,7 @@ namespace turtlelib
         {
             is >> v.x >> v.y;
         }
+
         return is;
     }
 
@@ -55,6 +61,7 @@ namespace turtlelib
     std::istream &operator>>(std::istream &is, Twist2D &t)
     {
         char c = is.peek(); // examine the next character without extracting it
+
         if (c == '[')
         {
             is.get(); // remove the '[' character from the stream
@@ -67,7 +74,7 @@ namespace turtlelib
         {
             is >> t.w >> t.x >> t.y;
         }
-        // std::cin.ignore(10000,'\n'); // TODO: How would we ignore two of these 
+
         return is;
     }
 
@@ -81,12 +88,7 @@ namespace turtlelib
 
     Vector2D Transform2D::operator()(Vector2D v) const
     {
-        Vector2D vec;
-        vec.x = cos(rot)*v.x - sin(rot)*v.y + tran.x;
-        vec.y = sin(rot)*v.x + cos(rot)*v.y + tran.y;
-        return vec;
-        // TODO: Which one is better
-        // return Vector2D{cos(rot)*v.x - sin(rot)*v.y + tran.x, sin(rot)*v.x + cos(rot)*v.y + tran.y};
+        return Vector2D{cos(rot)*v.x - sin(rot)*v.y + tran.x, sin(rot)*v.x + cos(rot)*v.y + tran.y};
     }
 
     Transform2D Transform2D::inv() const
@@ -109,13 +111,32 @@ namespace turtlelib
 
     Vector2D Transform2D::translation() const
     {
-        return tran; // TODO WHAT???
+        return tran;
     }
 
     double Transform2D::rotation() const
     {
-        return rot; // TODO WHAT???
+        return rot;
     }
 
-    
+    std::ostream & operator<<(std::ostream & os, const Transform2D & tf)
+    {
+        return os << "deg: " << tf.rot << " " << "x: " << tf.tran.x << " " << "y: " << tf.tran.y;
+    }
+
+    std::istream & operator>>(std::istream & is, Transform2D & tf)
+    {
+        double rot = tf.rotation();
+        Vector2D tran = tf.translation();
+        is >> rot >> tran.x >> tran.y;
+        // Use constructer with values extracted from the is stream
+        tf = Transform2D(tran, rot);
+        return is;
+    }
+
+    Transform2D operator*(Transform2D lhs, const Transform2D & rhs)
+    {
+        Transform2D temp = lhs; // Create temp variable as not to change lhs
+        return temp*=rhs; // Multiply the temp with rhs and return
+    }
 }
