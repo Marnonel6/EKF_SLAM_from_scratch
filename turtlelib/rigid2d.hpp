@@ -169,8 +169,9 @@ namespace turtlelib
         friend std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
 
         /// \brief convert a twist to a different reference frame using the adjoint
+        /// \param t - the twist to transform
         /// \return the twist in the new reference frame
-        // Adjoint TODO
+        Twist2D operator()(Twist2D t) const;
 
     };
 
@@ -195,6 +196,11 @@ namespace turtlelib
     /// \return the composition of the two transforms
     /// HINT: This function should be implemented in terms of *=
     Transform2D operator*(Transform2D lhs, const Transform2D & rhs);
+
+    /// \brief normalize a vector in 2D
+    /// \param v - the vector to normalize
+    /// \return the normalized/unit vector
+    Vector2D normalize(Vector2D v);
 
 }
 

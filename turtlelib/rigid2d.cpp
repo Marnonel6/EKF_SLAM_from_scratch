@@ -13,7 +13,7 @@ using turtlelib::Transform2D;
 //     // std::cin >> vec1;
 //     // std::cout << vec1 << std::endl;
 //     //
-//     // std::cin.ignore(10000,'\n');
+//     // std::cin.ignore(100,'\n');
 //     //
 //     // turtlelib::Twist2D vec2;
 //     // std::cin >> vec2;
@@ -51,6 +51,7 @@ namespace turtlelib
             is >> v.x >> v.y;
         }
 
+        std::cin.ignore(1000,'\n');
         return is;
     }
 
@@ -75,6 +76,7 @@ namespace turtlelib
         {
             is >> t.w >> t.x >> t.y;
         }
+        std::cin.ignore(1000,'\n');
 
         return is;
     }
@@ -152,12 +154,29 @@ namespace turtlelib
 
         // Use constructer with values extracted from the is stream
         tf = Transform2D{tran, rot}; // Use reference to Transform2D objct tf to save input values
+        std::cin.ignore(1000,'\n');
+
         return is;
     }
 
     Transform2D operator*(Transform2D lhs, const Transform2D & rhs)
     {
-        Transform2D temp = lhs; // Create temp variable as not to change lhs
-        return temp*=rhs; // Multiply the temp with rhs and return
+        return lhs*=rhs; // Multiply the temp with rhs and return
     }
+
+    Twist2D Transform2D::operator()(Twist2D t) const
+    {
+        Twist2D newTwist;
+        newTwist.w = t.w;
+        newTwist.x = t.w*tran.y + t.x*cos(rot) - t.y*sin(rot);
+        newTwist.y = t.w*tran.x + t.x*sin(rot) - t.y*cos(rot);
+        return newTwist;
+    }
+
+    Vector2D normalize(Vector2D v)
+    {
+        double length = sqrt(v.x * v.x + v.y * v.y);
+        return Vector2D{v.x/length, v.y/length};
+    }
+
 }
