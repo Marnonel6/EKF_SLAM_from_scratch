@@ -51,7 +51,7 @@ namespace turtlelib
             is >> v.x >> v.y;
         }
 
-        std::cin.ignore(100,'\n');
+        is.ignore(100,'\n');
         return is;
     }
 
@@ -76,7 +76,7 @@ namespace turtlelib
         {
             is >> t.w >> t.x >> t.y;
         }
-        std::cin.ignore(100,'\n');
+        is.ignore(100,'\n');
 
         return is;
     }
@@ -150,7 +150,7 @@ namespace turtlelib
         {
              is >> rot >> tran.x >> tran.y; // Extract values from is buffer
         }
-        std::cin.ignore(100,'\n');
+        is.ignore(100,'\n');
         // Chaneg deg input to radians for calculations
         rot = deg2rad(rot);
         // Use constructer with values extracted from the is stream

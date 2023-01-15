@@ -13,6 +13,7 @@ using turtlelib::Transform2D;
 using turtlelib::Vector2D;
 using turtlelib::Twist2D;
 using turtlelib::almost_equal;
+using turtlelib::deg2rad;
 using turtlelib::PI;
 
 
@@ -82,12 +83,28 @@ TEST_CASE("stream insertion operator <<", "[transform]") // Adapted from Ava, Za
    REQUIRE(sstr.str() == str);
 }
 
+TEST_CASE("stream extraction operator >>", "[transform]") // Adapted from Ava, Zahedi
+{
+   Transform2D tf = Transform2D();
+   std::stringstream sstr;
+   sstr << "deg: 90 x: 1 y: 3.4";
+   sstr >> tf;
+   REQUIRE(almost_equal(tf.rotation(), deg2rad(90), 0.00001));
+   REQUIRE(almost_equal(tf.translation().x, 1.0, 0.00001));
+   REQUIRE(almost_equal(tf.translation().y, 3.4, 0.00001));
+}
+
 TEST_CASE("operator *=", "[transform]") // Adapted from Megan, Sindelar
 {
-   Transform2D T_ab = {{1,2}, 0.0};
-   Transform2D T_bc = {{3,4}, PI/2.0};
-   Transform2D T_ac = T_ab*T_bc;
-   REQUIRE(T_ac.translation().x == 4.0);
-   REQUIRE(T_ac.translation().y == 6.0);
-   REQUIRE(T_ac.rotation() == (PI/2));
+   Vector2D trans_ab = {1,2};
+   double rotate_ab = 0;
+   Transform2D T_ab_1 = {trans_ab, rotate_ab};      //T_ab's are all the same,
+   Transform2D T_ab_2 = {trans_ab, rotate_ab};      //but, need different vars
+   Transform2D T_ab_3 = {trans_ab, rotate_ab};      //b/c getting overwritten otherwise
+   Vector2D trans_bc = {3,4};
+   double rotate_bc = PI/2.0;
+   Transform2D T_bc = {trans_bc, rotate_bc};
+   REQUIRE((T_ab_1*=T_bc).translation().x == 4.0);
+   REQUIRE((T_ab_2*=T_bc).translation().y == 6.0);
+   REQUIRE((T_ab_3*=T_bc).rotation() == (PI/2.0));
 }
