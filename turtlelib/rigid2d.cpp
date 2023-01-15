@@ -51,7 +51,7 @@ namespace turtlelib
             is >> v.x >> v.y;
         }
 
-        std::cin.ignore(1000,'\n');
+        std::cin.ignore(100,'\n');
         return is;
     }
 
@@ -76,7 +76,7 @@ namespace turtlelib
         {
             is >> t.w >> t.x >> t.y;
         }
-        std::cin.ignore(1000,'\n');
+        std::cin.ignore(100,'\n');
 
         return is;
     }
@@ -105,10 +105,9 @@ namespace turtlelib
 
     Transform2D & Transform2D::operator*=(const Transform2D & rhs)
     {
-        Transform2D trans2D;
-        trans2D.tran.x = cos(rot)*rhs.tran.x - sin(rot)*rhs.tran.y + tran.x;
-        trans2D.tran.y = sin(rot)*rhs.tran.x + cos(rot)*rhs.tran.y + tran.y;
-        trans2D.rot = -rot+rhs.rot;
+        tran.x = cos(rot)*rhs.tran.x - sin(rot)*rhs.tran.y + tran.x;
+        tran.y = sin(rot)*rhs.tran.x + cos(rot)*rhs.tran.y + tran.y;
+        rot = rot+rhs.rot;
         return *this;
     }
 
@@ -124,7 +123,7 @@ namespace turtlelib
 
     std::ostream & operator<<(std::ostream & os, const Transform2D & tf)
     {
-        return os << "deg: " << tf.rot << " " << "x: " << tf.tran.x << " " << "y: " << tf.tran.y;
+        return os << "deg: " << rad2deg(tf.rot) << " " << "x: " << tf.tran.x << " " << "y: " << tf.tran.y;
     }
 
     std::istream & operator>>(std::istream & is, Transform2D & tf)
@@ -151,17 +150,19 @@ namespace turtlelib
         {
              is >> rot >> tran.x >> tran.y; // Extract values from is buffer
         }
-
+        std::cin.ignore(100,'\n');
+        // Chaneg deg input to radians for calculations
+        rot = deg2rad(rot);
         // Use constructer with values extracted from the is stream
         tf = Transform2D{tran, rot}; // Use reference to Transform2D objct tf to save input values
-        std::cin.ignore(1000,'\n');
+
 
         return is;
     }
 
     Transform2D operator*(Transform2D lhs, const Transform2D & rhs)
     {
-        return lhs*=rhs; // Multiply the temp with rhs and return
+        return lhs*=rhs;
     }
 
     Twist2D Transform2D::operator()(Twist2D t) const
