@@ -1,5 +1,3 @@
-// #include <cstdio>
-// #include <cmath>
 #include <iostream>
 #include "turtlelib/rigid2d.hpp"
 

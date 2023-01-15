@@ -6,28 +6,6 @@
 using turtlelib::Transform2D;
 
 
-// int main()
-// {
-//     // // When both is input with [] then the twist is printed out as [0 0 0] Why?
-//     // turtlelib::Vector2D vec1;
-//     // std::cin >> vec1;
-//     // std::cout << vec1 << std::endl;
-//     //
-//     // std::cin.ignore(100,'\n');
-//     //
-//     // turtlelib::Twist2D vec2;
-//     // std::cin >> vec2;
-//     // std::cout << vec2 << std::endl;
-
-//     Transform2D T2D;
-//     std::cin >> T2D;
-//     std::cout << T2D << std::endl;
-
-//     printf("Done!\n");
-
-//     return 0;
-// }
-
 namespace turtlelib
 {
     std::ostream &operator<<(std::ostream &os, const Vector2D &v)
