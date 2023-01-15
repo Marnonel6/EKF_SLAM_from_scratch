@@ -74,7 +74,7 @@ namespace turtlelib
     /// \param is - stream from which to read
     /// \param v [out] - output vector
     ///
-    /// The way input works is (more or less): what the user types is stored in a buffer until the user types
+    /// ThVector2De way input works is (more or less): what the user types is stored in a buffer until the user types
     /// a newline (by pressing enter).  The iostream methods then process the data in this buffer character by character.
     /// Typically, each character is examined and then removed from the buffer automatically.
     /// If the characters don't match what is expected (e.g., we are expecting an int but the letter 'q' is encountered)
