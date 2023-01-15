@@ -170,7 +170,7 @@ namespace turtlelib
         Twist2D newTwist;
         newTwist.w = t.w;
         newTwist.x = t.w*tran.y + t.x*cos(rot) - t.y*sin(rot);
-        newTwist.y = t.w*tran.x + t.x*sin(rot) - t.y*cos(rot);
+        newTwist.y = -t.w*tran.x + t.x*sin(rot) + t.y*cos(rot);
         return newTwist;
     }
 
