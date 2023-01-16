@@ -85,7 +85,7 @@ namespace turtlelib
     {
         tran.x = cos(rot)*rhs.tran.x - sin(rot)*rhs.tran.y + tran.x;
         tran.y = sin(rot)*rhs.tran.x + cos(rot)*rhs.tran.y + tran.y;
-        rot = rot+rhs.rot; // TODO CHANGE MATH ASK OUB
+        rot = rot+rhs.rot; // TODO CHANGE MATH ASK OUB - ADD ANGLE WRAPPING??? MATT
         return *this;
     }
 
