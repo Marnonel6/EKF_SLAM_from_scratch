@@ -1,0 +1,21 @@
+Enter transform T_{a,b}:
+180 0 5
+Enter transform T_{b,c}:
+60 3 2
+T_{a, b}: deg: 180 x: 0 y: 5
+T_{b, a}: deg: -180 x: -6.12323e-16 y: 5
+T_{b, c}: deg: 60 x: 3 y: 2
+T_{c, b}: deg: -60 x: -3.23205 y: 1.59808
+T_{a, c}: deg: 240 x: -3 y: 3
+T_{c, a}: deg: -240 x: 1.09808 y: 4.09808
+Enter vector v_b:
+2 5
+v_bhat [0.371391 0.928477]
+v_a [-2 0]
+v_b [2 5]
+v_c [2.09808 2.36603]
+Enter twist V_b:
+1 2 3
+V_a [1 3 -3]
+V_b [1 2 3]
+V_c [1 5.19615 3]
