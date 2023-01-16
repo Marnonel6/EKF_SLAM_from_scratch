@@ -89,22 +89,22 @@ TEST_CASE("stream extraction operator >>", "[transform]") // Adapted from Ava, Z
    std::stringstream sstr;
    sstr << "deg: 90 x: 1 y: 3.4";
    sstr >> tf;
-   REQUIRE(almost_equal(tf.rotation(), deg2rad(90), 0.00001));
-   REQUIRE(almost_equal(tf.translation().x, 1.0, 0.00001));
-   REQUIRE(almost_equal(tf.translation().y, 3.4, 0.00001));
+   REQUIRE(almost_equal(tf.rotation(), deg2rad(90)));
+   REQUIRE(almost_equal(tf.translation().x, 1.0));
+   REQUIRE(almost_equal(tf.translation().y, 3.4));
 }
 
 TEST_CASE("operator *=", "[transform]") // Adapted from Megan, Sindelar
 {
-   Vector2D trans_ab = {1,2};
-   double rotate_ab = 0;
-   Transform2D T_ab_1 = {trans_ab, rotate_ab};      //T_ab's are all the same,
-   Transform2D T_ab_2 = {trans_ab, rotate_ab};      //but, need different vars
-   Transform2D T_ab_3 = {trans_ab, rotate_ab};      //b/c getting overwritten otherwise
-   Vector2D trans_bc = {3,4};
+   Vector2D trans_ab = {1.0, 2.0};
+   double rotate_ab = 0.0;
+   Transform2D T_ab_1 = {trans_ab, rotate_ab}; //T_ab's are all the same,
+   Transform2D T_ab_2 = {trans_ab, rotate_ab}; //but, need different vars
+   Transform2D T_ab_3 = {trans_ab, rotate_ab}; //b/c getting overwritten otherwise
+   Vector2D trans_bc = {3.0, 4.0};
    double rotate_bc = PI/2.0;
    Transform2D T_bc = {trans_bc, rotate_bc};
-   REQUIRE((T_ab_1*=T_bc).translation().x == 4.0);
-   REQUIRE((T_ab_2*=T_bc).translation().y == 6.0);
-   REQUIRE((T_ab_3*=T_bc).rotation() == (PI/2.0));
+   REQUIRE(almost_equal((T_ab_1*=T_bc).translation().x, 4.0));
+   REQUIRE(almost_equal((T_ab_2*=T_bc).translation().y, 6.0));
+   REQUIRE(almost_equal((T_ab_3*=T_bc).rotation(), PI/2.0));
 }
