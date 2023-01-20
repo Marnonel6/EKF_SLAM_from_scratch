@@ -143,6 +143,14 @@ class Nusim : public rclcpp::Node
                                                                  float obstacles_r,
                                                                  float obstacles_h)
     {
+
+      if (obstacles_x.size()!=obstacles_y.size())
+      {
+        int err = true;
+        RCLCPP_ERROR(this->get_logger(), "x and y coordinate lists are not the same lenght!");
+        throw err;
+      }
+
       // Create array for obstacles
       visualization_msgs::msg::MarkerArray obstacles_array;
 
@@ -188,7 +196,14 @@ class Nusim : public rclcpp::Node
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<Nusim>());
+  try
+  {
+    rclcpp::spin(std::make_shared<Nusim>());
+  }
+  catch(int err)
+  {
+    RCLCPP_ERROR(std::make_shared<Nusim>()->get_logger(), "x and y coordinate lists are not the same lenght!");
+  }
   rclcpp::shutdown();
   return 0;
 }
