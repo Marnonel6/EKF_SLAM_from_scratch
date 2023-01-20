@@ -11,6 +11,7 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "nusim/srv/teleport.hpp"
+#include "visualization_msgs/msg/marker.hpp"
 
 // #include "nusim/srv/Empty.srv"
 
@@ -30,8 +31,8 @@ class Nusim : public rclcpp::Node
       declare_parameter("x0", 0.0);
       declare_parameter("y0", 0.0);
       declare_parameter("theta0", 0.0);
-      declare_parameter("obstacles.x", 0.0);
-      declare_parameter("obstacles.y", 0.0);
+      declare_parameter("obstacles.x", std::vector<double>{});
+      declare_parameter("obstacles.y", std::vector<double>{});
       declare_parameter("obstacles.r", 0.0);
       declare_parameter("obstacles.h", 0.0);
       // Get params - Read params from yaml file that is passed in the launch file
@@ -39,6 +40,10 @@ class Nusim : public rclcpp::Node
       x0 = get_parameter("x0").get_parameter_value().get<float>();
       y0 = get_parameter("y0").get_parameter_value().get<float>();
       theta0 = get_parameter("theta0").get_parameter_value().get<float>();
+      obstacles_x = get_parameter("obstacles.x").get_parameter_value().get<std::vector<double>>();
+      obstacles_y = get_parameter("obstacles.y").get_parameter_value().get<std::vector<double>>();
+      obstacles_r = get_parameter("obstacles.r").get_parameter_value().get<float>();
+      obstacles_h = get_parameter("obstacles.h").get_parameter_value().get<float>();
       // Current robot pose
       x = x0;
       y = y0;
@@ -70,6 +75,10 @@ class Nusim : public rclcpp::Node
     float x0 = 0;
     float y0 = 0;
     float theta0 = 0;
+    float obstacles_r;
+    float obstacles_h;
+    std::vector<double> obstacles_x;
+    std::vector<double> obstacles_y;
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
