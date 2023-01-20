@@ -26,22 +26,23 @@ class Nusim : public rclcpp::Node
     {
       // Parameters
       declare_parameter("rate", 200); // Hz for timer_callback
-      // // Initial pose
-      // declare_parameter("x0", 0.0);
-      // declare_parameter("y0", 0.0);
-      // declare_parameter("theta0", 0.0);
-      // // Current pose
-      // declare_parameter("x", 0.0);
-      // declare_parameter("y", 0.0);
-      // declare_parameter("theta", 0.0);
-      // Get params
+      // Initial pose - Set default as 0
+      declare_parameter("x0", 0.0);
+      declare_parameter("y0", 0.0);
+      declare_parameter("theta0", 0.0);
+      declare_parameter("obstacles.x", 0.0);
+      declare_parameter("obstacles.y", 0.0);
+      declare_parameter("obstacles.r", 0.0);
+      declare_parameter("obstacles.h", 0.0);
+      // Get params - Read params from yaml file that is passed in the launch file
       int rate = get_parameter("rate").get_parameter_value().get<int>();
-      // double x0 = get_parameter("x0").get_parameter_value().get<double>();
-      // double y0 = get_parameter("y0").get_parameter_value().get<double>();
-      // double theta0 = get_parameter("theta0").get_parameter_value().get<double>();
-      // double x = get_parameter("x").get_parameter_value().get<double>();
-      // double y = get_parameter("y").get_parameter_value().get<double>();
-      // double theta = get_parameter("theta").get_parameter_value().get<double>();
+      x0 = get_parameter("x0").get_parameter_value().get<float>();
+      y0 = get_parameter("y0").get_parameter_value().get<float>();
+      theta0 = get_parameter("theta0").get_parameter_value().get<float>();
+      // Current robot pose
+      x = x0;
+      y = y0;
+      theta = theta0;
 
       // Publisher
       publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);

@@ -8,7 +8,9 @@
   </include>
 
   <!-- Simulation node -->
-  <node pkg="nusim" exec="nusim" name="nusim"/>
+  <node pkg="nusim" exec="nusim" name="nusim">
+    <param from="$(find-pkg-share nusim)/config/basic_world.yaml"/>
+  </node>
 
   <!-- Declare the RViz node -->
   <!-- Load the config file -->
