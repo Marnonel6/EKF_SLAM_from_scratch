@@ -26,21 +26,22 @@ class Nusim : public rclcpp::Node
     {
       // Parameters
       declare_parameter("rate", 200); // Hz for timer_callback
-      // Initial pose
-      declare_parameter("x0", 0.0);
-      declare_parameter("y0", 0.0);
-      declare_parameter("theta0", 0.0);
-      // Current pose
-      declare_parameter("x", 0.0);
-      declare_parameter("y", 0.0);
-      declare_parameter("theta", 0.0);
+      // // Initial pose
+      // declare_parameter("x0", 0.0);
+      // declare_parameter("y0", 0.0);
+      // declare_parameter("theta0", 0.0);
+      // // Current pose
+      // declare_parameter("x", 0.0);
+      // declare_parameter("y", 0.0);
+      // declare_parameter("theta", 0.0);
+      // Get params
       int rate = get_parameter("rate").get_parameter_value().get<int>();
-      double x0 = get_parameter("x0").get_parameter_value().get<double>();
-      double y0 = get_parameter("y0").get_parameter_value().get<double>();
-      double theta0 = get_parameter("theta0").get_parameter_value().get<double>();
-      double x = get_parameter("x").get_parameter_value().get<double>();
-      double y = get_parameter("y").get_parameter_value().get<double>();
-      double theta = get_parameter("theta").get_parameter_value().get<double>();
+      // double x0 = get_parameter("x0").get_parameter_value().get<double>();
+      // double y0 = get_parameter("y0").get_parameter_value().get<double>();
+      // double theta0 = get_parameter("theta0").get_parameter_value().get<double>();
+      // double x = get_parameter("x").get_parameter_value().get<double>();
+      // double y = get_parameter("y").get_parameter_value().get<double>();
+      // double theta = get_parameter("theta").get_parameter_value().get<double>();
 
       // Publisher
       publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
@@ -64,7 +65,7 @@ class Nusim : public rclcpp::Node
     // Variables
     size_t timestep_;
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-    float x, y, theta;
+    float x, y, theta; // Theta in radians, x & y in meters.
     float x0 = 0;
     float y0 = 0;
     float theta0 = 0;
@@ -85,7 +86,7 @@ class Nusim : public rclcpp::Node
     }
 
     // teleport service callback
-    void teleport_callback(nusim::srv::Teleport::Request::SharedPtr request, nusim::srv::Teleport::Response::SharedPtr response)
+    void teleport_callback(nusim::srv::Teleport::Request::SharedPtr request, nusim::srv::Teleport::Response::SharedPtr)
     {
       x = request->x;
       y = request->y;
@@ -106,13 +107,13 @@ class Nusim : public rclcpp::Node
       // coordinates from the message and set the z coordinate to 0
       t.transform.translation.x = x;
       t.transform.translation.y = y;
-      t.transform.translation.z = theta;
+      t.transform.translation.z = 0.0;
 
       // For the same reason, turtle can only rotate around one axis
       // and this why we set rotation in x and y to 0 and obtain
       // rotation in z axis from the message
       tf2::Quaternion q;
-      q.setRPY(0, 0, 0); // Last one should be theta
+      q.setRPY(0, 0, theta);
       t.transform.rotation.x = q.x();
       t.transform.rotation.y = q.y();
       t.transform.rotation.z = q.z();
