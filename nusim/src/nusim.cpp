@@ -11,9 +11,8 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "nusim/srv/teleport.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 #include "visualization_msgs/msg/marker.hpp"
-
-// #include "nusim/srv/Empty.srv"
 
 using namespace std::chrono_literals;
 
@@ -49,8 +48,12 @@ class Nusim : public rclcpp::Node
       y = y0;
       theta = theta0;
 
+      // Create obstacles
+      obstacles_ = create_obstacles_array(obstacles_x, obstacles_y, obstacles_r, obstacles_h);
+
       // Publisher
-      publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
+      timestep_publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
+      obstacles_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>("~/obstacles", 10);
 
       // Reset service
       reset_server_ = create_service<std_srvs::srv::Empty>("~/reset",
@@ -79,10 +82,12 @@ class Nusim : public rclcpp::Node
     float obstacles_h;
     std::vector<double> obstacles_x;
     std::vector<double> obstacles_y;
+    visualization_msgs::msg::MarkerArray obstacles_;
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr publisher_;
+    rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
     rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_server_;
     rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_server_;
 
@@ -133,12 +138,49 @@ class Nusim : public rclcpp::Node
       tf_broadcaster_->sendTransform(t);
     }
 
+     visualization_msgs::msg::MarkerArray create_obstacles_array(std::vector<double> obstacles_x,
+                                                                 std::vector<double> obstacles_y,
+                                                                 float obstacles_r,
+                                                                 float obstacles_h)
+    {
+      // Create array for obstacles
+      visualization_msgs::msg::MarkerArray obstacles_array;
+
+      for (int i = 0; i<(int)obstacles_x.size(); i++)
+      {
+        visualization_msgs::msg::Marker obstacle;
+        obstacle.header.frame_id = "nusim/world";
+        obstacle.header.stamp = this->get_clock()->now();
+        obstacle.id = i;
+        obstacle.type = visualization_msgs::msg::Marker::CYLINDER;
+        obstacle.action = visualization_msgs::msg::Marker::ADD;
+        obstacle.pose.position.x = obstacles_x[i];
+        obstacle.pose.position.y = obstacles_y[i];
+        obstacle.pose.position.z = obstacles_h/2.0;
+        obstacle.pose.orientation.x = 0.0;
+        obstacle.pose.orientation.y = 0.0;
+        obstacle.pose.orientation.z = 0.0;
+        obstacle.pose.orientation.w = 1.0;
+        obstacle.scale.x = obstacles_r*2.0;
+        obstacle.scale.y = obstacles_r*2.0;
+        obstacle.scale.z = obstacles_h;
+        obstacle.color.r = 0.3058f;
+        obstacle.color.g = 0.1647f;
+        obstacle.color.b = 0.5176f;
+        obstacle.color.a = 1.0;
+        obstacles_array.markers.push_back(obstacle);
+      }
+
+      return obstacles_array;
+    }
+
     void timer_callback()
     {
       auto message = std_msgs::msg::UInt64();
       message.data = timestep_++;
-      RCLCPP_INFO_STREAM(get_logger(), "Publishing:  " << message.data);
-      publisher_->publish(message);
+      // LEAVE - RCLCPP_INFO_STREAM(get_logger(), "Publishing:  " << message.data);
+      timestep_publisher_->publish(message);
+      obstacles_publisher_->publish(obstacles_);
       broadcast_red_turtle();
     }
 };
