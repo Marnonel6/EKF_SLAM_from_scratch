@@ -1,5 +1,17 @@
 <launch>
 
+  <!-- Launch the Python launch file -->
+  <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
+    <!-- Pass required arguments to the Python launch file -->
+    <arg name="color" value="red" />
+    <arg name="use_rviz" value="false" />
+  </include>
+
+  <!-- Simulation node -->
   <node pkg="nusim" exec="nusim" name="nusim"/>
+
+  <!-- Declare the RViz node -->
+  <!-- Load the config file -->
+  <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share nusim)/config/nusim.rviz"/>
 
 </launch>
