@@ -12,6 +12,9 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -26,7 +29,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(nusim src/nusim.cpp)
-ament_target_dependencies(nusim rclcpp std_msgs)
+ament_target_dependencies(nusim rclcpp std_msgs std_srvs)
 
 install(TARGETS
   nusim
@@ -35,7 +38,13 @@ install(TARGETS
 # Install launch files.
 install(DIRECTORY
   launch
+  srv
   DESTINATION share/${PROJECT_NAME}/
 )
+
+# rosidl_generate_interfaces(${PROJECT_NAME}_srv
+#   "srv/Empty.srv"
+#   LIBRARY_NAME ${PROJECT_NAME}
+# )
 
 ament_package()
