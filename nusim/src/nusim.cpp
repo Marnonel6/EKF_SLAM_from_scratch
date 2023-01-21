@@ -16,24 +16,38 @@
 
 using namespace std::chrono_literals;
 
-/* This example creates a subclass of Node and uses std::bind() to register a
-* member function as a callback from the timer. */
-
 class Nusim : public rclcpp::Node
 {
   public:
     Nusim(): Node("Nusim"), timestep_(0)
     {
-      // Parameters
-      declare_parameter("rate", 200); // Hz for timer_callback
-      // Initial pose - Set default as 0
-      declare_parameter("x0", 0.0);
-      declare_parameter("y0", 0.0);
-      declare_parameter("theta0", 0.0);
-      declare_parameter("obstacles.x", std::vector<double>{});
-      declare_parameter("obstacles.y", std::vector<double>{});
-      declare_parameter("obstacles.r", 0.0);
-      declare_parameter("obstacles.h", 0.0);
+      // Parameter descirption
+      auto rate_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto x0_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto y0_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto theta0_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto obstacles_x_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto obstacles_y_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto obstacles_r_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto obstacles_h_des = rcl_interfaces::msg::ParameterDescriptor{};
+      rate_des.description = "Timer callback frequency [Hz]";
+      x0_des.description = "Initial x coordinate of the robot [m]";
+      y0_des.description = "Initial y coordinate of the robot [m]";
+      theta0_des.description = "Initial theta angle of the robot [radians]";
+      obstacles_x_des.description = "Vector of x coordinates for each obstacle [m]";
+      obstacles_y_des.description = "Vector of y coordinates for each obstacle [m]";
+      obstacles_r_des.description = "Radius of cylindrical obstacles [m]";
+      obstacles_h_des.description = "Height of cylindrical obstacles [m]";
+
+      // Declare default parameters values
+      declare_parameter("rate", 200, rate_des); // Hz for timer_callback
+      declare_parameter("x0", 0.0, x0_des);
+      declare_parameter("y0", 0.0, y0_des);
+      declare_parameter("theta0", 0.0,theta0_des);
+      declare_parameter("obstacles.x", std::vector<double>{}, obstacles_x_des);
+      declare_parameter("obstacles.y", std::vector<double>{}, obstacles_y_des);
+      declare_parameter("obstacles.r", 0.0, obstacles_r_des);
+      declare_parameter("obstacles.h", 0.0, obstacles_h_des);
       // Get params - Read params from yaml file that is passed in the launch file
       int rate = get_parameter("rate").get_parameter_value().get<int>();
       x0 = get_parameter("x0").get_parameter_value().get<float>();
@@ -43,7 +57,8 @@ class Nusim : public rclcpp::Node
       obstacles_y = get_parameter("obstacles.y").get_parameter_value().get<std::vector<double>>();
       obstacles_r = get_parameter("obstacles.r").get_parameter_value().get<float>();
       obstacles_h = get_parameter("obstacles.h").get_parameter_value().get<float>();
-      // Current robot pose
+
+      // Set current robot pose equal to initial pose
       x = x0;
       y = y0;
       theta = theta0;
