@@ -7,7 +7,7 @@
     <arg name="use_rviz" value="false" />
   </include>
 
-  <!-- Simulation node -->
+  <!-- Main simulation node -->
   <node pkg="nusim" exec="nusim" name="nusim">
     <param from="$(find-pkg-share nusim)/config/basic_world.yaml"/>
   </node>

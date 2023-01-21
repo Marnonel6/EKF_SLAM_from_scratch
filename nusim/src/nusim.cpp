@@ -227,9 +227,9 @@ class Nusim : public rclcpp::Node
         obstacle_.scale.x = obstacles_r_*2.0; // Diameter in x
         obstacle_.scale.y = obstacles_r_*2.0; // Diameter in y
         obstacle_.scale.z = obstacles_h_;     // Height
-        obstacle_.color.r = 0.3058f;
-        obstacle_.color.g = 0.1647f;
-        obstacle_.color.b = 0.5176f;
+        obstacle_.color.r = 1.0f;
+        obstacle_.color.g = 0.0f;
+        obstacle_.color.b = 0.0f;
         obstacle_.color.a = 1.0;
         obstacles_.markers.push_back(obstacle_);
       }
