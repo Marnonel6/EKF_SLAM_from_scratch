@@ -19,6 +19,11 @@ find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
+# CMake also has the ability to generate doxygen documentation
+find_package(Doxygen)
+set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md) # Use the readme in your doxygen docs
+doxygen_add_docs(doxygen include/ src/ README.md ALL)
+
 rosidl_generate_interfaces(${PROJECT_NAME}_srv
   "srv/Teleport.srv"
   LIBRARY_NAME ${PROJECT_NAME}
