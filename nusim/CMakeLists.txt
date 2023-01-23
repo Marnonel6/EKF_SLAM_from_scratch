@@ -50,7 +50,7 @@ target_link_libraries(nusim "${cpp_typesupport_target}")
 install(TARGETS
   nusim
   DESTINATION lib/${PROJECT_NAME}
-  )
+)
 
 # Install launch files.
 install(DIRECTORY

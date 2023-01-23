@@ -35,4 +35,3 @@ loop runs at a fixed frequency until termination.
 # Example
 
 ![nusim1](https://user-images.githubusercontent.com/60977336/213889349-1d9f9921-aff3-4881-8608-860486bf1bc1.png)
-
