@@ -10,7 +10,7 @@ A library for handling transformations in SE(2) and other turtlebot-related math
    - Propose three different designs for implementing the ~normalize~ functionality:
         * Method 1: Create a member function called normalize that will take no arguments and modifies the Vector2D object it is called on. This method will use the magnitude of the Vector2D to divide each component of the Vector2D by it.
         * Method 2: Create a free function called normalize that takes a Vector2D object as an argument and returns a new Vector2D object that is the normalized version of the input Vector2D.
-        * Method 3: Create a member function called unit_vector that will take no arguments and returns a new Vector2D object that is the unit vector of the Vector2D object it is called on.
+        * Method 3: Create a member function called normalize that will take no arguments and returns a new Vector2D object that is the unit vector of the Vector2D object it is called on.
 
    - Discuss the pros and cons of each proposed method, in light of the C++ Core Guidelines.
         * Method 1 has the advantage of being simple to use, since it modifies the object directly.
