@@ -202,6 +202,11 @@ namespace turtlelib
     /// \return the normalized/unit vector
     Vector2D normalize(Vector2D v);
 
+    /// \brief normalize an angle in 2D - Angle wrapping (-pi,pi]
+    /// \param rad - the angle to normalize
+    /// \return the normalized angle between (-pi,pi]
+    double normalize_angle(double rad);
+
 }
 
 #endif

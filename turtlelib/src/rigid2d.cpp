@@ -85,7 +85,8 @@ namespace turtlelib
     {
         tran.x = cos(rot)*rhs.tran.x - sin(rot)*rhs.tran.y + tran.x;
         tran.y = sin(rot)*rhs.tran.x + cos(rot)*rhs.tran.y + tran.y;
-        rot = fmod(rot+rhs.rot, 2*PI); // ANGLE WRAPPING??? MATT - Modulas operand
+        // rot = fmod(rot+rhs.rot, 2*PI); // ANGLE WRAPPING??? MATT - Modulas operand
+        rot = rot+rhs.rot;
         return *this;
     }
 
@@ -129,11 +130,10 @@ namespace turtlelib
              is >> rot >> tran.x >> tran.y; // Extract values from is buffer
         }
         is.ignore(100,'\n');
-        // Chaneg deg input to radians for calculations
+        // Change deg input to radians for calculations
         rot = deg2rad(rot);
         // Use constructer with values extracted from the is stream
         tf = Transform2D{tran, rot}; // Use reference to Transform2D objct tf to save input values
-
 
         return is;
     }
@@ -156,6 +156,20 @@ namespace turtlelib
     {
         double length = sqrt(v.x * v.x + v.y * v.y);
         return Vector2D{v.x/length, v.y/length};
+    }
+
+    double normalize_angle(double rad)
+    {
+        double rad_wrap = fmod(rad, 2*PI); // Angle wrapping - Modulas operand for floats
+        if (rad_wrap > PI)
+        {
+            rad_wrap = -PI + (rad_wrap - PI); // -Pi side / CCW rotation
+        }
+        else if (rad_wrap <= -PI)
+        {
+            rad_wrap = PI - (rad_wrap + PI); // Pi side / CW rotation
+        }
+        return rad_wrap;
     }
 
 }
