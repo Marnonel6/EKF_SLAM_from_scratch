@@ -7,9 +7,13 @@
     <arg name="use_rviz" value="false" />
   </include>
 
+  <!-- Argument to specify configuration file for simulator. -->
+  <arg name="config_file" default="basic_world.yaml" 
+   description=".yaml file to configure the simulator"/>
+
   <!-- Main simulation node -->
   <node pkg="nusim" exec="nusim" name="nusim">
-    <param from="$(find-pkg-share nusim)/config/basic_world.yaml"/>
+    <param from="$(find-pkg-share nusim)/config/$(var config_file)"/>
   </node>
 
   <!-- Declare the RViz node -->
