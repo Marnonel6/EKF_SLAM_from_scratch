@@ -85,7 +85,6 @@ namespace turtlelib
     {
         tran.x = cos(rot)*rhs.tran.x - sin(rot)*rhs.tran.y + tran.x;
         tran.y = sin(rot)*rhs.tran.x + cos(rot)*rhs.tran.y + tran.y;
-        // rot = fmod(rot+rhs.rot, 2*PI); // ANGLE WRAPPING??? MATT - Modulas operand
         rot = rot+rhs.rot;
         return *this;
     }
@@ -170,6 +169,72 @@ namespace turtlelib
             rad_wrap = PI - (rad_wrap + PI); // Pi side / CW rotation
         }
         return rad_wrap;
+    }
+
+    Vector2D & Vector2D::operator+=(const Vector2D & rhs)
+    {
+        x += rhs.x;
+        y += rhs.y;
+        return *this;
+    }
+
+    Vector2D operator+(Vector2D lhs, const Vector2D & rhs)
+    {
+        return lhs+=rhs;
+    }
+
+    Vector2D & Vector2D::operator-=(const Vector2D & rhs)
+    {
+        x -= rhs.x;
+        y -= rhs.y;
+        return *this;
+    }
+
+    Vector2D operator-(Vector2D lhs, const Vector2D & rhs)
+    {
+        return lhs-=rhs;
+    }
+
+    // Vector2D & Vector2D::operator*=(const Vector2D & rhs)
+    // {
+    //     x *= rhs.x;
+    //     y *= rhs.y;
+    //     return *this;
+    // } // TODO DELETE ????
+
+    Vector2D & Vector2D::operator*=(const double & rhs)
+    {
+        x *= rhs;
+        y *= rhs;
+        return *this;
+    }
+
+    Vector2D operator*(Vector2D lhs, const double & rhs)
+    {
+        return lhs*=rhs;
+    }
+
+    Vector2D operator*(const double & lhs, Vector2D rhs)
+    {
+        return rhs*=lhs;
+    }
+
+    double dot(Vector2D v1, Vector2D v2)
+    {
+        return (double)(v1.x*v2.x + v1.y*v2.y);
+    }
+
+    double magnitude(Vector2D v)
+    {
+        return (double)std::sqrt(v.x*v.x + v.y*v.y);
+    }
+
+    double angle(Vector2D v1, Vector2D v2)
+    {
+        double dot_product = dot(v1, v2);
+        double magnitude_product = magnitude(v1)*magnitude(v2);
+        double angle = acos(dot_product/magnitude_product);
+        return angle;
     }
 
 }
