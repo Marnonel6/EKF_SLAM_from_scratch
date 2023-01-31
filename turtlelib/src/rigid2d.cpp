@@ -3,8 +3,6 @@
 #include <iostream>
 #include "turtlelib/rigid2d.hpp"
 
-using turtlelib::Transform2D;
-
 
 namespace turtlelib
 {
@@ -224,10 +222,11 @@ namespace turtlelib
 
     double angle(Vector2D v1, Vector2D v2)
     {
-        double dot_product = dot(v1, v2);
-        double magnitude_product = magnitude(v1)*magnitude(v2);
-        double angle = acos(dot_product/magnitude_product);
-        return angle;
+        // double dot_product = dot(v1, v2);
+        // double magnitude_product = magnitude(v1)*magnitude(v2);
+        // double angle = acos(dot_product/magnitude_product); // TODO cange to atan2 I think because acos can't do negative angles
+        // return angle;
+        return atan2(v1.x*v2.y-v1.y*v2.x, v1.x*v2.x+v1.y*v2.y); // returns -pi, pi
     }
 
     Transform2D integrate_twist(Twist2D t)
