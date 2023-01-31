@@ -195,13 +195,6 @@ namespace turtlelib
         return lhs-=rhs;
     }
 
-    // Vector2D & Vector2D::operator*=(const Vector2D & rhs)
-    // {
-    //     x *= rhs.x;
-    //     y *= rhs.y;
-    //     return *this;
-    // } // TODO DELETE ????
-
     Vector2D & Vector2D::operator*=(const double & rhs)
     {
         x *= rhs;

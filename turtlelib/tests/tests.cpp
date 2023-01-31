@@ -8,6 +8,7 @@ Contributers:
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <sstream>
+#include <iostream>
 #include "turtlelib/rigid2d.hpp"
 
 using Catch::Matchers::WithinAbs;
@@ -126,6 +127,7 @@ TEST_CASE("operator +", "[transform]") // Marno, Nel
 {
     Vector2D v1 = {1.5, 2.0};
     Vector2D v2 = {2.0, -3.5};
+    std::cout << v2 << v1 << std::endl;
     REQUIRE_THAT((v1+v2).x, Catch::Matchers::WithinAbs(3.5, 1e-5));
     REQUIRE_THAT((v1+v2).y, Catch::Matchers::WithinAbs(-1.5, 1e-5));
 }
