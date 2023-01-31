@@ -121,3 +121,81 @@ TEST_CASE("normalize_angle()","[transform]") // Marno, Nel
     REQUIRE_THAT(normalize_angle(3.0*PI/2.0), Catch::Matchers::WithinAbs(-PI/2.0, 1e-5));
     REQUIRE_THAT(normalize_angle(-5.0*PI/2.0), Catch::Matchers::WithinAbs(-PI/2.0, 1e-5));
 }
+
+TEST_CASE("operator +", "[transform]") // Marno, Nel
+{
+    Vector2D v1 = {1.5, 2.0};
+    Vector2D v2 = {2.0, -3.5};
+    REQUIRE_THAT((v1+v2).x, Catch::Matchers::WithinAbs(3.5, 1e-5));
+    REQUIRE_THAT((v1+v2).y, Catch::Matchers::WithinAbs(-1.5, 1e-5));
+}
+
+TEST_CASE("operator -", "[transform]") // Marno, Nel
+{
+    Vector2D v1 = {1.5, 2.0};
+    Vector2D v2 = {2.0, -3.5};
+    REQUIRE_THAT((v1-v2).x, Catch::Matchers::WithinAbs(-0.5, 1e-5));
+    REQUIRE_THAT((v1-v2).y, Catch::Matchers::WithinAbs(5.5, 1e-5));
+}
+
+TEST_CASE("operator scalar*Vector2D", "[transform]") // Scalar first - Marno, Nel
+{
+    double scalar = 2.0;
+    Vector2D v2 = {2.0, -3.5};
+    REQUIRE_THAT((scalar*v2).x, Catch::Matchers::WithinAbs(4.0, 1e-5));
+    REQUIRE_THAT((scalar*v2).y, Catch::Matchers::WithinAbs(-7.0, 1e-5));
+}
+
+TEST_CASE("operator Vector2D*scalar", "[transform]") // Scalar second - Marno, Nel
+{
+    double scalar = 2.0;
+    Vector2D v2 = {2.0, -3.5};
+    REQUIRE_THAT((v2*scalar).x, Catch::Matchers::WithinAbs(4.0, 1e-5));
+    REQUIRE_THAT((v2*scalar).y, Catch::Matchers::WithinAbs(-7.0, 1e-5));
+}
+
+TEST_CASE("dot()", "[transform]") // Marno, Nel
+{
+    Vector2D v1 = {1.5, 2.0};
+    Vector2D v2 = {2.0, -3.5};
+    double dot_product = turtlelib::dot(v1, v2);
+    REQUIRE_THAT(dot_product, Catch::Matchers::WithinAbs(-4.0, 1e-5));
+}
+
+TEST_CASE("magnitude()", "[transform]") // Marno, Nel
+{
+    Vector2D v1 = {2.0, -3.5};
+    double mag = turtlelib::magnitude(v1);
+    REQUIRE_THAT(mag, Catch::Matchers::WithinAbs(4.0311288, 1e-5));
+}
+
+TEST_CASE("angle()", "[transform]") // Marno, Nel
+{
+    Vector2D v1 = {1.5, 2.0};
+    Vector2D v2 = {2.0, -3.5};
+    Vector2D v3 = {1, 0};
+    Vector2D v4 = {0, 1};
+    double ang1 = turtlelib::angle(v1, v2);
+    double ang2 = turtlelib::angle(v3, v4);
+    REQUIRE_THAT(ang1, Catch::Matchers::WithinAbs(acos(-0.39691115068546706), 1e-5));
+    REQUIRE_THAT(ang2, Catch::Matchers::WithinAbs(PI/2, 1e-5));
+}
+
+TEST_CASE("integrate_twist()", "[transform]") // Marno, Nel
+{
+    // Pure traslation
+    Twist2D t1 = {0.0, -1.5, 1.0};
+    Transform2D T1 = turtlelib::integrate_twist(t1);
+    REQUIRE_THAT(T1.translation().x, Catch::Matchers::WithinAbs(-1.5, 1e-5));
+    REQUIRE_THAT(T1.translation().y, Catch::Matchers::WithinAbs(1.0, 1e-5));
+    // Pure rotation
+    Twist2D t2 = {-28.0, 0.0, 0.0};
+    Transform2D T2 = turtlelib::integrate_twist(t2);
+    REQUIRE_THAT(T2.rotation(), Catch::Matchers::WithinAbs(-28.0, 1e-5));
+    // Rotation and Traslation
+    Twist2D t3 = {-1.24, -2.15, -2.92};
+    Transform2D T3 = turtlelib::integrate_twist(t3);
+    REQUIRE_THAT(T3.translation().x, Catch::Matchers::WithinAbs(-3.229863264722, 1e-5));
+    REQUIRE_THAT(T3.translation().y, Catch::Matchers::WithinAbs(-1.05645265317421, 1e-5));
+    REQUIRE_THAT(T3.rotation(), Catch::Matchers::WithinAbs(-1.24, 1e-5));
+}

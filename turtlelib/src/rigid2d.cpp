@@ -85,7 +85,6 @@ namespace turtlelib
     {
         tran.x = cos(rot)*rhs.tran.x - sin(rot)*rhs.tran.y + tran.x;
         tran.y = sin(rot)*rhs.tran.x + cos(rot)*rhs.tran.y + tran.y;
-        // rot = fmod(rot+rhs.rot, 2*PI); // ANGLE WRAPPING??? MATT - Modulas operand
         rot = rot+rhs.rot;
         return *this;
     }
@@ -172,4 +171,89 @@ namespace turtlelib
         return rad_wrap;
     }
 
+    Vector2D & Vector2D::operator+=(const Vector2D & rhs)
+    {
+        x += rhs.x;
+        y += rhs.y;
+        return *this;
+    }
+
+    Vector2D operator+(Vector2D lhs, const Vector2D & rhs)
+    {
+        return lhs+=rhs;
+    }
+
+    Vector2D & Vector2D::operator-=(const Vector2D & rhs)
+    {
+        x -= rhs.x;
+        y -= rhs.y;
+        return *this;
+    }
+
+    Vector2D operator-(Vector2D lhs, const Vector2D & rhs)
+    {
+        return lhs-=rhs;
+    }
+
+    Vector2D & Vector2D::operator*=(const double & rhs)
+    {
+        x *= rhs;
+        y *= rhs;
+        return *this;
+    }
+
+    Vector2D operator*(Vector2D lhs, const double & rhs)
+    {
+        return lhs*=rhs;
+    }
+
+    Vector2D operator*(const double & lhs, Vector2D rhs)
+    {
+        return rhs*=lhs;
+    }
+
+    double dot(Vector2D v1, Vector2D v2)
+    {
+        return (double)(v1.x*v2.x + v1.y*v2.y);
+    }
+
+    double magnitude(Vector2D v)
+    {
+        return (double)std::sqrt(v.x*v.x + v.y*v.y);
+    }
+
+    double angle(Vector2D v1, Vector2D v2)
+    {
+        double dot_product = dot(v1, v2);
+        double magnitude_product = magnitude(v1)*magnitude(v2);
+        double angle = acos(dot_product/magnitude_product);
+        return angle;
+    }
+
+    Transform2D integrate_twist(Twist2D t)
+    {
+        if (t.w == 0)
+        {
+            double x = t.x;
+            double y = t.y;
+            Transform2D Tbb_prime(Vector2D{x,y}); // Pure Translation
+            return Tbb_prime;
+        }
+        else
+        {
+            double x = t.y/t.w;
+            double y = -t.x/t.w;
+            Transform2D Tsb(Vector2D{x,y}); // Translation & Rotation or Pure Rotation
+            Transform2D Tss_prime(t.w); // Pure rotation
+            Transform2D Tb_prime_s_prime;
+            Transform2D Ts_prime_b_prime;
+            Transform2D Tbs;
+            Transform2D Tbb_prime;
+            Tbs = Tsb.inv();
+            Tb_prime_s_prime = Tbs;
+            Ts_prime_b_prime = Tb_prime_s_prime.inv();
+            Tbb_prime = Tbs*Tss_prime*Ts_prime_b_prime;
+            return Tbb_prime;
+        }
+    }
 }
