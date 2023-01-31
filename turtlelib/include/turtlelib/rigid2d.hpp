@@ -276,6 +276,10 @@ namespace turtlelib
     /// \return the normalized angle between (-pi,pi]
     double normalize_angle(double rad);
 
+    /// \brief compute the transformation corresponding to a rigid body following a constant twist (in its original body frame) for one time-unit
+    /// \param t - twist to integrate
+    /// \return transformation corresponding to a rigid body following a constant twist for one time-unit
+    Transform2D integrate_twist(Twist2D t);
 }
 
 #endif

@@ -230,4 +230,30 @@ namespace turtlelib
         return angle;
     }
 
+    Transform2D integrate_twist(Twist2D t)
+    {
+        if (t.w == 0)
+        {
+            double x = t.x;
+            double y = t.y;
+            Transform2D Tbb_prime(Vector2D{x,y}); // Pure Translation
+            return Tbb_prime;
+        }
+        else
+        {
+            double x = t.y/t.w;
+            double y = -t.x/t.w;
+            Transform2D Tsb(Vector2D{x,y}); // Translation & Rotation or Pure Rotation
+            Transform2D Tss_prime(t.w); // Pure rotation
+            Transform2D Tb_prime_s_prime;
+            Transform2D Ts_prime_b_prime;
+            Transform2D Tbs;
+            Transform2D Tbb_prime;
+            Tbs = Tsb.inv();
+            Tb_prime_s_prime = Tbs;
+            Ts_prime_b_prime = Tb_prime_s_prime.inv();
+            Tbb_prime = Tbs*Tss_prime*Ts_prime_b_prime;
+            return Tbb_prime;
+        }
+    }
 }
