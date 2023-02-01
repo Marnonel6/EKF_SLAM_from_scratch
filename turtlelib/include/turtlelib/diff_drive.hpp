@@ -8,10 +8,10 @@
 
 namespace turtlelib
 {
-    /// \brief PI.  Not in C++ standard until C++20.
-    constexpr double turtlebot3_wheel_radius=3.14159265358979323846;
-    /// \brief PI.  Not in C++ standard until C++20.
-    constexpr double turtlebot3_wheel_radius=3.14159265358979323846;
+    /// \brief the wheel radius of the turtlebot3 burger
+    constexpr double turtlebot3_wheel_radius=0.033;
+    /// \brief the wheel track of the turtlebot3 burger
+    constexpr double turtlebot3_wheel_track=0.16;
 
     /// \brief Position of both wheels
     struct Wheel_position
