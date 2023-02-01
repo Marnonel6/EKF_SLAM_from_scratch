@@ -14,7 +14,7 @@ namespace turtlelib
     constexpr double turtlebot3_wheel_track=0.16;
 
     /// \brief Position of both wheels
-    struct Wheel_position
+    struct Wheel
     {
         /// \brief left rotational wheel position in radians
         double left = 0.0;
@@ -47,7 +47,7 @@ namespace turtlelib
         /// \brief robot configuration
         Robot_configuration q;
         /// \brief position of both wheels
-        Wheel_position wheel_position;
+        Wheel wheel_position;
 
     public:
         /// \brief start at origin and default to turtlebo3 burger specifications
