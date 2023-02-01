@@ -5,6 +5,7 @@
 
 #include<iosfwd>
 #include<cmath>
+#include "turtlelib/rigid2d.hpp"
 
 namespace turtlelib
 {
@@ -20,6 +21,16 @@ namespace turtlelib
         double left = 0.0;
 
         /// \brief right rotational wheel position in radians
+        double right = 0.0;
+    };
+
+    /// \brief Velocity of both wheels
+    struct WheelVelocities
+    {
+        /// \brief left wheel velocity
+        double left = 0.0;
+
+        /// \brief right wheel velocity
         double right = 0.0;
     };
 
@@ -56,13 +67,18 @@ namespace turtlelib
         /// \brief set wheel specifications and start at origin
         /// \param radius - radius of wheels
         /// \param track - distance between the wheels
-        explicit DiffDrive(double radius, double track);
+        DiffDrive(double radius, double track);
 
         /// \brief set start configuration and wheel specifications
         /// \param radius - radius of wheels
         /// \param track - distance between the wheels
         /// \param robot_config - robot configuration
-        explicit DiffDrive(double radius, double track, Robot_configuration robot_config);
+        DiffDrive(double radius, double track, Robot_configuration robot_config);
+
+        /// \brief Calculates
+        /// \param twist - the body twist to preform inverse kinematics on
+        /// \return wheel velocities required for the twist
+        WheelVelocities InverseKinematics(Twist2D twist);
     };
 
 }
