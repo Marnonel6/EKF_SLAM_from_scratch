@@ -199,3 +199,27 @@ TEST_CASE("integrate_twist()", "[transform]") // Marno, Nel
     REQUIRE_THAT(T3.translation().y, Catch::Matchers::WithinAbs(-1.05645265317421, 1e-5));
     REQUIRE_THAT(T3.rotation(), Catch::Matchers::WithinAbs(-1.24, 1e-5));
 }
+
+TEST_CASE("ForwardKinematics()", "[transform]") // Marno, Nel
+{
+    Vector2D v1 = {1.5, 2.0};
+    Vector2D v2 = {2.0, -3.5};
+    Vector2D v3 = {1, 0};
+    Vector2D v4 = {0, 1};
+    double ang1 = turtlelib::angle(v1, v2);
+    double ang2 = turtlelib::angle(v3, v4);
+    REQUIRE_THAT(ang1, Catch::Matchers::WithinAbs(-1.9789454305450768778, 1e-5));
+    REQUIRE_THAT(ang2, Catch::Matchers::WithinAbs(PI/2, 1e-5));
+}
+
+TEST_CASE("InverseKinematics()", "[transform]") // Marno, Nel
+{
+    Vector2D v1 = {1.5, 2.0};
+    Vector2D v2 = {2.0, -3.5};
+    Vector2D v3 = {1, 0};
+    Vector2D v4 = {0, 1};
+    double ang1 = turtlelib::angle(v1, v2);
+    double ang2 = turtlelib::angle(v3, v4);
+    REQUIRE_THAT(ang1, Catch::Matchers::WithinAbs(-1.9789454305450768778, 1e-5));
+    REQUIRE_THAT(ang2, Catch::Matchers::WithinAbs(PI/2, 1e-5));
+}
