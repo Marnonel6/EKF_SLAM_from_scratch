@@ -39,7 +39,7 @@ endif()
 add_executable(turtle_control src/turtle_control.cpp)
 # add_executable(nuturtle_control src/odometry.cpp)
 # add_executable(circle src/circle.cpp)
-ament_target_dependencies(turtle_control rclcpp std_msgs std_srvs tf2 tf2_ros visualization_msgs)
+ament_target_dependencies(turtle_control rclcpp std_msgs geometry_msgs std_srvs tf2 tf2_ros visualization_msgs)
 # target_link_libraries(circle "${cpp_typesupport_target}")
 
 install(TARGETS
