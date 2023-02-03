@@ -18,6 +18,7 @@ find_package(tf2_ros REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(visualization_msgs REQUIRED)
+# find_package(nuturtlebot_msgs REQUIRED)
 
 # CMake also has the ability to generate doxygen documentation
 find_package(Doxygen)
@@ -39,7 +40,7 @@ endif()
 add_executable(turtle_control src/turtle_control.cpp)
 # add_executable(nuturtle_control src/odometry.cpp)
 # add_executable(circle src/circle.cpp)
-ament_target_dependencies(turtle_control rclcpp std_msgs geometry_msgs std_srvs tf2 tf2_ros visualization_msgs)
+ament_target_dependencies(turtle_control rclcpp geometry_msgs)
 # target_link_libraries(circle "${cpp_typesupport_target}")
 
 install(TARGETS
