@@ -19,7 +19,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(visualization_msgs REQUIRED)
 # find_package(teleop_twist_keyboard REQUIRED)
-# find_package(nuturtlebot_msgs REQUIRED)
+find_package(nuturtlebot_msgs REQUIRED)
 
 # CMake also has the ability to generate doxygen documentation
 find_package(Doxygen)

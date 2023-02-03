@@ -1,11 +1,11 @@
 <launch>
 
   <!-- Arguments -->
-  <arg name="cmd_src" default="circle" 
+  <arg name="cmd_src" default="circle"
    description="Specifies which node publishes to the cmd_vel topic - circle, teleop, none"/>
-  <arg name="robot" default="nusim" 
+  <arg name="robot" default="nusim"
    description="Where to launch the nodes - robot, simulator, nothing"/>
-  <arg name="use_rviz" default="true" 
+  <arg name="use_rviz" default="true"
    description="Specify if rviz needs to start - true, false"/>
 
   <!-- Argument to specify configuration file for simulator.
@@ -19,6 +19,8 @@
   <!-- Teleop keyboard node -->
   <node pkg="teleop_twist_keyboard" exec="teleop_twist_keyboard" name="teleop_twist_keyboard" output='screen' launch-prefix="xterm -e"
         if="$(eval '\'$(var cmd_src)\' == \'teleop\'')"/>
+
+  <!-- cmd_src = none -->
 
   <!-- Nusim simulation node -->
   <node pkg="nusim" exec="nusim" name="nusim"
