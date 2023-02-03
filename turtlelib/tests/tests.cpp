@@ -9,11 +9,15 @@ Contributers:
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <sstream>
 #include "turtlelib/rigid2d.hpp"
+#include "turtlelib/diff_drive.hpp"
 
 using Catch::Matchers::WithinAbs;
 using turtlelib::Transform2D;
 using turtlelib::Vector2D;
 using turtlelib::Twist2D;
+using turtlelib::DiffDrive;
+using turtlelib::Wheel;
+using turtlelib::WheelVelocities;
 using turtlelib::almost_equal;
 using turtlelib::deg2rad;
 using turtlelib::normalize_angle;
@@ -200,26 +204,59 @@ TEST_CASE("integrate_twist()", "[transform]") // Marno, Nel
     REQUIRE_THAT(T3.rotation(), Catch::Matchers::WithinAbs(-1.24, 1e-5));
 }
 
-// TEST_CASE("ForwardKinematics()", "[transform]") // Marno, Nel
-// {
-//     Vector2D v1 = {1.5, 2.0};
-//     Vector2D v2 = {2.0, -3.5};
-//     Vector2D v3 = {1, 0};
-//     Vector2D v4 = {0, 1};
-//     double ang1 = turtlelib::angle(v1, v2);
-//     double ang2 = turtlelib::angle(v3, v4);
-//     REQUIRE_THAT(ang1, Catch::Matchers::WithinAbs(-1.9789454305450768778, 1e-5));
-//     REQUIRE_THAT(ang2, Catch::Matchers::WithinAbs(PI/2, 1e-5));
-// }
+TEST_CASE("ForwardKinematics(), Pure translation", "[diff_drive]") // Marno, Nel
+{
+    DiffDrive Lurtle(1.0, 4.0);
+    Wheel forward{PI, PI};
+    Lurtle.ForwardKinematics(forward);
+    REQUIRE_THAT(Lurtle.configuration().x, Catch::Matchers::WithinAbs(3.1415926536, 1.0e-5));
+    REQUIRE_THAT(Lurtle.configuration().y, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+    REQUIRE_THAT(Lurtle.configuration().theta, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+}
 
-// TEST_CASE("InverseKinematics()", "[transform]") // Marno, Nel
-// {
-//     Vector2D v1 = {1.5, 2.0};
-//     Vector2D v2 = {2.0, -3.5};
-//     Vector2D v3 = {1, 0};
-//     Vector2D v4 = {0, 1};
-//     double ang1 = turtlelib::angle(v1, v2);
-//     double ang2 = turtlelib::angle(v3, v4);
-//     REQUIRE_THAT(ang1, Catch::Matchers::WithinAbs(-1.9789454305450768778, 1e-5));
-//     REQUIRE_THAT(ang2, Catch::Matchers::WithinAbs(PI/2, 1e-5));
-// }
+TEST_CASE("ForwardKinematics(), Pure rotation", "[diff_drive]") // Marno, Nel
+{
+    DiffDrive Bob(1.0, 4.0);
+    Wheel rot_cw{PI, -PI};
+    Bob.ForwardKinematics(rot_cw);
+    REQUIRE_THAT(Bob.configuration().x, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+    REQUIRE_THAT(Bob.configuration().y, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+    REQUIRE_THAT(Bob.configuration().theta, Catch::Matchers::WithinAbs(-1.5707963268, 1.0e-5));
+}
+
+TEST_CASE("ForwardKinematics(), Rotation and Translation", "[diff_drive]") // Marno, Nel
+{
+    DiffDrive Nard(1.0, 4.0);
+    Wheel arc_ccw{PI/2, PI};
+    Nard.ForwardKinematics(arc_ccw);
+    REQUIRE_THAT(Nard.configuration().x, Catch::Matchers::WithinAbs(2.2961005942, 1.0e-5));
+    REQUIRE_THAT(Nard.configuration().y, Catch::Matchers::WithinAbs(0.4567228049, 1.0e-5));
+    REQUIRE_THAT(Nard.configuration().theta, Catch::Matchers::WithinAbs(0.3926990817, 1.0e-5));
+}
+
+TEST_CASE("InverseKinematics(), Pure translation", "[diff_drive]") // Marno, Nel
+{
+    DiffDrive Lurtle(1.0, 4.0);
+    Twist2D forward{0, 1, 0};
+    WheelVelocities Lurtle_wheel = Lurtle.InverseKinematics(forward);
+    REQUIRE_THAT(Lurtle_wheel.left, Catch::Matchers::WithinAbs(1.0, 1e-5));
+    REQUIRE_THAT(Lurtle_wheel.right, Catch::Matchers::WithinAbs(1.0, 1e-5));
+}
+
+TEST_CASE("InverseKinematics(), Pure rotation", "[diff_drive]") // Marno, Nel
+{
+    DiffDrive Bob(1.0, 4.0);
+    Twist2D rot_cw{1, 0, 0};
+    WheelVelocities Bob_wheel = Bob.InverseKinematics(rot_cw);
+    REQUIRE_THAT(Bob_wheel.left, Catch::Matchers::WithinAbs(-2.0, 1e-5));
+    REQUIRE_THAT(Bob_wheel.right, Catch::Matchers::WithinAbs(2.0, 1e-5));
+}
+
+TEST_CASE("InverseKinematics(), Rotation and Translation", "[diff_drive]") // Marno, Nel
+{
+    DiffDrive Nard(1.0,4.0);
+    Twist2D arc_ccw{-1, 1, 0};
+    WheelVelocities Nard_wheel = Nard.InverseKinematics(arc_ccw);
+    REQUIRE_THAT(Nard_wheel.left, Catch::Matchers::WithinAbs(3.0, 1e-5));
+    REQUIRE_THAT(Nard_wheel.right, Catch::Matchers::WithinAbs(-1.0, 1e-5));
+}
