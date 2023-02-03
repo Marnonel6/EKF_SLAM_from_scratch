@@ -267,4 +267,3 @@ TEST_CASE("InverseKinematics(), Wheel slip/Impossible twist", "[diff_drive]") //
     Twist2D arc_ccw{0, 0, 1};
     REQUIRE_THROWS_AS(Raphael.InverseKinematics(arc_ccw), std::logic_error);
 }
-
