@@ -36,23 +36,23 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# add_executable(turtle_control src/turtle_control.cpp)
+add_executable(turtle_control src/turtle_control.cpp)
 # add_executable(nuturtle_control src/odometry.cpp)
 # add_executable(circle src/circle.cpp)
-# ament_target_dependencies(circle rclcpp std_msgs std_srvs tf2 tf2_ros visualization_msgs)
+ament_target_dependencies(turtle_control rclcpp std_msgs std_srvs tf2 tf2_ros visualization_msgs)
 # target_link_libraries(circle "${cpp_typesupport_target}")
 
-# install(TARGETS
-#   turtle_control
-#   # odometry
-#   # circle
-#   DESTINATION lib/${PROJECT_NAME}
-# )
+install(TARGETS
+  turtle_control
+  # odometry
+  # circle
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 # Install launch files.
-# install(DIRECTORY
-#   launch
-#   DESTINATION share/${PROJECT_NAME}/
-# )
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 ament_package()
