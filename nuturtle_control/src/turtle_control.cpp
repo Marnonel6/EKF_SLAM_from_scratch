@@ -29,7 +29,7 @@ class turtle_control : public rclcpp::Node
 
   private:
     // Variables
-
+    geometry_msgs::msg::Twist body_twist_;
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
     // rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_publisher_;
@@ -37,9 +37,10 @@ class turtle_control : public rclcpp::Node
 
     /// \brief
     /// \param msg
-    void cmd_vel_callback(const geometry_msgs::msg::Twist & msg) const
+    void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
     {
-      RCLCPP_INFO(get_logger(), "I heard data");
+        body_twist_ = msg;
+        RCLCPP_INFO(get_logger(), "I heard data");
     }
 
     /// \brief Main simulation timer loop
