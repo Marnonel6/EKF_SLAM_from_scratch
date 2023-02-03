@@ -206,57 +206,65 @@ TEST_CASE("integrate_twist()", "[transform]") // Marno, Nel
 
 TEST_CASE("ForwardKinematics(), Pure translation", "[diff_drive]") // Marno, Nel
 {
-    DiffDrive Lurtle(1.0, 4.0);
+    DiffDrive Michelangelo(1.0, 4.0);
     Wheel forward{PI, PI};
-    Lurtle.ForwardKinematics(forward);
-    REQUIRE_THAT(Lurtle.configuration().x, Catch::Matchers::WithinAbs(3.1415926536, 1.0e-5));
-    REQUIRE_THAT(Lurtle.configuration().y, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
-    REQUIRE_THAT(Lurtle.configuration().theta, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+    Michelangelo.ForwardKinematics(forward);
+    REQUIRE_THAT(Michelangelo.configuration().x, Catch::Matchers::WithinAbs(3.1415926536, 1.0e-5));
+    REQUIRE_THAT(Michelangelo.configuration().y, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+    REQUIRE_THAT(Michelangelo.configuration().theta, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
 }
 
 TEST_CASE("ForwardKinematics(), Pure rotation", "[diff_drive]") // Marno, Nel
 {
-    DiffDrive Bob(1.0, 4.0);
+    DiffDrive Donatello(1.0, 4.0);
     Wheel rot_cw{PI, -PI};
-    Bob.ForwardKinematics(rot_cw);
-    REQUIRE_THAT(Bob.configuration().x, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
-    REQUIRE_THAT(Bob.configuration().y, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
-    REQUIRE_THAT(Bob.configuration().theta, Catch::Matchers::WithinAbs(-1.5707963268, 1.0e-5));
+    Donatello.ForwardKinematics(rot_cw);
+    REQUIRE_THAT(Donatello.configuration().x, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+    REQUIRE_THAT(Donatello.configuration().y, Catch::Matchers::WithinAbs(0.0, 1.0e-5));
+    REQUIRE_THAT(Donatello.configuration().theta, Catch::Matchers::WithinAbs(-1.5707963268, 1.0e-5));
 }
 
 TEST_CASE("ForwardKinematics(), Rotation and Translation", "[diff_drive]") // Marno, Nel
 {
-    DiffDrive Nard(1.0, 4.0);
+    DiffDrive Leonardo(1.0, 4.0);
     Wheel arc_ccw{PI/2, PI};
-    Nard.ForwardKinematics(arc_ccw);
-    REQUIRE_THAT(Nard.configuration().x, Catch::Matchers::WithinAbs(2.2961005942, 1.0e-5));
-    REQUIRE_THAT(Nard.configuration().y, Catch::Matchers::WithinAbs(0.4567228049, 1.0e-5));
-    REQUIRE_THAT(Nard.configuration().theta, Catch::Matchers::WithinAbs(0.3926990817, 1.0e-5));
+    Leonardo.ForwardKinematics(arc_ccw);
+    REQUIRE_THAT(Leonardo.configuration().x, Catch::Matchers::WithinAbs(2.2961005942, 1.0e-5));
+    REQUIRE_THAT(Leonardo.configuration().y, Catch::Matchers::WithinAbs(0.4567228049, 1.0e-5));
+    REQUIRE_THAT(Leonardo.configuration().theta, Catch::Matchers::WithinAbs(0.3926990817, 1.0e-5));
 }
 
 TEST_CASE("InverseKinematics(), Pure translation", "[diff_drive]") // Marno, Nel
 {
-    DiffDrive Lurtle(1.0, 4.0);
+    DiffDrive Michelangelo(1.0, 4.0);
     Twist2D forward{0, 1, 0};
-    WheelVelocities Lurtle_wheel = Lurtle.InverseKinematics(forward);
-    REQUIRE_THAT(Lurtle_wheel.left, Catch::Matchers::WithinAbs(1.0, 1e-5));
-    REQUIRE_THAT(Lurtle_wheel.right, Catch::Matchers::WithinAbs(1.0, 1e-5));
+    WheelVelocities Michelangelo_wheel = Michelangelo.InverseKinematics(forward);
+    REQUIRE_THAT(Michelangelo_wheel.left, Catch::Matchers::WithinAbs(1.0, 1e-5));
+    REQUIRE_THAT(Michelangelo_wheel.right, Catch::Matchers::WithinAbs(1.0, 1e-5));
 }
 
 TEST_CASE("InverseKinematics(), Pure rotation", "[diff_drive]") // Marno, Nel
 {
-    DiffDrive Bob(1.0, 4.0);
+    DiffDrive Donatello(1.0, 4.0);
     Twist2D rot_cw{1, 0, 0};
-    WheelVelocities Bob_wheel = Bob.InverseKinematics(rot_cw);
-    REQUIRE_THAT(Bob_wheel.left, Catch::Matchers::WithinAbs(-2.0, 1e-5));
-    REQUIRE_THAT(Bob_wheel.right, Catch::Matchers::WithinAbs(2.0, 1e-5));
+    WheelVelocities Donatello_wheel = Donatello.InverseKinematics(rot_cw);
+    REQUIRE_THAT(Donatello_wheel.left, Catch::Matchers::WithinAbs(-2.0, 1e-5));
+    REQUIRE_THAT(Donatello_wheel.right, Catch::Matchers::WithinAbs(2.0, 1e-5));
 }
 
 TEST_CASE("InverseKinematics(), Rotation and Translation", "[diff_drive]") // Marno, Nel
 {
-    DiffDrive Nard(1.0,4.0);
+    DiffDrive Leonardo(1.0,4.0);
     Twist2D arc_ccw{-1, 1, 0};
-    WheelVelocities Nard_wheel = Nard.InverseKinematics(arc_ccw);
-    REQUIRE_THAT(Nard_wheel.left, Catch::Matchers::WithinAbs(3.0, 1e-5));
-    REQUIRE_THAT(Nard_wheel.right, Catch::Matchers::WithinAbs(-1.0, 1e-5));
+    WheelVelocities Leonardo_wheel = Leonardo.InverseKinematics(arc_ccw);
+    REQUIRE_THAT(Leonardo_wheel.left, Catch::Matchers::WithinAbs(3.0, 1e-5));
+    REQUIRE_THAT(Leonardo_wheel.right, Catch::Matchers::WithinAbs(-1.0, 1e-5));
 }
+
+TEST_CASE("InverseKinematics(), Wheel slip/Impossible twist", "[diff_drive]") // Marno, Nel
+{
+    DiffDrive Raphael(1.0,4.0);
+    Twist2D arc_ccw{0, 0, 1};
+    REQUIRE_THROWS_AS(Raphael.InverseKinematics(arc_ccw), std::logic_error);
+}
+

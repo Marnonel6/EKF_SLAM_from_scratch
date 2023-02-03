@@ -21,27 +21,38 @@ namespace turtlelib
 
     void DiffDrive::ForwardKinematics(Wheel new_wheel_positions)
     {
-        Transform2D Twb(Vector2D{q.x, q.y}, q.theta); // Current position to world
-
         WheelVelocities wheel_vel;
         wheel_vel.left = new_wheel_positions.left - wheel_position.left;
         wheel_vel.right = new_wheel_positions.right - wheel_position.right;
 
+        // Equation 1 START //
         Twist2D twist_bbp;
         twist_bbp.w = (wheel_radius/2)*((-wheel_vel.left/(wheel_track/2)) + 
                       wheel_vel.right/(wheel_track/2));
         twist_bbp.x = (wheel_radius/2)*(wheel_vel.left + wheel_vel.right);
         twist_bbp.y = 0;
+        // Equation 1 End //
+
+        // Equation 2 START //
         Transform2D Tb_bprime; // Transformation matrix between current and end position
         Tb_bprime = integrate_twist(twist_bbp);
+        // Equation 2 END //
 
+        // Equation 3 START //
+        Transform2D Twb(Vector2D{q.x, q.y}, q.theta); // Current position to world
+        // Equation 3 END //
+
+        // Equation 4 START //
         Transform2D Tw_bprime; // End position to world
         Tw_bprime = Twb*Tb_bprime;
+        // Equation 4 END //
 
+        // Equation 5 START //
         Robot_configuration q_new; // New configuration
         q.x = Tw_bprime.translation().x;
         q.y = Tw_bprime.translation().y;
         q.theta = normalize_angle(Tw_bprime.rotation());
+        // Equation 5 END //
     }
 
     WheelVelocities DiffDrive::InverseKinematics(Twist2D twist)
@@ -53,8 +64,10 @@ namespace turtlelib
         }
         else
         {
+            // Equation 1 START //
             wheel_vel.left = (1/wheel_radius)*(-(wheel_track/2)*twist.w + twist.x);
             wheel_vel.right = (1/wheel_radius)*((wheel_track/2)*twist.w + twist.x);
+            // Equation 1 END //
         }
         return wheel_vel;
     }
