@@ -18,8 +18,35 @@ class turtle_control : public rclcpp::Node
     turtle_control()
     : Node("turtle_control")
     {
+        // Parameter descirption
+        auto wheelradius_des = rcl_interfaces::msg::ParameterDescriptor{};
+        auto track_width_des = rcl_interfaces::msg::ParameterDescriptor{};
+        auto motor_cmd_max_des = rcl_interfaces::msg::ParameterDescriptor{};
+        auto motor_cmd_per_rad_sec_des = rcl_interfaces::msg::ParameterDescriptor{};
+        auto encoder_ticks_per_rad_des = rcl_interfaces::msg::ParameterDescriptor{};
+        auto collision_radius_des = rcl_interfaces::msg::ParameterDescriptor{};
+        wheelradius_des.description = "The radius of the wheels [m]";
+        track_width_des.description = "The distance between the wheels [m]";
+        motor_cmd_max_des.description = "The motors are provided commands in the interval \
+                                         [-motor_cmd_max, motor_cmd_max]";
+        motor_cmd_per_rad_sec_des.description = "Each motor command 'tick' is X [radians/sec]";
+        encoder_ticks_per_rad_des.description = "The number of encoder 'ticks' per radian \
+                                                 [ticks/rad]";
+        collision_radius_des.description = "This is a simplified geometry used for collision \
+                                            detection [m]";
+
+        // Declare default parameters values
+        declare_parameter("wheelradius", 0.0, wheelradius_des);
+        declare_parameter("track_width", 0.0, track_width_des);
+        declare_parameter("motor_cmd_max", 0.0, motor_cmd_max_des);
+        declare_parameter("motor_cmd_per_rad_sec", 0.0, motor_cmd_per_rad_sec_des);
+        declare_parameter("encoder_ticks_per_rad", 0.0, encoder_ticks_per_rad_des);
+        declare_parameter("collision_radius", 0.0, collision_radius_des);
+        // Get params - Read params from yaml file that is passed in the launch file
+
         // Publishers
-        wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
+        wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>(
+                               "wheel_cmd", 10);
 
         // Subscribers
         cmd_vel_subscriber_ = create_subscription<geometry_msgs::msg::Twist>(
@@ -42,8 +69,7 @@ class turtle_control : public rclcpp::Node
     /// \param msg
     void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
     {
-        body_twist_ = msg;
-
+        body_twist_ = msg; //  Make this a Twist2D from turtlelib
         RCLCPP_INFO(get_logger(), "I heard data");
     }
 
