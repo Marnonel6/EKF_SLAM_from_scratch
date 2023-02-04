@@ -112,7 +112,7 @@ class turtle_control : public rclcpp::Node
         turtlelib::DiffDrive Turtle(wheelradius_, track_width_);
         // Perform Inverse kinematics to get the wheel velocities from the twist
         wheel_vel_ = Turtle.InverseKinematics(body_twist_);
-        // Convert rad/sec to ticks/sec
+        // Convert rad/sec to ticks
         wheel_vel_.left = wheel_vel_.left/motor_cmd_per_rad_sec_;
         wheel_vel_.right = wheel_vel_.right/motor_cmd_per_rad_sec_;
 
@@ -153,10 +153,11 @@ class turtle_control : public rclcpp::Node
         }
         else
         {
-            // Change in wheel angle
+            // Change in wheel angle from encoder ticks
             joint_states_.position = {msg.left_encoder/encoder_ticks_per_rad_,
                                       msg.right_encoder/encoder_ticks_per_rad_};
             float passed_time = msg.stamp.sec + msg.stamp.nanosec*1e-9 - prev_encoder_stamp_;
+            // Encoder ticks to rad/s
             joint_states_.velocity = {joint_states_.position[0]/passed_time,
                                      joint_states_.position[1]/passed_time};
         }
