@@ -8,9 +8,9 @@
   <arg name="use_rviz" default="true"
    description="Specify if rviz needs to start - true, false"/>
 
-  <!-- Argument to specify configuration file for simulator.
-  <arg name="config_file" default="basic_world.yaml" 
-   description=".yaml file to configure the simulator"/> -->
+  <!-- Argument to specify configuration file for robot control. -->
+  <arg name="config_file" default="diff_params.yaml" 
+   description=".yaml file to configure robot controls"/>
 
   <!-- Circle node -->
   <node pkg="nuturtle_control" exec="circle" name="circle"
@@ -29,7 +29,9 @@
   <!-- Localhost turtlebot3 node -->
 
   <!-- Turtle control node -->
-  <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control"/>
+  <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control">
+      <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+  </node>
 
   <!-- Odometry node -->
   <node pkg="nuturtle_control" exec="odometry" name="odometry"/>

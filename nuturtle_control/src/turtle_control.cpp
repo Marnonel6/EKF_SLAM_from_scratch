@@ -43,6 +43,12 @@ class turtle_control : public rclcpp::Node
         declare_parameter("encoder_ticks_per_rad", 0.0, encoder_ticks_per_rad_des);
         declare_parameter("collision_radius", 0.0, collision_radius_des);
         // Get params - Read params from yaml file that is passed in the launch file
+        wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<float>();
+        track_width_ = get_parameter("track_width").get_parameter_value().get<float>();
+        motor_cmd_max_ = get_parameter("motor_cmd_max").get_parameter_value().get<double>();
+        motor_cmd_per_rad_sec_ = get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<float>();
+        encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").get_parameter_value().get<float>();
+        collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<float>();
 
         // Publishers
         wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>(
@@ -58,8 +64,15 @@ class turtle_control : public rclcpp::Node
 
   private:
     // Variables
+    float wheelradius_ = 0.0;
+    float track_width_ = 0.0;
+    double motor_cmd_max_ = 0;
+    float motor_cmd_per_rad_sec_ = 0.0;
+    float encoder_ticks_per_rad_ = 0.0;
+    float collision_radius_ = 0.0;
     geometry_msgs::msg::Twist body_twist_;
     nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
+
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
