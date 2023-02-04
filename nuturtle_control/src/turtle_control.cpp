@@ -57,7 +57,7 @@ class turtle_control : public rclcpp::Node
             motor_cmd_per_rad_sec_ == -1.0 || encoder_ticks_per_rad_ == -1.0 ||
             collision_radius_ == -1.0)
         {
-            int err_ = 1;
+            int err_ = true;
             RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
             throw err_;
         }
@@ -153,9 +153,9 @@ class turtle_control : public rclcpp::Node
         }
         else
         {
-            // Add change in wheel angle to previous wheel angle
-            joint_states_.position = {(msg.left_encoder/encoder_ticks_per_rad_),
-                                      (msg.right_encoder/encoder_ticks_per_rad_)};
+            // Change in wheel angle
+            joint_states_.position = {msg.left_encoder/encoder_ticks_per_rad_,
+                                      msg.right_encoder/encoder_ticks_per_rad_};
             float passed_time = msg.stamp.sec + msg.stamp.nanosec*1e-9 - prev_encoder_stamp_;
             joint_states_.velocity = {joint_states_.position[0]/passed_time,
                                      joint_states_.position[1]/passed_time};
@@ -175,7 +175,7 @@ class turtle_control : public rclcpp::Node
 };
 
 int main(int argc, char * argv[])
-{            RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
+{
     rclcpp::init(argc, argv);
     try {
         rclcpp::spin(std::make_shared<turtle_control>());
