@@ -57,7 +57,7 @@ class turtle_control : public rclcpp::Node
             motor_cmd_per_rad_sec_ == -1.0 || encoder_ticks_per_rad_ == -1.0 ||
             collision_radius_ == -1.0)
         {
-            int err_ = true;
+            int err_ = 1;
             RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
             throw err_;
         }
@@ -87,9 +87,11 @@ class turtle_control : public rclcpp::Node
     float motor_cmd_per_rad_sec_;
     float encoder_ticks_per_rad_;
     float collision_radius_;
+    float prev_encoder_stamp_ = -1.0;
     turtlelib::Twist2D body_twist_;
     turtlelib::WheelVelocities wheel_vel_;
     nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
+    sensor_msgs::msg::JointState joint_states_;
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
@@ -114,12 +116,10 @@ class turtle_control : public rclcpp::Node
         wheel_vel_.left = wheel_vel_.left/motor_cmd_per_rad_sec_;
         wheel_vel_.right = wheel_vel_.right/motor_cmd_per_rad_sec_;
 
-        // Limit max wheel command speed
+        // Limit max wheel command speed and publish wheel command
         wheel_cmd_.left_velocity = limit_Max(wheel_vel_.left);
         wheel_cmd_.right_velocity = limit_Max(wheel_vel_.right);
-
         wheel_cmd_publisher_->publish(wheel_cmd_);
-        RCLCPP_INFO(get_logger(), "I heard cmd_vel data");
     }
 
     /// \brief
@@ -144,7 +144,26 @@ class turtle_control : public rclcpp::Node
     /// \param msg
     void sensor_data_callback(const nuturtlebot_msgs::msg::SensorData & msg)
     {
-        // body_twist_ = msg; //  Make this a Twist2D from turtlelib
+        joint_states_.header.stamp = msg.stamp;
+        joint_states_.name = {"left_wheel_joint", "right_wheel_joint"};
+        if (prev_encoder_stamp_ == -1.0)
+        {
+            joint_states_.position = {0.0, 0.0};
+            joint_states_.velocity = {0.0, 0.0};
+        }
+        else
+        {
+            // Add change in wheel angle to previous wheel angle
+            joint_states_.position = {joint_states_.position[0] +
+                                      (msg.left_encoder/encoder_ticks_per_rad_),
+                                      joint_states_.position[1] +
+                                      (msg.right_encoder/encoder_ticks_per_rad_)};
+            float passed_time = msg.stamp.sec + msg.stamp.nanosec*1e-9 + prev_encoder_stamp_;
+            joint_states_.velocity = {joint_states_.position[0]/passed_time,
+                                     joint_states_.position[1]/passed_time};
+        }
+        prev_encoder_stamp_ = msg.stamp.sec + msg.stamp.nanosec*1e-9;
+
         RCLCPP_INFO(get_logger(), "I heard sensor_data");
     }
 
@@ -158,7 +177,7 @@ class turtle_control : public rclcpp::Node
 };
 
 int main(int argc, char * argv[])
-{
+{            RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
     rclcpp::init(argc, argv);
     try {
         rclcpp::spin(std::make_shared<turtle_control>());
