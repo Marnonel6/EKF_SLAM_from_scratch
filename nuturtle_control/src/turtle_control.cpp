@@ -156,7 +156,7 @@ class turtle_control : public rclcpp::Node
             // Add change in wheel angle to previous wheel angle
             joint_states_.position = {(msg.left_encoder/encoder_ticks_per_rad_),
                                       (msg.right_encoder/encoder_ticks_per_rad_)};
-            float passed_time = msg.stamp.sec + msg.stamp.nanosec*1e-9 + prev_encoder_stamp_;
+            float passed_time = msg.stamp.sec + msg.stamp.nanosec*1e-9 - prev_encoder_stamp_;
             joint_states_.velocity = {joint_states_.position[0]/passed_time,
                                      joint_states_.position[1]/passed_time};
         }
