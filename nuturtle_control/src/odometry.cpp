@@ -5,6 +5,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
@@ -27,7 +28,7 @@ class odometry : public rclcpp::Node
 
         // Declare default parameters values
         declare_parameter("body_id", "", body_id_des);
-        declare_parameter("odom_id", "", odom_id_des);
+        declare_parameter("odom_id", "odom", odom_id_des);
         declare_parameter("wheel_left", "", wheel_left_des);
         declare_parameter("wheel_right", "", wheel_right_des);
         // Get params - Read params from yaml file that is passed in the launch file
@@ -37,7 +38,11 @@ class odometry : public rclcpp::Node
         wheel_right_ = get_parameter("wheel_right").get_parameter_value().get<std::string>();
 
         // Ensures all values are passed via the launch file
-        check_frame_params();
+        // check_frame_params();
+
+        // Publishers
+        odom_publisher_ = create_publisher<nav_msgs::msg::Odometry>(
+                               "odom", 10);
 
         // Subscribers
         joint_states_subscriber_ = create_subscription<sensor_msgs::msg::JointState>(
@@ -58,6 +63,7 @@ class odometry : public rclcpp::Node
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_subscriber_;
 
     /// \brief
@@ -70,7 +76,7 @@ class odometry : public rclcpp::Node
     // Ensures all values are passed via the launch file
     void check_frame_params()
     {
-        if (body_id_ == "" || odom_id_ == "" || wheel_left_ == "" || wheel_right_ == "")
+        if (body_id_ == "" || wheel_left_ == "" || wheel_right_ == "")
         {
             int err_ = true;
             RCLCPP_ERROR_STREAM(get_logger(), "Missing frame id's! body_id, wheel_left, \
