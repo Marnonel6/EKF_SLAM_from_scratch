@@ -7,6 +7,8 @@
 #include "std_msgs/msg/string.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "nuturtlebot_msgs/msg/wheel_commands.hpp"
+#include "nuturtlebot_msgs/msg/sensor_data.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
 // #include "turtlelib/diff_drive.hpp"
 
 using namespace std::chrono_literals;
@@ -63,10 +65,15 @@ class turtle_control : public rclcpp::Node
         // Publishers
         wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>(
                                "wheel_cmd", 10);
+        joint_states_publisher_ = create_publisher<sensor_msgs::msg::JointState>(
+                               "joint_states", 10);
 
         // Subscribers
         cmd_vel_subscriber_ = create_subscription<geometry_msgs::msg::Twist>(
                         "cmd_vel", 10, std::bind(&turtle_control::cmd_vel_callback, this, _1));
+        sensor_data_subscriber_ = create_subscription<nuturtlebot_msgs::msg::SensorData>(
+                        "sensor_data", 10, std::bind(&turtle_control::sensor_data_callback,
+                                                     this, _1));
 
         // Timer
         timer_ = create_wall_timer(500ms, std::bind(&turtle_control::timer_callback, this));
@@ -86,14 +93,24 @@ class turtle_control : public rclcpp::Node
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
+    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_publisher_;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
+    rclcpp::Subscription<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_subscriber_;
 
     /// \brief
     /// \param msg
     void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
     {
         body_twist_ = msg; //  Make this a Twist2D from turtlelib
-        RCLCPP_INFO(get_logger(), "I heard data");
+        RCLCPP_INFO(get_logger(), "I heard cmd_vel data");
+    }
+
+    /// \brief
+    /// \param msg
+    void sensor_data_callback(const nuturtlebot_msgs::msg::SensorData & msg)
+    {
+        // body_twist_ = msg; //  Make this a Twist2D from turtlelib
+        RCLCPP_INFO(get_logger(), "I heard sensor_data");
     }
 
     /// \brief Main simulation timer loop
