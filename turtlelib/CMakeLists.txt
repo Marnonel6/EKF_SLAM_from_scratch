@@ -11,7 +11,6 @@ add_library(turtlelib src/rigid2d.cpp src/diff_drive.cpp)
 # By adding include/ to the include path, this means that files in e.g., include/turtlelib
 # can be included with #include"turtlelib/file.hpp"
 # target_include_directories(turtlelib PUBLIC include/)
-
 # Use target_include_directories so that #include"mylibrary/header.hpp" works
 # The use of the <BUILD_INTERFACE> and <INSTALL_INTERFACE> is because when
 # Using the library from the build directory or after installation
@@ -53,19 +52,16 @@ target_link_libraries(turtlelib_test turtlelib Catch2::Catch2WithMain)
 
 add_test(NAME Test_of_Turtlelib COMMAND turtlelib_test)
 
-# include_directories(include/turtlelib)
-# set(HEADER_FILES include/turtlelib/)
-# add_library(turtlelib src/ ${HEADER_FILES})
-# ament_export_targets(turtlelib HAS_LIBRARY_TARGET)
-
 # install the include directories
-install(DIRECTORY include/turtlelib DESTINATION include)
+install(DIRECTORY include/turtlelib
+        DESTINATION include)
 
 # Install the targets and create a CMake Exported Target
 # The CMake Exported Target can be used to access this project
 # from other CMake projects, after installation
 # The targets will be installed to default locations
-install(TARGETS frame_main turtlelib EXPORT project_name-targets)
+install(TARGETS frame_main turtlelib
+        EXPORT turtlelib-targets)
 
 # The project_name-targets now also needs to be exported.
 # This call will generate a file called project_name-config.cmake
@@ -74,16 +70,7 @@ install(TARGETS frame_main turtlelib EXPORT project_name-targets)
 # find_package(project_name) from another cmake project
 # A user can then target_link_libraries(target project_name::library)
 # to use your library
-install(EXPORT project_name-targets
-        FILE project_name-config.cmake
-        NAMESPACE project_name::
+install(EXPORT turtlelib-targets
+        FILE turtlelib-config.cmake
+        NAMESPACE turtlelib::
         DESTINATION lib/cmake/${PROJECT_NAME})
-
-# install(
-#   TARGETS my_lib
-#   EXPORT my_lib
-#   LIBRARY DESTINATION lib
-#   ARCHIVE DESTINATION lib
-#   RUNTIME DESTINATION bin
-#   INCLUDES DESTINATION include
-# )

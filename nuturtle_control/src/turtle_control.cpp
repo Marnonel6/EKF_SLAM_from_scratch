@@ -9,7 +9,7 @@
 #include "nuturtlebot_msgs/msg/wheel_commands.hpp"
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
-// #include "turtlelib/diff_drive.hpp"
+#include "turtlelib/diff_drive.hpp"
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
@@ -87,7 +87,8 @@ class turtle_control : public rclcpp::Node
     float motor_cmd_per_rad_sec_;
     float encoder_ticks_per_rad_;
     float collision_radius_;
-    geometry_msgs::msg::Twist body_twist_;
+    turtlelib::Twist2D body_twist_;
+    turtlelib::WheelVelocities wheel_vel_;
     nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
 
     // Create objects
@@ -101,8 +102,42 @@ class turtle_control : public rclcpp::Node
     /// \param msg
     void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
     {
-        body_twist_ = msg; //  Make this a Twist2D from turtlelib
+        body_twist_.w = msg.angular.z;
+        body_twist_.x = msg.linear.x;
+        body_twist_.y = msg.linear.y;
+
+        // Create Diff Drive Object
+        turtlelib::DiffDrive Turtle(wheelradius_, track_width_);
+        // Perform Inverse kinematics to get the wheel velocities from the twist
+        wheel_vel_ = Turtle.InverseKinematics(body_twist_);
+        // Convert rad/sec to ticks/sec
+        wheel_vel_.left = wheel_vel_.left/motor_cmd_per_rad_sec_;
+        wheel_vel_.right = wheel_vel_.right/motor_cmd_per_rad_sec_;
+
+        // Limit max wheel command speed
+        wheel_cmd_.left_velocity = limit_Max(wheel_vel_.left)
+        wheel_cmd_.right_velocity = limit_Max(wheel_vel_.right)
+
+        wheel_cmd_publisher_->publish(wheel_cmd_);
         RCLCPP_INFO(get_logger(), "I heard cmd_vel data");
+    }
+
+    /// \brief
+    /// \param wheel_vel
+    double limit_Max(double wheel_vel)
+    {
+        if (wheel_vel > motor_cmd_max_)
+        {
+            return motor_cmd_max_;
+        }
+        else if (wheel_vel < -motor_cmd_max_)
+        {
+            return -motor_cmd_max_;
+        }
+        else
+        {
+            return wheel_vel;
+        } 
     }
 
     /// \brief
@@ -119,7 +154,6 @@ class turtle_control : public rclcpp::Node
         // auto message = geometry_msgs::msg::Twist();
         // message.linear.x = 1;
         // RCLCPP_INFO(get_logger(), "Publishing: '%f'", message.linear.x);
-        // cmd_vel_publisher_->publish(message);
     }
 };
 

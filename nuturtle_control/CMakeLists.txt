@@ -21,7 +21,7 @@ find_package(visualization_msgs REQUIRED)
 find_package(nuturtlebot_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
-# find_package(turtlelib REQUIRED)
+find_package(turtlelib REQUIRED)
 
 # CMake also has the ability to generate doxygen documentation
 find_package(Doxygen)
@@ -44,10 +44,11 @@ add_executable(turtle_control src/turtle_control.cpp)
 add_executable(odometry src/odometry.cpp)
 add_executable(circle src/circle.cpp)
 ament_target_dependencies(turtle_control rclcpp geometry_msgs std_msgs nuturtlebot_msgs sensor_msgs)
-# target_link_libraries(turtle_control turtlelib::turtlelib)
+target_link_libraries(turtle_control turtlelib::turtlelib "${cpp_typesupport_target}")
 ament_target_dependencies(odometry rclcpp)
+# target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
 ament_target_dependencies(circle rclcpp)
-# target_link_libraries(circle "${cpp_typesupport_target}")
+# target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
 
 install(TARGETS
   turtle_control
