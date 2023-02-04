@@ -53,14 +53,7 @@ class turtle_control : public rclcpp::Node
         collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<float>();
 
         // Ensures all values are passed via .yaml file
-        if (wheelradius_ == -1.0 || track_width_ == -1.0 || motor_cmd_max_ == -1.0 ||
-            motor_cmd_per_rad_sec_ == -1.0 || encoder_ticks_per_rad_ == -1.0 ||
-            collision_radius_ == -1.0)
-        {
-            int err_ = true;
-            RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
-            throw err_;
-        }
+        check_yaml_params();
 
         // Publishers
         wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>(
@@ -162,16 +155,28 @@ class turtle_control : public rclcpp::Node
                                      joint_states_.position[1]/passed_time};
         }
         prev_encoder_stamp_ = msg.stamp.sec + msg.stamp.nanosec*1e-9;
+        joint_states_publisher_->publish(joint_states_);
 
         RCLCPP_INFO(get_logger(), "I heard sensor_data");
+    }
+
+    // Ensures all values are passed via .yaml file
+    void check_yaml_params()
+    {
+        if (wheelradius_ == -1.0 || track_width_ == -1.0 || motor_cmd_max_ == -1.0 ||
+            motor_cmd_per_rad_sec_ == -1.0 || encoder_ticks_per_rad_ == -1.0 ||
+            collision_radius_ == -1.0)
+        {
+            int err_ = true;
+            RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
+            throw err_;
+        }
     }
 
     /// \brief Main simulation timer loop
     void timer_callback()
     {
-        // auto message = geometry_msgs::msg::Twist();
-        // message.linear.x = 1;
-        // RCLCPP_INFO(get_logger(), "Publishing: '%f'", message.linear.x);
+
     }
 };
 
