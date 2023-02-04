@@ -115,8 +115,8 @@ class turtle_control : public rclcpp::Node
         wheel_vel_.right = wheel_vel_.right/motor_cmd_per_rad_sec_;
 
         // Limit max wheel command speed
-        wheel_cmd_.left_velocity = limit_Max(wheel_vel_.left)
-        wheel_cmd_.right_velocity = limit_Max(wheel_vel_.right)
+        wheel_cmd_.left_velocity = limit_Max(wheel_vel_.left);
+        wheel_cmd_.right_velocity = limit_Max(wheel_vel_.right);
 
         wheel_cmd_publisher_->publish(wheel_cmd_);
         RCLCPP_INFO(get_logger(), "I heard cmd_vel data");
