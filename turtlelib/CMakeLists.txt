@@ -18,8 +18,7 @@ add_library(turtlelib src/rigid2d.cpp src/diff_drive.cpp)
 # During build, the headers are read from the source code directory
 # When used from the installed location, headers are in the 
 # system include/ directory
-target_include_directories(turtlelib
-    PUBLIC
+target_include_directories(turtlelib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
@@ -54,6 +53,11 @@ target_link_libraries(turtlelib_test turtlelib Catch2::Catch2WithMain)
 
 add_test(NAME Test_of_Turtlelib COMMAND turtlelib_test)
 
+# include_directories(include/turtlelib)
+# set(HEADER_FILES include/turtlelib/)
+# add_library(turtlelib src/ ${HEADER_FILES})
+# ament_export_targets(turtlelib HAS_LIBRARY_TARGET)
+
 # install the include directories
 install(DIRECTORY include/turtlelib DESTINATION include)
 
@@ -74,3 +78,12 @@ install(EXPORT project_name-targets
         FILE project_name-config.cmake
         NAMESPACE project_name::
         DESTINATION lib/cmake/${PROJECT_NAME})
+
+# install(
+#   TARGETS my_lib
+#   EXPORT my_lib
+#   LIBRARY DESTINATION lib
+#   ARCHIVE DESTINATION lib
+#   RUNTIME DESTINATION bin
+#   INCLUDES DESTINATION include
+# )

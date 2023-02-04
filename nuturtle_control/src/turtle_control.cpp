@@ -6,7 +6,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-// #include ""
+#include "nuturtlebot_msgs/msg/wheel_commands.hpp"
+// #include "turtlelib/diff_drive.hpp"
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
@@ -18,7 +19,7 @@ class turtle_control : public rclcpp::Node
     : Node("turtle_control")
     {
         // Publishers
-        // cmd_vel_publisher_ = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
+        wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
 
         // Subscribers
         cmd_vel_subscriber_ = create_subscription<geometry_msgs::msg::Twist>(
@@ -31,9 +32,10 @@ class turtle_control : public rclcpp::Node
   private:
     // Variables
     geometry_msgs::msg::Twist body_twist_;
+    nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
-    // rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_publisher_;
+    rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
 
     /// \brief
@@ -41,6 +43,7 @@ class turtle_control : public rclcpp::Node
     void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
     {
         body_twist_ = msg;
+
         RCLCPP_INFO(get_logger(), "I heard data");
     }
 
