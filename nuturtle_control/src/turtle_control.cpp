@@ -36,19 +36,29 @@ class turtle_control : public rclcpp::Node
                                             detection [m]";
 
         // Declare default parameters values
-        declare_parameter("wheelradius", 0.0, wheelradius_des);
-        declare_parameter("track_width", 0.0, track_width_des);
-        declare_parameter("motor_cmd_max", 0.0, motor_cmd_max_des);
-        declare_parameter("motor_cmd_per_rad_sec", 0.0, motor_cmd_per_rad_sec_des);
-        declare_parameter("encoder_ticks_per_rad", 0.0, encoder_ticks_per_rad_des);
-        declare_parameter("collision_radius", 0.0, collision_radius_des);
+        declare_parameter("wheelradius", -1.0, wheelradius_des);
+        declare_parameter("track_width", -1.0, track_width_des);
+        declare_parameter("motor_cmd_max", -1.0, motor_cmd_max_des);
+        declare_parameter("motor_cmd_per_rad_sec", -1.0, motor_cmd_per_rad_sec_des);
+        declare_parameter("encoder_ticks_per_rad", -1.0, encoder_ticks_per_rad_des);
+        declare_parameter("collision_radius", -1.0, collision_radius_des);
         // Get params - Read params from yaml file that is passed in the launch file
         wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<float>();
         track_width_ = get_parameter("track_width").get_parameter_value().get<float>();
-        motor_cmd_max_ = get_parameter("motor_cmd_max").get_parameter_value().get<double>();
+        motor_cmd_max_ = get_parameter("motor_cmd_max").get_parameter_value().get<float>();
         motor_cmd_per_rad_sec_ = get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<float>();
         encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").get_parameter_value().get<float>();
         collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<float>();
+
+        // Ensures all values are passed via .yaml file
+        if (wheelradius_ == -1.0 || track_width_ == -1.0 || motor_cmd_max_ == -1.0 ||
+            motor_cmd_per_rad_sec_ == -1.0 || encoder_ticks_per_rad_ == -1.0 ||
+            collision_radius_ == -1.0)
+        {
+            int err_ = true;
+            RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
+            throw err_;
+        }
 
         // Publishers
         wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>(
@@ -64,12 +74,12 @@ class turtle_control : public rclcpp::Node
 
   private:
     // Variables
-    float wheelradius_ = 0.0;
-    float track_width_ = 0.0;
-    double motor_cmd_max_ = 0;
-    float motor_cmd_per_rad_sec_ = 0.0;
-    float encoder_ticks_per_rad_ = 0.0;
-    float collision_radius_ = 0.0;
+    float wheelradius_;
+    float track_width_;
+    float motor_cmd_max_;
+    float motor_cmd_per_rad_sec_;
+    float encoder_ticks_per_rad_;
+    float collision_radius_;
     geometry_msgs::msg::Twist body_twist_;
     nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
 
@@ -99,7 +109,9 @@ class turtle_control : public rclcpp::Node
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<turtle_control>());
+    try {
+        rclcpp::spin(std::make_shared<turtle_control>());
+    } catch (int err_) {}
     rclcpp::shutdown();
     return 0;
 }
