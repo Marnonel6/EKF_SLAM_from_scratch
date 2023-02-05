@@ -8,6 +8,8 @@
 #include "nav_msgs/msg/odometry.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "turtlelib/diff_drive.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2_ros/transform_broadcaster.h"
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
@@ -84,6 +86,8 @@ class odometry : public rclcpp::Node
     turtlelib::Wheel new_wheel_pos_;
     sensor_msgs::msg::JointState joint_states_;
     turtlelib::DiffDrive turtle_;
+    nav_msgs::msg::Odometry odom_;
+    tf2::Quaternion q_;
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
@@ -126,7 +130,18 @@ class odometry : public rclcpp::Node
     /// \brief Main simulation timer loop
     void timer_callback()
     {
-        
+        odom_.header.frame_id = odom_id_;
+        odom_.child_frame_id = body_id_;
+        odom_.header.stamp = this->get_clock()->now();
+        odom_.pose.pose.position.x = turtle_.configuration().x;
+        odom_.pose.pose.position.y = turtle_.configuration().y;
+        odom_.pose.pose.position.z = 0.0;
+        q_.setRPY(0, 0, turtle_.configuration().theta);   // Rotation around z-axis
+        odom_.pose.pose.orientation.x = q_.x();
+        odom_.pose.pose.orientation.y = q_.y();
+        odom_.pose.pose.orientation.z = q_.z();
+        odom_.pose.pose.orientation.w = q_.w();
+        odom_publisher_->publish(odom_);
     }
 };
 
