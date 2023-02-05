@@ -51,9 +51,8 @@ class odometry : public rclcpp::Node
         wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<float>();
         track_width_ = get_parameter("track_width").get_parameter_value().get<float>();
 
-
         // Ensures all values are passed via the launch file
-        // check_frame_params();
+        check_frame_params();
 
         // Ensures all values are passed via .yaml file
         check_yaml_params();
