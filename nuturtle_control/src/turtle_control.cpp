@@ -10,7 +10,6 @@
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "turtlelib/diff_drive.hpp"
-#include "nuturtle_control/srv/initial_config.hpp"
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;

@@ -32,7 +32,7 @@ class odometry : public rclcpp::Node
         body_id_des.description = "The name of the body frame of the robot";
         odom_id_des.description = "The name of the odometry frame";
         wheel_left_des.description = "The name of the left wheel joint";
-        wheel_right_des.description = "The name of the right wheel joint.";
+        wheel_right_des.description = "The name of the right wheel joint";
         wheelradius_des.description = "The radius of the wheels [m]";
         track_width_des.description = "The distance between the wheels [m]";
 
