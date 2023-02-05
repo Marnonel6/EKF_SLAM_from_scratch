@@ -190,9 +190,9 @@ class odometry : public rclcpp::Node
         odom_.pose.pose.orientation.y = q_.y();
         odom_.pose.pose.orientation.z = q_.z();
         odom_.pose.pose.orientation.w = q_.w();
-        odom_.twist.twist.linear.x =  body_twist_.x;
-        odom_.twist.twist.linear.y =  body_twist_.y;
-        odom_.twist.twist.angular.z =  body_twist_.w;
+        odom_.twist.twist.linear.x = body_twist_.x;
+        odom_.twist.twist.linear.y = body_twist_.y;
+        odom_.twist.twist.angular.z = body_twist_.w;
         odom_publisher_->publish(odom_);
     }
 

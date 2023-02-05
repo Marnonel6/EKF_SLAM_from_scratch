@@ -20,6 +20,10 @@
   <arg name="config_file1" default="diff_params.yaml" 
    description=".yaml file to configure robot controls"/>
 
+  <!-- Argument to specify configuration file for rviz. -->
+  <arg name="rviz_config" default="$(find-pkg-share nuturtle_control)/config/nuturtle_sim.rviz" 
+   description=".rviz file to configure the simulator"/>
+
   <!-- Localhost turtlebot3 node -->
   <node pkg="numsr_turtlebot" exec="numsr_turtlebot" name="numsr_turtlebot"
         if="$(eval '\'$(var robot)\' == \'localhost\'')">
@@ -37,6 +41,7 @@
   <!-- Launch the Nusim simulation launch file -->
   <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"
            if="$(eval '\'$(var robot)\' == \'nusim\'')">
+      <arg name="rviz_config" value="$(var rviz_config)"/>
   </include>
 
   <!-- Turtle control node -->

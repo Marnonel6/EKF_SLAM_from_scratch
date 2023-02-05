@@ -156,8 +156,6 @@ class turtle_control : public rclcpp::Node
         }
         prev_encoder_stamp_ = msg.stamp.sec + msg.stamp.nanosec*1e-9;
         joint_states_publisher_->publish(joint_states_);
-
-        RCLCPP_INFO(get_logger(), "I heard sensor_data");
     }
 
     // Ensures all values are passed via .yaml file

@@ -160,7 +160,7 @@ class Nusim : public rclcpp::Node
       create_walls_array();
 
       // Update object with params
-    //   turtle_ = turtlelib::DiffDrive{wheelradius_, track_width_};
+      turtle_ = turtlelib::DiffDrive{wheelradius_, track_width_};
 
       // Publishers
       timestep_publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
