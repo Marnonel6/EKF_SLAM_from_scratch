@@ -29,6 +29,14 @@ find_package(Doxygen)
 set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md) # Use the readme in your doxygen docs
 doxygen_add_docs(doxygen include/ src/ README.md ALL)
 
+rosidl_generate_interfaces(${PROJECT_NAME}_srv
+  "srv/InitialConfig.srv"
+  LIBRARY_NAME ${PROJECT_NAME}
+)
+
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}_srv "rosidl_typesupport_cpp")
+
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -46,7 +54,7 @@ add_executable(odometry src/odometry.cpp)
 add_executable(circle src/circle.cpp)
 ament_target_dependencies(turtle_control rclcpp geometry_msgs std_msgs nuturtlebot_msgs sensor_msgs)
 target_link_libraries(turtle_control turtlelib::turtlelib "${cpp_typesupport_target}")
-ament_target_dependencies(odometry rclcpp sensor_msgs nav_msgs tf2_ros tf2)
+ament_target_dependencies(odometry rclcpp sensor_msgs nav_msgs tf2_ros tf2 geometry_msgs)
 target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
 ament_target_dependencies(circle rclcpp)
 # target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
@@ -62,6 +70,7 @@ install(TARGETS
 install(DIRECTORY
   launch
   config
+  srv
   DESTINATION share/${PROJECT_NAME}/
 )
 

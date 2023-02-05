@@ -10,6 +10,8 @@
 #include "turtlelib/diff_drive.hpp"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/transform_broadcaster.h"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "nuturtle_control/srv/initial_config.hpp"
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
@@ -68,6 +70,11 @@ class odometry : public rclcpp::Node
                         "joint_states", 10, std::bind(&odometry::joint_states_callback,
                                                        this, _1));
 
+        // Initial pose service
+        initial_pose_server_ = create_service<nuturtle_control::srv::InitialConfig>(
+        "initial_pose",
+        std::bind(&odometry::initial_pose_callback, this, std::placeholders::_1, std::placeholders::_2));
+
         // Initialize the transform broadcaster
         tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
@@ -88,12 +95,14 @@ class odometry : public rclcpp::Node
     turtlelib::DiffDrive turtle_;
     nav_msgs::msg::Odometry odom_;
     tf2::Quaternion q_;
+    geometry_msgs::msg::TransformStamped t_;
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_subscriber_;
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+    rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
 
     /// \brief
     /// \param msg
@@ -127,9 +136,20 @@ class odometry : public rclcpp::Node
         }
     }
 
+    /// \brief Initial pose service
+    void initial_pose_callback(
+      nuturtle_control::srv::InitialConfig::Request::SharedPtr request,
+      nuturtle_control::srv::InitialConfig::Response::SharedPtr)
+    {
+      // Set configuration to initial pose
+      turtle_ = turtlelib::DiffDrive{wheelradius_, track_width_, {request->x, request->y,\
+                                                                  request->theta}};
+    }
+
     /// \brief Main simulation timer loop
     void timer_callback()
     {
+        // Publish updated odometry
         odom_.header.frame_id = odom_id_;
         odom_.child_frame_id = body_id_;
         odom_.header.stamp = this->get_clock()->now();
@@ -142,6 +162,19 @@ class odometry : public rclcpp::Node
         odom_.pose.pose.orientation.z = q_.z();
         odom_.pose.pose.orientation.w = q_.w();
         odom_publisher_->publish(odom_);
+
+        // Broadcast TF frames
+        t_.header.stamp = this->get_clock()->now();
+        t_.header.frame_id = odom_id_;
+        t_.child_frame_id = body_id_;
+        t_.transform.translation.x = turtle_.configuration().x;
+        t_.transform.translation.y = turtle_.configuration().y;
+        t_.transform.translation.z = 0.0;   // Turtle only exists in 2D
+        t_.transform.rotation.x = q_.x();
+        t_.transform.rotation.y = q_.y();
+        t_.transform.rotation.z = q_.z();
+        t_.transform.rotation.w = q_.w();
+        tf_broadcaster_->sendTransform(t_);
     }
 };
 
