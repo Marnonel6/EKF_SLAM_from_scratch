@@ -5,8 +5,8 @@
    description="Specifies which node publishes to the cmd_vel topic - circle, teleop, none"/>
   <arg name="robot" default="nusim"
    description="Where to launch the nodes - robot, simulator, nothing"/>
-  <!-- <arg name="use_rviz" default="true"
-   description="Specify if rviz needs to start - true, false"/> -->
+  <arg name="use_rviz" default="true"
+   description="Specify if rviz needs to start - true, false"/>
   <arg name="body_id" default=""
    description="The name of the body frame of the robot"/>
   <arg name="odom_id" default="odom"
@@ -32,7 +32,7 @@
   <!-- <node pkg="nusim" exec="nusim" name="nusim"
         if="$(eval '\'$(var robot)\' == \'nusim\'')"/> -->
 
-  <!-- Launch the Python launch file -->
+  <!-- Launch the Nusim simulation launch file -->
   <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"
            if="$(eval '\'$(var robot)\' == \'nusim\'')"/>
 
@@ -56,7 +56,7 @@
         args="0 0 0 0 0 0 1 /nusim/world /odom"/>
 
   <!-- Declare the RViz node and load the config file-->
-  <!-- <node name="rviz2" pkg="rviz2" exec="rviz2" if="$(eval '\'$(var use_rviz)\' == \'true\'')"
-        args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"/> -->
+  <node name="rviz2" pkg="rviz2" exec="rviz2" if="$(eval '\'$(var use_rviz)\' == \'true\'')"
+        args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"/>
 
 </launch>
