@@ -9,6 +9,8 @@ using turtlelib::normalize;
 
 int main()
 {
+    //! would make sense to declare some of these closer to where they are needed
+    //! would make sense to using std::cout, std::cin, and std::endl;
     Transform2D Tab, Tba, Tbc, Tcb, Tac, Tca;
     Vector2D va, vb, vc;
     Twist2D Va, Vb, Vc;
@@ -21,6 +23,8 @@ int main()
     Tcb = Tbc.inv();
     Tac = Tab*Tbc;
     Tca = Tac.inv();
+    //! no need for std::endl after all of these (which flushes the buffer and is a bit slower)
+    //! instead you can "\n" and use endl for the last one in the sequence
     std::cout << "T_{a, b}: " << Tab << std::endl;
     std::cout << "T_{b, a}: " << Tba << std::endl;
     std::cout << "T_{b, c}: " << Tbc << std::endl;

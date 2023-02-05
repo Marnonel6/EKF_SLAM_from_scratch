@@ -1,0 +1,4 @@
+1. To see location of my comments
+   1. =sudo apt install ripgrep=
+   2. From the base directory: rg //!
+      - This searches through all files for //!

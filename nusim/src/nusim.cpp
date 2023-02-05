@@ -190,6 +190,7 @@ private:
   {
     geometry_msgs::msg::TransformStamped t_;
 
+    //! superflous use of this
     t_.header.stamp = this->get_clock()->now();
     t_.header.frame_id = "nusim/world";
     t_.child_frame_id = "red/base_footprint";
@@ -217,10 +218,12 @@ private:
       throw err_;
     }
 
+    //! it is incorrect and dangerous to cast the .size() from a size_t to an int, because the size_t can take on more values
+    //! instead, use a size_t as the loop counter value
     for (int i = 0; i < (int)obstacles_x_.size(); i++) {
       visualization_msgs::msg::Marker obstacle_;
       obstacle_.header.frame_id = "nusim/world";
-      obstacle_.header.stamp = this->get_clock()->now();
+      obstacle_.header.stamp = this->get_clock()->now(); //! superfluous this, also all these obstacles exist at the same time so can have same timestamp
       obstacle_.id = i;
       obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
       obstacle_.action = visualization_msgs::msg::Marker::ADD;

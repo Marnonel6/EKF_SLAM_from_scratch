@@ -40,6 +40,7 @@ namespace turtlelib
 
     std::istream &operator>>(std::istream &is, Twist2D &t)
     {
+        //! const auto c =
         char c = is.peek(); // examine the next character without extracting it
 
         if (c == '[')
@@ -69,6 +70,7 @@ namespace turtlelib
 
     Vector2D Transform2D::operator()(Vector2D v) const
     {
+        //! No need for Vector2D, just {} will work here
         return Vector2D{cos(rot)*v.x - sin(rot)*v.y + tran.x, sin(rot)*v.x + cos(rot)*v.y + tran.y};
     }
 
@@ -78,6 +80,8 @@ namespace turtlelib
         trans2D.tran.x = -tran.x*cos(rot)-tran.y*sin(rot);
         trans2D.tran.y = -tran.y*cos(rot)+tran.x*sin(rot);
         trans2D.rot = -rot;
+        //! using a temporary like this is not good because you are bypassing the trans2D constructor
+        //! Could return {{x,y}, theta}, and call the constructor
         return trans2D;
     }
 
@@ -85,6 +89,7 @@ namespace turtlelib
     {
         tran.x = cos(rot)*rhs.tran.x - sin(rot)*rhs.tran.y + tran.x;
         tran.y = sin(rot)*rhs.tran.x + cos(rot)*rhs.tran.y + tran.y;
+        //! no need for angle wrapping here. use 2.0*PI
         rot = fmod(rot+rhs.rot, 2*PI); // ANGLE WRAPPING??? MATT - Modulas operand
         return *this;
     }
@@ -110,6 +115,7 @@ namespace turtlelib
         double rot = 0.0;
         Vector2D tran{0.0,0.0};
 
+        //! const auto c = 
         char c = is.peek(); // examine the next character without extracting it
 
         if (c == 'd')
@@ -149,11 +155,13 @@ namespace turtlelib
         newTwist.w = t.w;
         newTwist.x = t.w*tran.y + t.x*cos(rot) - t.y*sin(rot);
         newTwist.y = -t.w*tran.x + t.x*sin(rot) + t.y*cos(rot);
+        //! Could return this all without the temporary
         return newTwist;
     }
 
     Vector2D normalize(Vector2D v)
     {
+        //! const auto length =
         double length = sqrt(v.x * v.x + v.y * v.y);
         return Vector2D{v.x/length, v.y/length};
     }
