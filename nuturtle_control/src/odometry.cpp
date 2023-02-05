@@ -54,6 +54,9 @@ class odometry : public rclcpp::Node
         // Ensures all values are passed via .yaml file
         check_yaml_params();
 
+        // Update object with params
+        turtle_ = turtlelib::DiffDrive{wheelradius_, track_width_};
+
         // Publishers
         odom_publisher_ = create_publisher<nav_msgs::msg::Odometry>(
                                "odom", 10);
@@ -78,7 +81,9 @@ class odometry : public rclcpp::Node
     std::string wheel_right_;
     float wheelradius_;
     float track_width_;
+    turtlelib::Wheel new_wheel_pos_;
     sensor_msgs::msg::JointState joint_states_;
+    turtlelib::DiffDrive turtle_;
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
@@ -90,7 +95,9 @@ class odometry : public rclcpp::Node
     /// \param msg
     void joint_states_callback(const sensor_msgs::msg::JointState & msg)
     {
-        RCLCPP_INFO(get_logger(), "I heard sensor_data");
+        new_wheel_pos_.left = msg.position[0];
+        new_wheel_pos_.right = msg.position[1];
+        turtle_.ForwardKinematics(new_wheel_pos_);
     }
 
     // Ensures all values are passed via the launch file
