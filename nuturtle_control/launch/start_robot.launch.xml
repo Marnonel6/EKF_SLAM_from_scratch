@@ -20,6 +20,12 @@
   <arg name="config_file1" default="diff_params.yaml" 
    description=".yaml file to configure robot controls"/>
 
+  <!-- Localhost turtlebot3 node -->
+  <node pkg="numsr_turtlebot" exec="numsr_turtlebot" name="numsr_turtlebot"
+        if="$(eval '\'$(var robot)\' == \'localhost\'')">
+      <param name="use_rviz" value="false"/>
+  </node>
+
   <!-- Circle node -->
   <node pkg="nuturtle_control" exec="circle" name="circle"
         if="$(eval '\'$(var cmd_src)\' == \'circle\'')"/>
@@ -31,8 +37,6 @@
   <!-- Launch the Nusim simulation launch file -->
   <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"
            if="$(eval '\'$(var robot)\' == \'nusim\'')"/>
-
-  <!-- Localhost turtlebot3 node -->
 
   <!-- Turtle control node -->
   <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control">
