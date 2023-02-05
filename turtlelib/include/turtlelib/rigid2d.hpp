@@ -61,7 +61,76 @@ namespace turtlelib
 
         /// \brief the y coordinate
         double y = 0.0;
+
+        /// \brief compose this vector with another and store the result 
+        /// in this object
+        /// \param rhs - the first vector to apply
+        /// \return a reference to the newly transformed operator
+        Vector2D & operator+=(const Vector2D & rhs);
+
+        /// \brief compose this vector with another and store the result 
+        /// in this object
+        /// \param rhs - the first vector to apply
+        /// \return a reference to the newly transformed operator
+        Vector2D & operator-=(const Vector2D & rhs);
+
+        // /// \brief compose this vector with a scalar and store the result 
+        // /// in this object
+        // /// \param rhs - the first vector to apply
+        // /// \return a reference to the newly transformed operator
+        // Vector2D & operator*=(const Vector2D & rhs); // TODO DELETE ????
+
+        /// \brief compose this vector with a scalar and store the result 
+        /// in this object
+        /// \param rhs - the scalar to apply
+        /// \return a reference to the newly transformed operator
+        Vector2D & operator*=(const double & rhs);
     };
+
+    /// \brief add two vectors together, returning their composition
+    /// \param lhs - the left hand operand
+    /// \param rhs - the right hand operand
+    /// \return the composition of the two vectors
+    /// HINT: This function should be implemented in terms of += for Vector2D
+    Vector2D operator+(Vector2D lhs, const Vector2D & rhs);
+
+    /// \brief subtract one vector from another, returning their composition
+    /// \param lhs - the left hand operand
+    /// \param rhs - the right hand operand
+    /// \return the composition of the two vectors
+    /// HINT: This function should be implemented in terms of -= for Vector2D
+    Vector2D operator-(Vector2D lhs, const Vector2D & rhs);
+
+    /// \brief multiply a scalar with a vector, returning their composition
+    /// \param lhs - the left hand operand
+    /// \param rhs - the right hand operand
+    /// \return the composition of the vector and scalar
+    /// HINT: This function soperatorhould be implemented in terms of *= for Vector2D
+    Vector2D operator*(const double & lhs, Vector2D rhs);
+
+    /// \brief multiply a scalar with a vector, returning their composition
+    /// \param lhs - the left hand operand
+    /// \param rhs - the right hand operand
+    /// \return the composition of the vector and scalar
+    /// HINT: This function should be implemented in terms of *= for Vector2D
+    Vector2D operator*(Vector2D lhs, const double & rhs);
+
+    /// \brief compute the dot product of two vectors
+    /// \param v1 - the first vector
+    /// \param v2 - the second vector
+    /// \return the dot product of the vectors
+    double dot(Vector2D v1, Vector2D v2);
+
+    /// \brief compute the magnitude of the vector
+    /// \param v - the vector to calculate the magnitude of
+    /// \return the magnitude of the vector
+    double magnitude(Vector2D v);
+
+    /// \brief compute the angle between two vectors
+    /// \param v1 - the first vector
+    /// \param v2 - the second vector
+    /// \return the angle between two vectors
+    double angle(Vector2D v1, Vector2D v2);
 
     /// \brief output a 2 dimensional vector as [xcomponent ycomponent]
     /// os - stream to output to
@@ -194,7 +263,7 @@ namespace turtlelib
     /// \param lhs - the left hand operand
     /// \param rhs - the right hand operand
     /// \return the composition of the two transforms
-    /// HINT: This function should be implemented in terms of *=
+    /// HINT: This function should be implemented in terms of *= for Transform2D
     Transform2D operator*(Transform2D lhs, const Transform2D & rhs);
 
     /// \brief normalize a vector in 2D
@@ -202,6 +271,15 @@ namespace turtlelib
     /// \return the normalized/unit vector
     Vector2D normalize(Vector2D v);
 
+    /// \brief normalize an angle in 2D - Angle wrapping (-pi,pi]
+    /// \param rad - the angle to normalize
+    /// \return the normalized angle between (-pi,pi]
+    double normalize_angle(double rad);
+
+    /// \brief compute the transformation corresponding to a rigid body following a constant twist (in its original body frame) for one time-unit
+    /// \param t - twist to integrate
+    /// \return transformation corresponding to a rigid body following a constant twist for one time-unit
+    Transform2D integrate_twist(Twist2D t);
 }
 
 #endif
