@@ -20,7 +20,6 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(nuturtlebot_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
 find_package(turtlelib REQUIRED)
 find_package(nav_msgs REQUIRED)
 
@@ -31,6 +30,7 @@ doxygen_add_docs(doxygen include/ src/ README.md ALL)
 
 rosidl_generate_interfaces(${PROJECT_NAME}_srv
   "srv/InitialConfig.srv"
+  "srv/Control.srv"
   LIBRARY_NAME ${PROJECT_NAME}
 )
 
@@ -56,8 +56,8 @@ ament_target_dependencies(turtle_control rclcpp geometry_msgs std_msgs nuturtleb
 target_link_libraries(turtle_control turtlelib::turtlelib "${cpp_typesupport_target}")
 ament_target_dependencies(odometry rclcpp sensor_msgs nav_msgs tf2_ros tf2 geometry_msgs)
 target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
-ament_target_dependencies(circle rclcpp geometry_msgs)
-# target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
+ament_target_dependencies(circle rclcpp geometry_msgs std_srvs)
+target_link_libraries(circle "${cpp_typesupport_target}")
 
 install(TARGETS
   turtle_control
