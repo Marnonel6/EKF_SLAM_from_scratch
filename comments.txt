@@ -2,3 +2,5 @@
    1. =sudo apt install ripgrep=
    2. From the base directory: rg //!
       - This searches through all files for //!
+
+Passes all my tests
