@@ -25,14 +25,16 @@
         if="$(eval '\'$(var cmd_src)\' == \'circle\'')"/>
 
   <!-- Teleop keyboard node -->
-  <node pkg="teleop_twist_keyboard" exec="teleop_twist_keyboard" name="teleop_twist_keyboard" output='screen' launch-prefix="xterm -e"
-        if="$(eval '\'$(var cmd_src)\' == \'teleop\'')"/>
-
-  <!-- cmd_src = none -->
+  <node pkg="teleop_twist_keyboard" exec="teleop_twist_keyboard" name="teleop_twist_keyboard" 
+        output='screen' launch-prefix="xterm -e" if="$(eval '\'$(var cmd_src)\' == \'teleop\'')"/>
 
   <!-- Nusim simulation node -->
-  <node pkg="nusim" exec="nusim" name="nusim"
-        if="$(eval '\'$(var robot)\' == \'nusim\'')"/>
+  <!-- <node pkg="nusim" exec="nusim" name="nusim"
+        if="$(eval '\'$(var robot)\' == \'nusim\'')"/> -->
+
+  <!-- Launch the Python launch file -->
+  <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"
+           if="$(eval '\'$(var robot)\' == \'nusim\'')"/>
 
   <!-- Localhost turtlebot3 node -->
 
@@ -49,6 +51,10 @@
       <param name="wheel_left" value="$(var left_wheel_joint)"/>
       <param name="wheel_right" value="$(var right_wheel_joint)"/>
   </node>
+
+
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_to_odom" 
+        args="0 0 0 0 0 0 1 /nusim/world /odom"/>
 
   <!-- Declare the RViz node and load the config file-->
   <node name="rviz2" pkg="rviz2" exec="rviz2" if="$(eval '\'$(var use_rviz)\' == \'true\'')"
