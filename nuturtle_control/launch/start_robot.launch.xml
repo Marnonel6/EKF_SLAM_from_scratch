@@ -5,8 +5,8 @@
    description="Specifies which node publishes to the cmd_vel topic - circle, teleop, none"/>
   <arg name="robot" default="nusim"
    description="Where to launch the nodes - robot, simulator, nothing"/>
-  <arg name="use_rviz" default="true"
-   description="Specify if rviz needs to start - true, false"/>
+  <!-- <arg name="use_rviz" default="true"
+   description="Specify if rviz needs to start - true, false"/> -->
   <arg name="body_id" default=""
    description="The name of the body frame of the robot"/>
   <arg name="odom_id" default="odom"
@@ -17,7 +17,7 @@
    description="The name of the right wheel joint"/>
 
   <!-- Argument to specify configuration file for robot control. -->
-  <arg name="config_file" default="diff_params.yaml" 
+  <arg name="config_file1" default="diff_params.yaml" 
    description=".yaml file to configure robot controls"/>
 
   <!-- Circle node -->
@@ -40,24 +40,23 @@
 
   <!-- Turtle control node -->
   <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control">
-      <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+      <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
   </node>
 
   <!-- Odometry node -->
   <node pkg="nuturtle_control" exec="odometry" name="odometry">
-      <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+      <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
       <param name="body_id" value="$(var body_id)"/>
       <param name="odom_id" value="$(var odom_id)"/>
       <param name="wheel_left" value="$(var left_wheel_joint)"/>
       <param name="wheel_right" value="$(var right_wheel_joint)"/>
   </node>
 
-
-  <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_to_odom" 
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_to_odom"
         args="0 0 0 0 0 0 1 /nusim/world /odom"/>
 
   <!-- Declare the RViz node and load the config file-->
-  <node name="rviz2" pkg="rviz2" exec="rviz2" if="$(eval '\'$(var use_rviz)\' == \'true\'')"
-        args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"/>
+  <!-- <node name="rviz2" pkg="rviz2" exec="rviz2" if="$(eval '\'$(var use_rviz)\' == \'true\'')"
+        args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"/> -->
 
 </launch>
