@@ -34,7 +34,9 @@
   </node>
 
   <!-- Odometry node -->
-  <node pkg="nuturtle_control" exec="odometry" name="odometry"/>
+  <node pkg="nuturtle_control" exec="odometry" name="odometry">
+      <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+  </node>
 
   <!-- Declare the RViz node and load the config file-->
   <node name="rviz2" pkg="rviz2" exec="rviz2" if="$(eval '\'$(var use_rviz)\' == \'true\'')"
