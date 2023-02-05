@@ -68,6 +68,8 @@ class odometry : public rclcpp::Node
         joint_states_subscriber_ = create_subscription<sensor_msgs::msg::JointState>(
                         "joint_states", 10, std::bind(&odometry::joint_states_callback,
                                                        this, _1));
+        cmd_vel_subscriber_ = create_subscription<geometry_msgs::msg::Twist>(
+                        "cmd_vel", 10, std::bind(&odometry::cmd_vel_callback, this, _1));
 
         // Initial pose service
         initial_pose_server_ = create_service<nuturtle_control::srv::InitialConfig>(
@@ -90,18 +92,20 @@ class odometry : public rclcpp::Node
     float wheelradius_;
     float track_width_;
     turtlelib::Wheel new_wheel_pos_;
-    sensor_msgs::msg::JointState joint_states_;
+    turtlelib::Twist2D body_twist_;
     turtlelib::DiffDrive turtle_;
     nav_msgs::msg::Odometry odom_;
     tf2::Quaternion q_;
     geometry_msgs::msg::TransformStamped t_;
+    sensor_msgs::msg::JointState joint_states_;
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_subscriber_;
-    std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
     rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
+    std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
     /// \brief
     /// \param msg
@@ -110,6 +114,15 @@ class odometry : public rclcpp::Node
         new_wheel_pos_.left = msg.position[0];
         new_wheel_pos_.right = msg.position[1];
         turtle_.ForwardKinematics(new_wheel_pos_);
+    }
+
+    /// \brief
+    /// \param msg
+    void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
+    {
+        body_twist_.w = msg.angular.z;
+        body_twist_.x = msg.linear.x;
+        body_twist_.y = msg.linear.y;
     }
 
     // Ensures all values are passed via the launch file
@@ -124,7 +137,7 @@ class odometry : public rclcpp::Node
         }
     }
 
-    // Ensures all values are passed via .yaml file
+    /// \brief Ensures all values are passed via .yaml file
     void check_yaml_params()
     {
         if (wheelradius_ == -1.0 || track_width_ == -1.0)
@@ -145,8 +158,25 @@ class odometry : public rclcpp::Node
                                                                   request->theta}};
     }
 
-    /// \brief Main simulation timer loop
-    void timer_callback()
+    /// \brief
+    void transform_broadcast()
+    {
+        // Broadcast TF frames
+        t_.header.stamp = this->get_clock()->now();
+        t_.header.frame_id = odom_id_;
+        t_.child_frame_id = body_id_;
+        t_.transform.translation.x = turtle_.configuration().x;
+        t_.transform.translation.y = turtle_.configuration().y;
+        t_.transform.translation.z = 0.0;   // Turtle only exists in 2D
+        t_.transform.rotation.x = q_.x();
+        t_.transform.rotation.y = q_.y();
+        t_.transform.rotation.z = q_.z();
+        t_.transform.rotation.w = q_.w();
+        tf_broadcaster_->sendTransform(t_);
+    }
+
+    /// \brief
+    void odometry_pub()
     {
         // Publish updated odometry
         odom_.header.frame_id = odom_id_;
@@ -160,20 +190,17 @@ class odometry : public rclcpp::Node
         odom_.pose.pose.orientation.y = q_.y();
         odom_.pose.pose.orientation.z = q_.z();
         odom_.pose.pose.orientation.w = q_.w();
+        odom_.twist.twist.linear.x =  body_twist_.x;
+        odom_.twist.twist.linear.y =  body_twist_.y;
+        odom_.twist.twist.angular.z =  body_twist_.w;
         odom_publisher_->publish(odom_);
+    }
 
-        // Broadcast TF frames
-        t_.header.stamp = this->get_clock()->now();
-        t_.header.frame_id = odom_id_;
-        t_.child_frame_id = body_id_;
-        t_.transform.translation.x = turtle_.configuration().x;
-        t_.transform.translation.y = turtle_.configuration().y;
-        t_.transform.translation.z = 0.0;   // Turtle only exists in 2D
-        t_.transform.rotation.x = q_.x();
-        t_.transform.rotation.y = q_.y();
-        t_.transform.rotation.z = q_.z();
-        t_.transform.rotation.w = q_.w();
-        tf_broadcaster_->sendTransform(t_);
+    /// \brief Main simulation timer loop
+    void timer_callback()
+    {
+        odometry_pub();
+        transform_broadcast();
     }
 };
 
