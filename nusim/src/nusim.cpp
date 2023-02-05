@@ -84,6 +84,11 @@ class Nusim : public rclcpp::Node
       auto obstacles_y_des = rcl_interfaces::msg::ParameterDescriptor{};
       auto obstacles_r_des = rcl_interfaces::msg::ParameterDescriptor{};
       auto obstacles_h_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto walls_x_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto walls_y_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto walls_l_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto walls_h_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto walls_w_des = rcl_interfaces::msg::ParameterDescriptor{};
       rate_des.description = "Timer callback frequency [Hz]";
       x0_des.description = "Initial x coordinate of the robot [m]";
       y0_des.description = "Initial y coordinate of the robot [m]";
@@ -92,6 +97,11 @@ class Nusim : public rclcpp::Node
       obstacles_y_des.description = "Vector of y coordinates for each obstacle [m]";
       obstacles_r_des.description = "Radius of cylindrical obstacles [m]";
       obstacles_h_des.description = "Height of cylindrical obstacles [m]";
+      walls_x_des.description = "Vector of x coordinates for each wall [m]";
+      walls_y_des.description = "Vector of y coordinates for each wall [m]";
+      walls_l_des.description = "Lenght of rectangular wall [m]";
+      walls_h_des.description = "Height of rectangular wall [m]";
+      walls_w_des.description = "Width of rectangular wall [m]";
 
       // Declare default parameters values
       declare_parameter("rate", 200, rate_des);   // Hz for timer_callback
@@ -102,6 +112,11 @@ class Nusim : public rclcpp::Node
       declare_parameter("obstacles.y", std::vector<double>{}, obstacles_y_des);
       declare_parameter("obstacles.r", 0.0, obstacles_r_des);
       declare_parameter("obstacles.h", 0.0, obstacles_h_des);
+      declare_parameter("walls.x", std::vector<double>{}, walls_x_des);
+      declare_parameter("walls.y", std::vector<double>{}, walls_y_des);
+      declare_parameter("walls.l", 0.0, walls_l_des);
+      declare_parameter("walls.h", 0.0, walls_h_des);
+      declare_parameter("walls.w", 0.0, walls_w_des);
       // Get params - Read params from yaml file that is passed in the launch file
       int rate = get_parameter("rate").get_parameter_value().get<int>();
       x0_ = get_parameter("x0").get_parameter_value().get<float>();
@@ -111,6 +126,11 @@ class Nusim : public rclcpp::Node
       obstacles_y_ = get_parameter("obstacles.y").get_parameter_value().get<std::vector<double>>();
       obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<float>();
       obstacles_h_ = get_parameter("obstacles.h").get_parameter_value().get<float>();
+      walls_x_ = get_parameter("walls.x").get_parameter_value().get<std::vector<double>>();
+      walls_y_ = get_parameter("walls.y").get_parameter_value().get<std::vector<double>>();
+      wall_l_ = get_parameter("walls.l").get_parameter_value().get<float>();
+      wall_h_ = get_parameter("walls.h").get_parameter_value().get<float>();
+      wall_w_ = get_parameter("walls.w").get_parameter_value().get<float>();
 
       // Set current robot pose equal to initial pose
       x_ = x0_;
@@ -119,11 +139,15 @@ class Nusim : public rclcpp::Node
 
       // Create obstacles
       create_obstacles_array();
+      // Create walls
+      create_walls_array();
 
       // Publisher
       timestep_publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
       obstacles_publisher_ =
         create_publisher<visualization_msgs::msg::MarkerArray>("~/obstacles", 10);
+      walls_publisher_ =
+        create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
 
       // Reset service
       reset_server_ = create_service<std_srvs::srv::Empty>(
@@ -151,16 +175,23 @@ class Nusim : public rclcpp::Node
     float x0_ = 0;
     float y0_ = 0;
     float theta0_ = 0;
-    float obstacles_r_;
+    float obstacles_r_;  // Size of obstacles
     float obstacles_h_;
-    std::vector<double> obstacles_x_;
+    float wall_l_; // Size of walls
+    float wall_h_;
+    float wall_w_;
+    std::vector<double> obstacles_x_;  // Location of obstacles
     std::vector<double> obstacles_y_;
+    std::vector<double> walls_x_;  // Location of walls
+    std::vector<double> walls_y_;
     visualization_msgs::msg::MarkerArray obstacles_;
+    visualization_msgs::msg::MarkerArray walls_;
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
     rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_server_;
     rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_server_;
 
@@ -242,6 +273,40 @@ class Nusim : public rclcpp::Node
       }
     }
 
+    // /// \brief Create walls as a MarkerArray and publish them to a topic to display them in Rviz
+    void create_walls_array()
+    {
+    //   if (obstacles_x_.size() != obstacles_y_.size()) {
+    //     int err_ = true;
+    //     RCLCPP_ERROR(this->get_logger(), "x and y coordinate lists are not the same lenght!");
+    //     throw err_;
+    //   }
+
+      for (int i = 0; i < (int)walls_x_.size(); i++) {
+        visualization_msgs::msg::Marker wall_;
+        wall_.header.frame_id = "nusim/world";
+        wall_.header.stamp = this->get_clock()->now();
+        wall_.id = i;
+        wall_.type = visualization_msgs::msg::Marker::CUBE;
+        wall_.action = visualization_msgs::msg::Marker::ADD;
+        wall_.pose.position.x = walls_x_[i];
+        wall_.pose.position.y = walls_y_[i];
+        wall_.pose.position.z = wall_h_ / 2.0;
+        wall_.pose.orientation.x = 0.0;
+        wall_.pose.orientation.y = 0.0;
+        wall_.pose.orientation.z = 0.0;
+        wall_.pose.orientation.w = 1.0;
+        wall_.scale.x = wall_l_;
+        wall_.scale.y = wall_h_;
+        wall_.scale.z = wall_h_;
+        wall_.color.r = 1.0f;
+        wall_.color.g = 0.0f;
+        wall_.color.b = 0.0f;
+        wall_.color.a = 1.0;
+        walls_.markers.push_back(wall_);
+      }
+    }
+
     /// \brief Main simulation timer loop
     void timer_callback()
     {
@@ -249,6 +314,7 @@ class Nusim : public rclcpp::Node
       message.data = timestep_++;
       timestep_publisher_->publish(message);
       obstacles_publisher_->publish(obstacles_);
+      walls_publisher_->publish(walls_);
       broadcast_red_turtle();
     }
 };
