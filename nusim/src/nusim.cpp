@@ -44,6 +44,9 @@
 #include "nusim/srv/teleport.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "visualization_msgs/msg/marker.hpp"
+#include "nuturtlebot_msgs/msg/wheel_commands.hpp"
+#include "turtlelib/diff_drive.hpp"
+#include "nuturtlebot_msgs/msg/sensor_data.hpp"
 
 using namespace std::chrono_literals;
 
@@ -89,6 +92,9 @@ class Nusim : public rclcpp::Node
       auto walls_l_des = rcl_interfaces::msg::ParameterDescriptor{};
       auto walls_h_des = rcl_interfaces::msg::ParameterDescriptor{};
       auto walls_w_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto wheelradius_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto track_width_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto encoder_ticks_per_rad_des = rcl_interfaces::msg::ParameterDescriptor{};
       rate_des.description = "Timer callback frequency [Hz]";
       x0_des.description = "Initial x coordinate of the robot [m]";
       y0_des.description = "Initial y coordinate of the robot [m]";
@@ -102,6 +108,11 @@ class Nusim : public rclcpp::Node
       walls_l_des.description = "Lenght of rectangular wall [m]";
       walls_h_des.description = "Height of rectangular wall [m]";
       walls_w_des.description = "Width of rectangular wall [m]";
+      wheelradius_des.description = "The radius of the wheels [m]";
+      track_width_des.description = "The distance between the wheels [m]";
+      encoder_ticks_per_rad_des.description = "The number of encoder 'ticks' per radian \
+                                               [ticks/rad]";
+
 
       // Declare default parameters values
       declare_parameter("rate", 200, rate_des);   // Hz for timer_callback
@@ -117,6 +128,9 @@ class Nusim : public rclcpp::Node
       declare_parameter("walls.l", 0.0, walls_l_des);
       declare_parameter("walls.h", 0.0, walls_h_des);
       declare_parameter("walls.w", 0.0, walls_w_des);
+      declare_parameter("wheelradius", -1.0, wheelradius_des);
+      declare_parameter("track_width", -1.0, track_width_des);
+      declare_parameter("encoder_ticks_per_rad", -1.0, encoder_ticks_per_rad_des);
       // Get params - Read params from yaml file that is passed in the launch file
       int rate = get_parameter("rate").get_parameter_value().get<int>();
       x0_ = get_parameter("x0").get_parameter_value().get<float>();
@@ -131,6 +145,9 @@ class Nusim : public rclcpp::Node
       wall_l_ = get_parameter("walls.l").get_parameter_value().get<float>();
       wall_h_ = get_parameter("walls.h").get_parameter_value().get<float>();
       wall_w_ = get_parameter("walls.w").get_parameter_value().get<float>();
+      wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<float>();
+      track_width_ = get_parameter("track_width").get_parameter_value().get<float>();
+      encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").get_parameter_value().get<float>();
 
       // Set current robot pose equal to initial pose
       x_ = x0_;
@@ -142,12 +159,22 @@ class Nusim : public rclcpp::Node
       // Create walls
       create_walls_array();
 
-      // Publisher
+      // Update object with params
+    //   turtle_ = turtlelib::DiffDrive{wheelradius_, track_width_};
+
+      // Publishers
       timestep_publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
       obstacles_publisher_ =
         create_publisher<visualization_msgs::msg::MarkerArray>("~/obstacles", 10);
       walls_publisher_ =
         create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
+      sensor_data_publisher_ =  create_publisher<nuturtlebot_msgs::msg::SensorData>(
+                                                "red/sensor_data", 10);
+
+      //Subscribers
+      red_wheel_cmd_subscriber_ = create_subscription<nuturtlebot_msgs::msg::WheelCommands>(
+                        "red/wheel_cmd", 10, std::bind(&Nusim::red_wheel_cmd_callback, this,
+                        std::placeholders::_1));
 
       // Reset service
       reset_server_ = create_service<std_srvs::srv::Empty>(
@@ -180,20 +207,49 @@ class Nusim : public rclcpp::Node
     float wall_l_; // Size of walls
     float wall_h_;
     float wall_w_;
+    float wheelradius_;
+    float track_width_;
+    float encoder_ticks_per_rad_;
     std::vector<double> obstacles_x_;  // Location of obstacles
     std::vector<double> obstacles_y_;
     std::vector<double> walls_x_;  // Location of walls
     std::vector<double> walls_y_;
     visualization_msgs::msg::MarkerArray obstacles_;
     visualization_msgs::msg::MarkerArray walls_;
+    nuturtlebot_msgs::msg::SensorData sensor_data_;
+    turtlelib::Wheel new_wheel_pos_;
+    turtlelib::DiffDrive turtle_;
 
     // Create objects
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
+    rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_publisher_;
+    rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr red_wheel_cmd_subscriber_;
     rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_server_;
     rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_server_;
+
+    /// \brief
+    /// \param msg
+    void red_wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
+    {
+        sensor_data_.stamp = this->get_clock()->now();
+        sensor_data_.left_encoder = msg.left_velocity;
+        sensor_data_.right_encoder = msg.right_velocity;
+        update_red_turtle_config();
+    }
+
+    /// \brief
+    void update_red_turtle_config()
+    {
+        new_wheel_pos_.left = sensor_data_.left_encoder/encoder_ticks_per_rad_;
+        new_wheel_pos_.right = sensor_data_.right_encoder/encoder_ticks_per_rad_;
+        turtle_.ForwardKinematics(new_wheel_pos_); // Update robot position
+        x_ = turtle_.configuration().x;
+        y_ = turtle_.configuration().y;
+        theta_ = turtle_.configuration().theta;
+    }
 
     /// \brief Reset the simulation
     void reset_callback(
@@ -315,6 +371,7 @@ class Nusim : public rclcpp::Node
       timestep_publisher_->publish(message);
       obstacles_publisher_->publish(obstacles_);
       walls_publisher_->publish(walls_);
+      sensor_data_publisher_->publish(sensor_data_);
       broadcast_red_turtle();
     }
 };

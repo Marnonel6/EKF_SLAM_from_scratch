@@ -11,9 +11,14 @@
   <arg name="config_file" default="basic_world.yaml" 
    description=".yaml file to configure the simulator"/>
 
+  <!-- Argument to specify configuration file for simulator. -->
+  <arg name="config_file2" default="diff_params.yaml" 
+   description=".yaml file to configure the simulator"/>
+
   <!-- Main simulation node -->
   <node pkg="nusim" exec="nusim" name="nusim">
     <param from="$(find-pkg-share nusim)/config/$(var config_file)"/>
+    <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file2)"/>
   </node>
 
   <!-- Declare the RViz node -->
