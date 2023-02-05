@@ -28,10 +28,6 @@
   <node pkg="teleop_twist_keyboard" exec="teleop_twist_keyboard" name="teleop_twist_keyboard" 
         output='screen' launch-prefix="xterm -e" if="$(eval '\'$(var cmd_src)\' == \'teleop\'')"/>
 
-  <!-- Nusim simulation node -->
-  <!-- <node pkg="nusim" exec="nusim" name="nusim"
-        if="$(eval '\'$(var robot)\' == \'nusim\'')"/> -->
-
   <!-- Launch the Nusim simulation launch file -->
   <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"
            if="$(eval '\'$(var robot)\' == \'nusim\'')"/>
@@ -52,11 +48,20 @@
       <param name="wheel_right" value="$(var right_wheel_joint)"/>
   </node>
 
+  <!-- Static transform publisher between nusim/world and odom tf frames -->
   <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_to_odom"
         args="0 0 0 0 0 0 1 /nusim/world /odom"/>
 
   <!-- Declare the RViz node and load the config file-->
-  <node name="rviz2" pkg="rviz2" exec="rviz2" if="$(eval '\'$(var use_rviz)\' == \'true\'')"
-        args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"/>
+  <node name="rviz2" pkg="rviz2" exec="rviz2"
+        args="-d $(find-pkg-share nuturtle_control)/config/nuturtle_control.rviz"
+        if="$(eval '\'$(var use_rviz)\' == \'true\'')"/>
+
+  <!-- Launch the Python launch file with the blue robot -->
+  <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
+    <!-- Pass required arguments to the Python launch file -->
+    <arg name="color" value="blue" />
+    <arg name="use_rviz" value="false" />
+  </include>
 
 </launch>
