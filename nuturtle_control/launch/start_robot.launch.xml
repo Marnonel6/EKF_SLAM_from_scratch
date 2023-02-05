@@ -36,11 +36,13 @@
 
   <!-- Launch the Nusim simulation launch file -->
   <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"
-           if="$(eval '\'$(var robot)\' == \'nusim\'')"/>
+           if="$(eval '\'$(var robot)\' == \'nusim\'')">
+  </include>
 
   <!-- Turtle control node -->
   <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control">
       <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
+      <remap from="/wheel_cmd" to="red/wheel_cmd"/>
   </node>
 
   <!-- Odometry node -->
