@@ -56,7 +56,7 @@ ament_target_dependencies(turtle_control rclcpp geometry_msgs std_msgs nuturtleb
 target_link_libraries(turtle_control turtlelib::turtlelib "${cpp_typesupport_target}")
 ament_target_dependencies(odometry rclcpp sensor_msgs nav_msgs tf2_ros tf2 geometry_msgs)
 target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
-ament_target_dependencies(circle rclcpp)
+ament_target_dependencies(circle rclcpp geometry_msgs)
 # target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
 
 install(TARGETS

@@ -173,7 +173,7 @@ class turtle_control : public rclcpp::Node
         }
     }
 
-    /// \brief Main simulation timer loop
+    /// \brief Main timer loop
     void timer_callback()
     {
 
