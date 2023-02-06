@@ -11,6 +11,7 @@
 
 using namespace std::chrono_literals;
 
+/// \brief Circle
 class circle : public rclcpp::Node
 {
   public:

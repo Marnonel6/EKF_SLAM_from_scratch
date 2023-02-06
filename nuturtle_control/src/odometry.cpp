@@ -16,6 +16,7 @@
 using namespace std::chrono_literals;
 using std::placeholders::_1;
 
+/// \brief odometry
 class odometry : public rclcpp::Node
 {
   public:

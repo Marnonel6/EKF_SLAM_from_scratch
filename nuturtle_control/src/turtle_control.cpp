@@ -14,6 +14,7 @@
 using namespace std::chrono_literals;
 using std::placeholders::_1;
 
+/// \brief turtle_control
 class turtle_control : public rclcpp::Node
 {
   public:
