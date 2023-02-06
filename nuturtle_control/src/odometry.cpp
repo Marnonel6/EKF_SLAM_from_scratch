@@ -132,10 +132,12 @@ class odometry : public rclcpp::Node
         // prev_wheel_pos_.left = msg.position[0]; // TODO
         // prev_wheel_pos_.right = msg.position[1];
 
-        new_wheel_pos_.left = msg.position[0] - prev_wheel_pos_.left; // Todo ?? dt?? Velocity??
-        new_wheel_pos_.right = msg.position[1] - prev_wheel_pos_.right;
+        // new_wheel_pos_.left = msg.position[0] - prev_wheel_pos_.left; // Todo ?? dt?? Velocity??
+        // new_wheel_pos_.right = msg.position[1] - prev_wheel_pos_.right;
         // new_wheel_pos_.left = msg.velocity[0]; // Todo ?? dt?? Velocity??
         // new_wheel_pos_.right = msg.velocity[1];
+        new_wheel_pos_.left = msg.position[0]; // Todo ?? dt?? Velocity??
+        new_wheel_pos_.right = msg.position[1];
         body_twist_ = turtle_.Twist(new_wheel_pos_);
         turtle_.ForwardKinematics(new_wheel_pos_);
         odometry_pub();
