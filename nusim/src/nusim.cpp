@@ -234,6 +234,7 @@ class Nusim : public rclcpp::Node
         sensor_data_.left_encoder = msg.left_velocity;
         sensor_data_.right_encoder = msg.right_velocity;
         update_red_turtle_config();
+        sensor_data_publisher_->publish(sensor_data_);
     }
 
     /// \brief
@@ -245,6 +246,7 @@ class Nusim : public rclcpp::Node
         x_ = turtle_.configuration().x;
         y_ = turtle_.configuration().y;
         theta_ = turtle_.configuration().theta;
+        // broadcast_red_turtle();
     }
 
     /// \brief Reset the simulation
@@ -398,7 +400,7 @@ class Nusim : public rclcpp::Node
       timestep_publisher_->publish(message);
       obstacles_publisher_->publish(obstacles_);
       walls_publisher_->publish(walls_);
-      sensor_data_publisher_->publish(sensor_data_);
+    //   sensor_data_publisher_->publish(sensor_data_);
       broadcast_red_turtle();
     }
 };

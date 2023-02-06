@@ -88,6 +88,10 @@ namespace turtlelib
         /// \brief the robots current configuration
         /// \return robots current configuration
         Robot_configuration configuration() const;
+
+        /// \brief generates a twist from wheel positions
+        /// \return body twist
+        Twist2D Twist(Wheel new_wheel_positions);
     };
 
 }

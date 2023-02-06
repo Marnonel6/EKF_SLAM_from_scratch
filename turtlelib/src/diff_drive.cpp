@@ -19,18 +19,24 @@ namespace turtlelib
                                     q{robot_config},
                                     wheel_position{0.0, 0.0}{}
 
-    void DiffDrive::ForwardKinematics(Wheel new_wheel_positions)
+    Twist2D DiffDrive::Twist(Wheel new_wheel_positions)
     {
         WheelVelocities wheel_vel;
         wheel_vel.left = new_wheel_positions.left - wheel_position.left;
         wheel_vel.right = new_wheel_positions.right - wheel_position.right;
 
-        // Equation 1 START //
         Twist2D twist_bbp;
         twist_bbp.w = (wheel_radius/2)*((-wheel_vel.left/(wheel_track/2)) + 
                       wheel_vel.right/(wheel_track/2));
         twist_bbp.x = (wheel_radius/2)*(wheel_vel.left + wheel_vel.right);
         twist_bbp.y = 0;
+        return twist_bbp;
+    }
+
+    void DiffDrive::ForwardKinematics(Wheel new_wheel_positions)
+    {
+        // Equation 1 START //
+        Twist2D twist_bbp = DiffDrive::Twist(new_wheel_positions);
         // Equation 1 End //
 
         // Equation 2 START //

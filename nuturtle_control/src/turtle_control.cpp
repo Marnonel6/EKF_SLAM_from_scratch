@@ -56,6 +56,9 @@ class turtle_control : public rclcpp::Node
         // Ensures all values are passed via .yaml file
         check_yaml_params();
 
+        // Create Diff Drive Object
+        turtle_ = turtlelib::DiffDrive(wheelradius_, track_width_);
+
         // Publishers
         wheel_cmd_publisher_ = create_publisher<nuturtlebot_msgs::msg::WheelCommands>(
                                "wheel_cmd", 10);
@@ -84,6 +87,7 @@ class turtle_control : public rclcpp::Node
     float prev_encoder_stamp_ = -1.0;
     turtlelib::Twist2D body_twist_;
     turtlelib::WheelVelocities wheel_vel_;
+    turtlelib::DiffDrive turtle_;
     nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
     sensor_msgs::msg::JointState joint_states_;
 
@@ -103,9 +107,9 @@ class turtle_control : public rclcpp::Node
         body_twist_.y = msg.linear.y;
 
         // Create Diff Drive Object
-        turtlelib::DiffDrive Turtle(wheelradius_, track_width_);
+        // turtlelib::DiffDrive turtle_(wheelradius_, track_width_);
         // Perform Inverse kinematics to get the wheel velocities from the twist
-        wheel_vel_ = Turtle.InverseKinematics(body_twist_);
+        wheel_vel_ = turtle_.InverseKinematics(body_twist_);
         // Convert rad/sec to ticks
         wheel_vel_.left = wheel_vel_.left/motor_cmd_per_rad_sec_;
         wheel_vel_.right = wheel_vel_.right/motor_cmd_per_rad_sec_;

@@ -93,6 +93,7 @@ class odometry : public rclcpp::Node
     float wheelradius_;
     float track_width_;
     turtlelib::Wheel new_wheel_pos_;
+    turtlelib::Wheel prev_wheel_pos_{0.0,0.0}; // TODO
     turtlelib::Twist2D body_twist_;
     turtlelib::DiffDrive turtle_;
     nav_msgs::msg::Odometry odom_;
@@ -112,18 +113,42 @@ class odometry : public rclcpp::Node
     /// \param msg
     void joint_states_callback(const sensor_msgs::msg::JointState & msg)
     {
-        new_wheel_pos_.left = msg.position[0];
-        new_wheel_pos_.right = msg.position[1];
+        // if (prev_wheel_pos_.left == 0)
+        // { 
+        //     prev_wheel_pos_.left = msg.position[0]; // TODO
+        //     prev_wheel_pos_.right = msg.position[1];
+        // }
+        // else
+        // {
+        //     new_wheel_pos_.left = msg.position[0] - prev_wheel_pos_.left; // Todo ?? dt?? Velocity??
+        //     new_wheel_pos_.right = msg.position[1] - prev_wheel_pos_.right;
+        //     // new_wheel_pos_.left = msg.velocity[0]; // Todo ?? dt?? Velocity??
+        //     // new_wheel_pos_.right = msg.velocity[1];
+        //     body_twist_ = turtle_.Twist(new_wheel_pos_);
+        //     turtle_.ForwardKinematics(new_wheel_pos_);
+        //     odometry_pub();
+        //     transform_broadcast(); // TODO Moved this here to stop the skipping around
+        // }
+        // prev_wheel_pos_.left = msg.position[0]; // TODO
+        // prev_wheel_pos_.right = msg.position[1];
+
+        new_wheel_pos_.left = msg.position[0] - prev_wheel_pos_.left; // Todo ?? dt?? Velocity??
+        new_wheel_pos_.right = msg.position[1] - prev_wheel_pos_.right;
+        // new_wheel_pos_.left = msg.velocity[0]; // Todo ?? dt?? Velocity??
+        // new_wheel_pos_.right = msg.velocity[1];
+        body_twist_ = turtle_.Twist(new_wheel_pos_);
         turtle_.ForwardKinematics(new_wheel_pos_);
+        odometry_pub();
+        transform_broadcast(); // TODO Moved this here to stop the skipping around
     }
 
     /// \brief
     /// \param msg
     void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
     {
-        body_twist_.w = msg.angular.z;
-        body_twist_.x = msg.linear.x;
-        body_twist_.y = msg.linear.y;
+        // body_twist_.w = msg.angular.z;
+        // body_twist_.x = msg.linear.x;
+        // body_twist_.y = msg.linear.y;
     }
 
     // Ensures all values are passed via the launch file
@@ -168,7 +193,7 @@ class odometry : public rclcpp::Node
         t_.child_frame_id = body_id_;
         t_.transform.translation.x = turtle_.configuration().x;
         t_.transform.translation.y = turtle_.configuration().y;
-        t_.transform.translation.z = 0.0;   // Turtle only exists in 2D
+        t_.transform.translation.z = 0.0; // Turtle only exists in 2D
         t_.transform.rotation.x = q_.x();
         t_.transform.rotation.y = q_.y();
         t_.transform.rotation.z = q_.z();
@@ -191,6 +216,9 @@ class odometry : public rclcpp::Node
         odom_.pose.pose.orientation.y = q_.y();
         odom_.pose.pose.orientation.z = q_.z();
         odom_.pose.pose.orientation.w = q_.w();
+        // odom_.twist.twist.linear.x = body_twist_.x;
+        // odom_.twist.twist.linear.y = body_twist_.y;
+        // odom_.twist.twist.angular.z = body_twist_.w;
         odom_.twist.twist.linear.x = body_twist_.x;
         odom_.twist.twist.linear.y = body_twist_.y;
         odom_.twist.twist.angular.z = body_twist_.w;
@@ -200,8 +228,8 @@ class odometry : public rclcpp::Node
     /// \brief Main simulation timer loop
     void timer_callback()
     {
-        odometry_pub();
-        transform_broadcast();
+        // odometry_pub();
+        // transform_broadcast(); // TODO Moved this here to stop the skipping around
     }
 };
 
