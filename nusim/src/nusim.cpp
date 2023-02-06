@@ -123,8 +123,8 @@ class Nusim : public rclcpp::Node
       declare_parameter("obstacles.y", std::vector<double>{}, obstacles_y_des);
       declare_parameter("obstacles.r", 0.0, obstacles_r_des);
       declare_parameter("obstacles.h", 0.0, obstacles_h_des);
-      declare_parameter("walls.x", std::vector<double>{}, walls_x_des);
-      declare_parameter("walls.y", std::vector<double>{}, walls_y_des);
+      declare_parameter("walls.x_lenght", 0.0, walls_x_des);
+      declare_parameter("walls.y_lenght", 0.0, walls_y_des);
       declare_parameter("walls.l", 0.0, walls_l_des);
       declare_parameter("walls.h", 0.0, walls_h_des);
       declare_parameter("walls.w", 0.0, walls_w_des);
@@ -140,8 +140,8 @@ class Nusim : public rclcpp::Node
       obstacles_y_ = get_parameter("obstacles.y").get_parameter_value().get<std::vector<double>>();
       obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<float>();
       obstacles_h_ = get_parameter("obstacles.h").get_parameter_value().get<float>();
-      walls_x_ = get_parameter("walls.x").get_parameter_value().get<std::vector<double>>();
-      walls_y_ = get_parameter("walls.y").get_parameter_value().get<std::vector<double>>();
+      walls_x_ = get_parameter("walls.x_lenght").get_parameter_value().get<float>();
+      walls_y_ = get_parameter("walls.y_lenght").get_parameter_value().get<float>();
       wall_l_ = get_parameter("walls.l").get_parameter_value().get<float>();
       wall_h_ = get_parameter("walls.h").get_parameter_value().get<float>();
       wall_w_ = get_parameter("walls.w").get_parameter_value().get<float>();
@@ -207,13 +207,13 @@ class Nusim : public rclcpp::Node
     float wall_l_; // Size of walls
     float wall_h_;
     float wall_w_;
+    float walls_x_;  // Location of walls
+    float walls_y_;
     float wheelradius_;
     float track_width_;
     float encoder_ticks_per_rad_;
     std::vector<double> obstacles_x_;  // Location of obstacles
     std::vector<double> obstacles_y_;
-    std::vector<double> walls_x_;  // Location of walls
-    std::vector<double> walls_y_;
     visualization_msgs::msg::MarkerArray obstacles_;
     visualization_msgs::msg::MarkerArray walls_;
     nuturtlebot_msgs::msg::SensorData sensor_data_;
@@ -338,27 +338,58 @@ class Nusim : public rclcpp::Node
     //     throw err_;
     //   }
 
-      for (int i = 0; i < (int)walls_x_.size(); i++) {
+      for (int i = 0; i <= 3; i++) {
         visualization_msgs::msg::Marker wall_;
         wall_.header.frame_id = "nusim/world";
         wall_.header.stamp = this->get_clock()->now();
         wall_.id = i;
         wall_.type = visualization_msgs::msg::Marker::CUBE;
         wall_.action = visualization_msgs::msg::Marker::ADD;
-        wall_.pose.position.x = walls_x_[i];
-        wall_.pose.position.y = walls_y_[i];
+
+        if (i == 0 || i == 1)
+            wall_.pose.position.x = 0.0;
+        else if (i == 2)
+            wall_.pose.position.x = (walls_x_ + wall_w_)/2;
+        else if (i == 3)
+            wall_.pose.position.x = -(walls_x_ + wall_w_)/2;
+
+        if (i == 2 || i == 3)
+            wall_.pose.position.y = 0.0;
+        else if (i == 0)
+            wall_.pose.position.y = (walls_y_ + wall_w_)/2;
+        else if (i == 1)
+            wall_.pose.position.y = -(walls_y_ + wall_w_)/2;
         wall_.pose.position.z = wall_h_ / 2.0;
-        wall_.pose.orientation.x = 0.0;
-        wall_.pose.orientation.y = 0.0;
-        wall_.pose.orientation.z = 0.0;
-        wall_.pose.orientation.w = 1.0;
-        wall_.scale.x = wall_l_;
-        wall_.scale.y = wall_h_;
-        wall_.scale.z = wall_h_;
-        wall_.color.r = 1.0f;
-        wall_.color.g = 0.0f;
-        wall_.color.b = 0.0f;
+
+        if (i == 0 || i == 1)
+        {
+            wall_.pose.orientation.x = 0.0;
+            wall_.pose.orientation.y = 0.0;
+            wall_.pose.orientation.z = 0.0;
+            wall_.pose.orientation.w = 1.0;
+        }
+        else
+        {
+            wall_.pose.orientation.x = 0.0;
+            wall_.pose.orientation.y = 0.0;
+            wall_.pose.orientation.z = 0.7071068;
+            wall_.pose.orientation.w = 0.7071068;
+        }
+
+        if (i == 0 || i == 1)
+        {
+            wall_.scale.x = walls_y_ + 2*wall_w_;
+        }
+        else
+        {
+            wall_.scale.x = walls_x_ + 2*wall_w_;
+        }
+        wall_.color.r = 0.3f;
+        wall_.color.g = 0.16f;
+        wall_.color.b = 0.52f;
         wall_.color.a = 1.0;
+        wall_.scale.y = wall_h_;
+        wall_.scale.z = wall_w_;
         walls_.markers.push_back(wall_);
       }
     }

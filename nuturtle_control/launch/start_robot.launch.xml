@@ -7,6 +7,8 @@
    description="Where to launch the nodes - robot, simulator, nothing"/>
   <arg name="use_rviz" default="true"
    description="Specify if rviz needs to start - true, false"/>
+  <!-- <arg if="$(eval '\'$(var robot)\' == \'localhost\'')" name="use_rviz" default="false"
+   description="If robot = localhost"/> -->
   <arg name="body_id" default=""
    description="The name of the body frame of the robot"/>
   <arg name="odom_id" default="odom"
