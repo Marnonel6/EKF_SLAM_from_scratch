@@ -11,6 +11,5 @@
     walls:
       x_lenght: 4.0
       y_lenght: 4.0
-      l: 2.0
       h: 0.25
-      w: 0.25
+      w: 0.10

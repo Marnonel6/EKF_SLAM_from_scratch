@@ -105,7 +105,6 @@ class Nusim : public rclcpp::Node
       obstacles_h_des.description = "Height of cylindrical obstacles [m]";
       walls_x_des.description = "Vector of x coordinates for each wall [m]";
       walls_y_des.description = "Vector of y coordinates for each wall [m]";
-      walls_l_des.description = "Lenght of rectangular wall [m]";
       walls_h_des.description = "Height of rectangular wall [m]";
       walls_w_des.description = "Width of rectangular wall [m]";
       wheelradius_des.description = "The radius of the wheels [m]";
@@ -125,7 +124,6 @@ class Nusim : public rclcpp::Node
       declare_parameter("obstacles.h", 0.0, obstacles_h_des);
       declare_parameter("walls.x_lenght", 0.0, walls_x_des);
       declare_parameter("walls.y_lenght", 0.0, walls_y_des);
-      declare_parameter("walls.l", 0.0, walls_l_des);
       declare_parameter("walls.h", 0.0, walls_h_des);
       declare_parameter("walls.w", 0.0, walls_w_des);
       declare_parameter("wheelradius", -1.0, wheelradius_des);
@@ -142,7 +140,6 @@ class Nusim : public rclcpp::Node
       obstacles_h_ = get_parameter("obstacles.h").get_parameter_value().get<float>();
       walls_x_ = get_parameter("walls.x_lenght").get_parameter_value().get<float>();
       walls_y_ = get_parameter("walls.y_lenght").get_parameter_value().get<float>();
-      wall_l_ = get_parameter("walls.l").get_parameter_value().get<float>();
       wall_h_ = get_parameter("walls.h").get_parameter_value().get<float>();
       wall_w_ = get_parameter("walls.w").get_parameter_value().get<float>();
       wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<float>();
@@ -204,8 +201,7 @@ class Nusim : public rclcpp::Node
     float theta0_ = 0;
     float obstacles_r_;  // Size of obstacles
     float obstacles_h_;
-    float wall_l_; // Size of walls
-    float wall_h_;
+    float wall_h_; // Size of walls
     float wall_w_;
     float walls_x_;  // Location of walls
     float walls_y_;
@@ -378,18 +374,18 @@ class Nusim : public rclcpp::Node
 
         if (i == 0 || i == 1)
         {
-            wall_.scale.x = walls_y_ + 2*wall_w_;
+            wall_.scale.x = walls_x_ + 2*wall_w_;
         }
         else
         {
-            wall_.scale.x = walls_x_ + 2*wall_w_;
+            wall_.scale.x = walls_y_ + 2*wall_w_;
         }
         wall_.color.r = 0.3f;
         wall_.color.g = 0.16f;
         wall_.color.b = 0.52f;
         wall_.color.a = 1.0;
-        wall_.scale.y = wall_h_;
-        wall_.scale.z = wall_w_;
+        wall_.scale.y = wall_w_;
+        wall_.scale.z = wall_h_;
         walls_.markers.push_back(wall_);
       }
     }
