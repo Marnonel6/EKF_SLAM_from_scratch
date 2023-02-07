@@ -111,12 +111,12 @@ class turtle_control : public rclcpp::Node
         // Perform Inverse kinematics to get the wheel velocities from the twist
         wheel_vel_ = turtle_.InverseKinematics(body_twist_);
         // Convert rad/sec to ticks
-        wheel_vel_.left = wheel_vel_.left/motor_cmd_per_rad_sec_;
-        wheel_vel_.right = wheel_vel_.right/motor_cmd_per_rad_sec_;
+        wheel_cmd_.left_velocity = wheel_vel_.left/motor_cmd_per_rad_sec_;
+        wheel_cmd_.right_velocity = wheel_vel_.right/motor_cmd_per_rad_sec_;
 
         // Limit max wheel command speed and publish wheel command
-        wheel_cmd_.left_velocity = limit_Max(wheel_vel_.left);
-        wheel_cmd_.right_velocity = limit_Max(wheel_vel_.right);
+        wheel_cmd_.left_velocity = limit_Max(wheel_cmd_.left_velocity);
+        wheel_cmd_.right_velocity = limit_Max(wheel_cmd_.right_velocity);
         wheel_cmd_publisher_->publish(wheel_cmd_);
     }
 
@@ -156,8 +156,8 @@ class turtle_control : public rclcpp::Node
                                       msg.right_encoder/encoder_ticks_per_rad_};
             float passed_time = msg.stamp.sec + msg.stamp.nanosec*1e-9 - prev_encoder_stamp_;
             // Encoder ticks to rad/s
-            joint_states_.velocity = {joint_states_.position[0]/passed_time,
-                                     joint_states_.position[1]/passed_time};
+            joint_states_.velocity = {joint_states_.position.at(0)/passed_time,
+                                     joint_states_.position.at(1)/passed_time};
         }
         prev_encoder_stamp_ = msg.stamp.sec + msg.stamp.nanosec*1e-9;
         joint_states_publisher_->publish(joint_states_);

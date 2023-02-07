@@ -220,6 +220,7 @@ class Nusim : public rclcpp::Node
     nuturtlebot_msgs::msg::SensorData sensor_data_;
     turtlelib::Wheel new_wheel_pos_;
     turtlelib::Wheel old_wheel_pos_{0.0,0.0};
+    turtlelib::WheelVelocities new_wheel_vel_{0.0, 0.0};
     turtlelib::DiffDrive turtle_;
 
     // Create objects
@@ -239,10 +240,10 @@ class Nusim : public rclcpp::Node
         sensor_data_.stamp = this->get_clock()->now();
         // sensor_data_.left_encoder = msg.left_velocity;  // TODO Convert to rad/s
         // sensor_data_.right_encoder = msg.right_velocity;
-        sensor_data_.left_encoder = msg.left_velocity*motor_cmd_per_rad_sec_*0.005;  // TODO Convert wheel ticks to encoder ticks
-        sensor_data_.right_encoder = msg.right_velocity*motor_cmd_per_rad_sec_*0.005;
-        update_red_turtle_config();
-        sensor_data_publisher_->publish(sensor_data_); // TODO Publish in Timer??
+        new_wheel_vel_.left = msg.left_velocity*motor_cmd_per_rad_sec_;  // TODO Convert wheel ticks to encoder ticks
+        new_wheel_vel_.right = msg.right_velocity*motor_cmd_per_rad_sec_;
+        // update_red_turtle_config();
+        // sensor_data_publisher_->publish(sensor_data_); // TODO Publish in Timer??
     }
 
     /// \brief
@@ -250,12 +251,18 @@ class Nusim : public rclcpp::Node
     {
         // new_wheel_pos_.left = sensor_data_.left_encoder/encoder_ticks_per_rad_;
         // new_wheel_pos_.right = sensor_data_.right_encoder/encoder_ticks_per_rad_;
-        new_wheel_pos_.left =  old_wheel_pos_.left + sensor_data_.left_encoder/encoder_ticks_per_rad_;
-        new_wheel_pos_.right = old_wheel_pos_.right + sensor_data_.right_encoder/encoder_ticks_per_rad_;
+        // new_wheel_pos_.left =  old_wheel_pos_.left + new_wheel_vel_.left*0.005;
+        // new_wheel_pos_.right = old_wheel_pos_.right + new_wheel_vel_.right*0.005;
+        new_wheel_pos_.left = new_wheel_vel_.left*0.005; // Change in position
+        new_wheel_pos_.right = new_wheel_vel_.right*0.005; // Change in position
         turtle_.ForwardKinematics(new_wheel_pos_); // Update robot position
         x_ = turtle_.configuration().x;
         y_ = turtle_.configuration().y;
         theta_ = turtle_.configuration().theta;
+        new_wheel_pos_.left =  old_wheel_pos_.left + new_wheel_vel_.left*0.005; // Sensor Data
+        new_wheel_pos_.right = old_wheel_pos_.right + new_wheel_vel_.right*0.005; // Sensor Data
+        sensor_data_.left_encoder = new_wheel_pos_.left*encoder_ticks_per_rad_;
+        sensor_data_.right_encoder = new_wheel_pos_.right*encoder_ticks_per_rad_;
         // broadcast_red_turtle();
         old_wheel_pos_.left = new_wheel_pos_.left;
         old_wheel_pos_.right = new_wheel_pos_.right;
@@ -412,7 +419,8 @@ class Nusim : public rclcpp::Node
       timestep_publisher_->publish(message);
       obstacles_publisher_->publish(obstacles_);
       walls_publisher_->publish(walls_);
-    //   sensor_data_publisher_->publish(sensor_data_);
+      update_red_turtle_config();
+      sensor_data_publisher_->publish(sensor_data_);
       broadcast_red_turtle();
     }
 };

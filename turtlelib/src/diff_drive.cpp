@@ -21,9 +21,12 @@ namespace turtlelib
 
     Twist2D DiffDrive::Twist(Wheel new_wheel_positions)
     {
+        wheel_position.left = wheel_position.left + new_wheel_positions.left;
+        wheel_position.right = wheel_position.right + new_wheel_positions.right;
+
         WheelVelocities wheel_vel;
-        wheel_vel.left = new_wheel_positions.left - wheel_position.left;
-        wheel_vel.right = new_wheel_positions.right - wheel_position.right;
+        wheel_vel.left = new_wheel_positions.left; // - wheel_position.left;
+        wheel_vel.right = new_wheel_positions.right; // - wheel_position.right;
 
         Twist2D twist_bbp;
         twist_bbp.w = (wheel_radius/2)*((-wheel_vel.left/(wheel_track/2)) + 
