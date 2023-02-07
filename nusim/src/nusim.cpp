@@ -95,6 +95,7 @@ class Nusim : public rclcpp::Node
       auto wheelradius_des = rcl_interfaces::msg::ParameterDescriptor{};
       auto track_width_des = rcl_interfaces::msg::ParameterDescriptor{};
       auto encoder_ticks_per_rad_des = rcl_interfaces::msg::ParameterDescriptor{};
+      auto motor_cmd_per_rad_sec_des = rcl_interfaces::msg::ParameterDescriptor{};
       rate_des.description = "Timer callback frequency [Hz]";
       x0_des.description = "Initial x coordinate of the robot [m]";
       y0_des.description = "Initial y coordinate of the robot [m]";
@@ -111,7 +112,8 @@ class Nusim : public rclcpp::Node
       track_width_des.description = "The distance between the wheels [m]";
       encoder_ticks_per_rad_des.description = "The number of encoder 'ticks' per radian \
                                                [ticks/rad]";
-
+      motor_cmd_per_rad_sec_des.description = "Each motor command 'tick' is 0.024 rad/sec \
+                                               [tick/(rad/sec)]";
 
       // Declare default parameters values
       declare_parameter("rate", 200, rate_des);   // Hz for timer_callback
@@ -129,6 +131,7 @@ class Nusim : public rclcpp::Node
       declare_parameter("wheelradius", -1.0, wheelradius_des);
       declare_parameter("track_width", -1.0, track_width_des);
       declare_parameter("encoder_ticks_per_rad", -1.0, encoder_ticks_per_rad_des);
+      declare_parameter("motor_cmd_per_rad_sec", -1.0, motor_cmd_per_rad_sec_des);
       // Get params - Read params from yaml file that is passed in the launch file
       int rate = get_parameter("rate").get_parameter_value().get<int>();
       x0_ = get_parameter("x0").get_parameter_value().get<float>();
@@ -145,6 +148,7 @@ class Nusim : public rclcpp::Node
       wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<float>();
       track_width_ = get_parameter("track_width").get_parameter_value().get<float>();
       encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").get_parameter_value().get<float>();
+      motor_cmd_per_rad_sec_ = get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<float>();
 
       // Set current robot pose equal to initial pose
       x_ = x0_;
@@ -208,13 +212,14 @@ class Nusim : public rclcpp::Node
     float wheelradius_;
     float track_width_;
     float encoder_ticks_per_rad_;
+    float motor_cmd_per_rad_sec_;
     std::vector<double> obstacles_x_;  // Location of obstacles
     std::vector<double> obstacles_y_;
     visualization_msgs::msg::MarkerArray obstacles_;
     visualization_msgs::msg::MarkerArray walls_;
     nuturtlebot_msgs::msg::SensorData sensor_data_;
     turtlelib::Wheel new_wheel_pos_;
-    // turtlelib::Wheel old_wheel_pos_{0.0,0.0};
+    turtlelib::Wheel old_wheel_pos_{0.0,0.0};
     turtlelib::DiffDrive turtle_;
 
     // Create objects
@@ -232,10 +237,10 @@ class Nusim : public rclcpp::Node
     void red_wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
     {
         sensor_data_.stamp = this->get_clock()->now();
-        sensor_data_.left_encoder = msg.left_velocity;  // TODO Convert to rad/s
-        sensor_data_.right_encoder = msg.right_velocity;
-        // sensor_data_.left_encoder = msg.left_velocity*0.005;  // TODO Convert wheel ticks to encoder ticks
-        // sensor_data_.right_encoder = msg.right_velocity*0.005;
+        // sensor_data_.left_encoder = msg.left_velocity;  // TODO Convert to rad/s
+        // sensor_data_.right_encoder = msg.right_velocity;
+        sensor_data_.left_encoder = msg.left_velocity*motor_cmd_per_rad_sec_*0.005;  // TODO Convert wheel ticks to encoder ticks
+        sensor_data_.right_encoder = msg.right_velocity*motor_cmd_per_rad_sec_*0.005;
         update_red_turtle_config();
         sensor_data_publisher_->publish(sensor_data_); // TODO Publish in Timer??
     }
@@ -243,17 +248,17 @@ class Nusim : public rclcpp::Node
     /// \brief
     void update_red_turtle_config()
     {
-        new_wheel_pos_.left = sensor_data_.left_encoder/encoder_ticks_per_rad_;
-        new_wheel_pos_.right = sensor_data_.right_encoder/encoder_ticks_per_rad_;
-        // new_wheel_pos_.left =  old_wheel_pos_.left + sensor_data_.left_encoder/encoder_ticks_per_rad_;
-        // new_wheel_pos_.right = old_wheel_pos_.right + sensor_data_.right_encoder/encoder_ticks_per_rad_;
+        // new_wheel_pos_.left = sensor_data_.left_encoder/encoder_ticks_per_rad_;
+        // new_wheel_pos_.right = sensor_data_.right_encoder/encoder_ticks_per_rad_;
+        new_wheel_pos_.left =  old_wheel_pos_.left + sensor_data_.left_encoder/encoder_ticks_per_rad_;
+        new_wheel_pos_.right = old_wheel_pos_.right + sensor_data_.right_encoder/encoder_ticks_per_rad_;
         turtle_.ForwardKinematics(new_wheel_pos_); // Update robot position
         x_ = turtle_.configuration().x;
         y_ = turtle_.configuration().y;
         theta_ = turtle_.configuration().theta;
         // broadcast_red_turtle();
-        // old_wheel_pos_.left = new_wheel_pos_.left;
-        // old_wheel_pos_.right = new_wheel_pos_.right;
+        old_wheel_pos_.left = new_wheel_pos_.left;
+        old_wheel_pos_.right = new_wheel_pos_.right;
     }
 
     /// \brief Reset the simulation

@@ -143,7 +143,7 @@ class turtle_control : public rclcpp::Node
     void sensor_data_callback(const nuturtlebot_msgs::msg::SensorData & msg)
     {
         joint_states_.header.stamp = msg.stamp;
-        joint_states_.name = {"left_wheel_joint", "right_wheel_joint"};
+        joint_states_.name = {"wheel_left_joint", "wheel_rigth_joint"};
         if (prev_encoder_stamp_ == -1.0)
         {
             joint_states_.position = {0.0, 0.0};
