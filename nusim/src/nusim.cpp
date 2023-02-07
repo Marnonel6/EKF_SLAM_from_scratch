@@ -231,7 +231,7 @@ class Nusim : public rclcpp::Node
     void red_wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
     {
         sensor_data_.stamp = this->get_clock()->now();
-        sensor_data_.left_encoder = msg.left_velocity;
+        sensor_data_.left_encoder = msg.left_velocity;  // Convert to rad/s
         sensor_data_.right_encoder = msg.right_velocity;
         update_red_turtle_config();
         sensor_data_publisher_->publish(sensor_data_);

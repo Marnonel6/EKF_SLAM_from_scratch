@@ -69,8 +69,6 @@ class odometry : public rclcpp::Node
         joint_states_subscriber_ = create_subscription<sensor_msgs::msg::JointState>(
                         "joint_states", 10, std::bind(&odometry::joint_states_callback,
                                                        this, _1));
-        cmd_vel_subscriber_ = create_subscription<geometry_msgs::msg::Twist>(
-                        "cmd_vel", 10, std::bind(&odometry::cmd_vel_callback, this, _1));
 
         // Initial pose service
         initial_pose_server_ = create_service<nuturtle_control::srv::InitialConfig>(
@@ -105,7 +103,6 @@ class odometry : public rclcpp::Node
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_subscriber_;
-    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
     rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
@@ -142,15 +139,6 @@ class odometry : public rclcpp::Node
         turtle_.ForwardKinematics(new_wheel_pos_);
         odometry_pub();
         transform_broadcast(); // TODO Moved this here to stop the skipping around
-    }
-
-    /// \brief
-    /// \param msg
-    void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
-    {
-        // body_twist_.w = msg.angular.z;
-        // body_twist_.x = msg.linear.x;
-        // body_twist_.y = msg.linear.y;
     }
 
     // Ensures all values are passed via the launch file
