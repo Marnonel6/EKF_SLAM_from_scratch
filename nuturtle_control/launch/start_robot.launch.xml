@@ -51,6 +51,7 @@
       <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
       <remap from="/wheel_cmd" to="red/wheel_cmd"/>
       <remap from="/sensor_data" to="red/sensor_data"/>
+      <remap from="/joint_states" to="blue/joint_states"/>
   </node>
 
   <!-- Turtle control node if using localhost-->
@@ -66,6 +67,7 @@
       <param name="odom_id" value="$(var odom_id)"/>
       <param name="wheel_left" value="$(var left_wheel_joint)"/>
       <param name="wheel_right" value="$(var right_wheel_joint)"/>
+      <remap from="/joint_states" to="blue/joint_states"/>
   </node>
 
   <!-- Static transform publisher between nusim/world and odom tf frames -->
@@ -82,6 +84,7 @@
     <!-- Pass required arguments to the Python launch file -->
     <arg name="color" value="blue"/>
     <arg name="use_rviz" value="false"/>
+    <arg name="use_jsp" value="false"/>
   </include>
 
 </launch>

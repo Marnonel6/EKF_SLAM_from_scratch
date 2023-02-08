@@ -256,6 +256,7 @@ class Nusim : public rclcpp::Node
         // new_wheel_pos_.right = old_wheel_pos_.right + new_wheel_vel_.right*0.005;
 
         // TODO Rename to change in wheel position
+        // OR TODO make this new wheel position then add minus back in FK
         new_wheel_pos_.left = new_wheel_vel_.left*0.005; // Change in position
         new_wheel_pos_.right = new_wheel_vel_.right*0.005; // Change in position
         turtle_.ForwardKinematics(new_wheel_pos_); // Update robot position
