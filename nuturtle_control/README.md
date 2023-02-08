@@ -7,7 +7,10 @@ ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=teleop use_rviz:=tr
 
 ## Launch blue and red turtle
 ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=none use_rviz:=true robot:=nusim body_id:=blue/base_footprint left_wheel_joint:=left_wheel right_wheel_joint:=right_wheel
+# Better one
+ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=true robot:=nusim body_id:=blue/base_footprint left_wheel_joint:=blue/wheel_left_link right_wheel_joint:=ble/wheel_right_link
 
 ## Launch only blue turtle not red
 ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=none use_rviz:=true robot:=none body_id:=blue/base_footprint left_wheel_joint:=left_wheel right_wheel_joint:=right_wheel
+
 
