@@ -77,9 +77,6 @@ class odometry : public rclcpp::Node
 
         // Initialize the transform broadcaster
         tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
-
-        // Timer
-        timer_ = create_wall_timer(500ms, std::bind(&odometry::timer_callback, this));
     }
 
   private:
@@ -91,7 +88,7 @@ class odometry : public rclcpp::Node
     float wheelradius_;
     float track_width_;
     turtlelib::Wheel new_wheel_pos_;
-    turtlelib::Wheel prev_wheel_pos_{0.0,0.0}; // TODO
+    turtlelib::Wheel prev_wheel_pos_{0.0,0.0};
     turtlelib::Twist2D body_twist_;
     turtlelib::DiffDrive turtle_;
     nav_msgs::msg::Odometry odom_;
@@ -100,7 +97,6 @@ class odometry : public rclcpp::Node
     sensor_msgs::msg::JointState joint_states_;
 
     // Create objects
-    rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_subscriber_;
     rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
@@ -110,37 +106,13 @@ class odometry : public rclcpp::Node
     /// \param msg
     void joint_states_callback(const sensor_msgs::msg::JointState & msg)
     {
-        // if (prev_wheel_pos_.left == 0)
-        // { 
-        //     prev_wheel_pos_.left = msg.position[0]; // TODO
-        //     prev_wheel_pos_.right = msg.position[1];
-        // }
-        // else
-        // {
-        //     new_wheel_pos_.left = msg.position[0] - prev_wheel_pos_.left; // Todo ?? dt?? Velocity??
-        //     new_wheel_pos_.right = msg.position[1] - prev_wheel_pos_.right;
-        //     // new_wheel_pos_.left = msg.velocity[0]; // Todo ?? dt?? Velocity??
-        //     // new_wheel_pos_.right = msg.velocity[1];
-        //     body_twist_ = turtle_.Twist(new_wheel_pos_);
-        //     turtle_.ForwardKinematics(new_wheel_pos_);
-        //     odometry_pub();
-        //     transform_broadcast(); // TODO Moved this here to stop the skipping around
-        // }
-        // prev_wheel_pos_.left = msg.position[0]; // TODO
-        // prev_wheel_pos_.right = msg.position[1];
-
-        // TODO make this new wheel position then add minus back in FK
-        new_wheel_pos_.left = msg.position[0] - prev_wheel_pos_.left; // Todo ?? dt?? Velocity??
+        new_wheel_pos_.left = msg.position[0] - prev_wheel_pos_.left;
         new_wheel_pos_.right = msg.position[1] - prev_wheel_pos_.right;
-        // new_wheel_pos_.left = msg.velocity[0]; // Todo ?? dt?? Velocity??
-        // new_wheel_pos_.right = msg.velocity[1];
-        // new_wheel_pos_.left = msg.position[0]; // Todo ?? dt?? Velocity??
-        // new_wheel_pos_.right = msg.position[1];
         body_twist_ = turtle_.Twist(new_wheel_pos_);
         turtle_.ForwardKinematics(new_wheel_pos_);
         odometry_pub();
-        transform_broadcast(); // TODO Moved this here to stop the skipping around
-        prev_wheel_pos_.left = msg.position[0]; // TODO
+        transform_broadcast();
+        prev_wheel_pos_.left = msg.position[0];
         prev_wheel_pos_.right = msg.position[1];
     }
 
@@ -213,13 +185,6 @@ class odometry : public rclcpp::Node
         odom_.twist.twist.linear.y = body_twist_.y;
         odom_.twist.twist.angular.z = body_twist_.w;
         odom_publisher_->publish(odom_);
-    }
-
-    /// \brief Main simulation timer loop
-    void timer_callback()
-    {
-        // odometry_pub();
-        // transform_broadcast(); // TODO Moved this here to stop the skipping around
     }
 };
 

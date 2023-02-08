@@ -237,37 +237,30 @@ class Nusim : public rclcpp::Node
     /// \param msg
     void red_wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
     {
-        sensor_data_.stamp = this->get_clock()->now();
-        // sensor_data_.left_encoder = msg.left_velocity;  // TODO Convert to rad/s
-        // sensor_data_.right_encoder = msg.right_velocity;
-
-        new_wheel_vel_.left = msg.left_velocity*motor_cmd_per_rad_sec_;  // TODO Convert wheel ticks to encoder ticks
+        // Convert wheel cmd ticks to rad/sec
+        new_wheel_vel_.left = msg.left_velocity*motor_cmd_per_rad_sec_;
         new_wheel_vel_.right = msg.right_velocity*motor_cmd_per_rad_sec_;
-        // update_red_turtle_config();
-        // sensor_data_publisher_->publish(sensor_data_); // TODO Publish in Timer??
     }
 
     /// \brief
     void update_red_turtle_config()
     {
-        // new_wheel_pos_.left = sensor_data_.left_encoder/encoder_ticks_per_rad_;
-        // new_wheel_pos_.right = sensor_data_.right_encoder/encoder_ticks_per_rad_;
-        // new_wheel_pos_.left =  old_wheel_pos_.left + new_wheel_vel_.left*0.005;
-        // new_wheel_pos_.right = old_wheel_pos_.right + new_wheel_vel_.right*0.005;
-
         // TODO Rename to change in wheel position
         // OR TODO make this new wheel position then add minus back in FK
+        // This will be updated
         new_wheel_pos_.left = new_wheel_vel_.left*0.005; // Change in position
         new_wheel_pos_.right = new_wheel_vel_.right*0.005; // Change in position
         turtle_.ForwardKinematics(new_wheel_pos_); // Update robot position
         x_ = turtle_.configuration().x;
         y_ = turtle_.configuration().y;
         theta_ = turtle_.configuration().theta;
+
         new_wheel_pos_.left =  old_wheel_pos_.left + new_wheel_vel_.left*0.005; // Sensor Data
         new_wheel_pos_.right = old_wheel_pos_.right + new_wheel_vel_.right*0.005; // Sensor Data
+
+        sensor_data_.stamp = this->get_clock()->now();
         sensor_data_.left_encoder = new_wheel_pos_.left*encoder_ticks_per_rad_;
         sensor_data_.right_encoder = new_wheel_pos_.right*encoder_ticks_per_rad_;
-        // broadcast_red_turtle();
         old_wheel_pos_.left = new_wheel_pos_.left;
         old_wheel_pos_.right = new_wheel_pos_.right;
     }
@@ -337,7 +330,11 @@ class Nusim : public rclcpp::Node
         obstacle_.pose.position.z = obstacles_h_ / 2.0;
         obstacle_.pose.orientation.x = 0.0;
         obstacle_.pose.orientation.y = 0.0;
-        obstacle_.pose.orientation.z = 0.0;
+        obstacle_.pose.orientation.z = 0.0;      if (obstacles_x_.size() != obstacles_y_.size()) {
+        int err_ = true;
+        RCLCPP_ERROR(this->get_logger(), "x and y coordinate lists are not the same lenght!");
+        throw err_;
+      }
         obstacle_.pose.orientation.w = 1.0;
         obstacle_.scale.x = obstacles_r_ * 2.0; // Diameter in x
         obstacle_.scale.y = obstacles_r_ * 2.0; // Diameter in y
@@ -353,12 +350,6 @@ class Nusim : public rclcpp::Node
     // /// \brief Create walls as a MarkerArray and publish them to a topic to display them in Rviz
     void create_walls_array()
     {
-    //   if (obstacles_x_.size() != obstacles_y_.size()) {
-    //     int err_ = true;
-    //     RCLCPP_ERROR(this->get_logger(), "x and y coordinate lists are not the same lenght!");
-    //     throw err_;
-    //   }
-
       for (int i = 0; i <= 3; i++) {
         visualization_msgs::msg::Marker wall_;
         wall_.header.frame_id = "nusim/world";

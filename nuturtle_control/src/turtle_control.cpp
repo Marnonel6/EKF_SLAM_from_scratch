@@ -71,9 +71,6 @@ class turtle_control : public rclcpp::Node
         sensor_data_subscriber_ = create_subscription<nuturtlebot_msgs::msg::SensorData>(
                         "sensor_data", 10, std::bind(&turtle_control::sensor_data_callback,
                                                      this, _1));
-
-        // Timer
-        timer_ = create_wall_timer(500ms, std::bind(&turtle_control::timer_callback, this));
     }
 
   private:
@@ -92,7 +89,6 @@ class turtle_control : public rclcpp::Node
     sensor_msgs::msg::JointState joint_states_;
 
     // Create objects
-    rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_publisher_;
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_states_publisher_;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
@@ -105,15 +101,11 @@ class turtle_control : public rclcpp::Node
         body_twist_.w = msg.angular.z;
         body_twist_.x = msg.linear.x;
         body_twist_.y = msg.linear.y;
-
-        // Create Diff Drive Object
-        // turtlelib::DiffDrive turtle_(wheelradius_, track_width_);
         // Perform Inverse kinematics to get the wheel velocities from the twist
         wheel_vel_ = turtle_.InverseKinematics(body_twist_);
         // Convert rad/sec to ticks
         wheel_cmd_.left_velocity = wheel_vel_.left/motor_cmd_per_rad_sec_;
         wheel_cmd_.right_velocity = wheel_vel_.right/motor_cmd_per_rad_sec_;
-
         // Limit max wheel command speed and publish wheel command
         wheel_cmd_.left_velocity = limit_Max(wheel_cmd_.left_velocity);
         wheel_cmd_.right_velocity = limit_Max(wheel_cmd_.right_velocity);
@@ -174,14 +166,6 @@ class turtle_control : public rclcpp::Node
             RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
             throw err_;
         }
-    }
-
-    /// \brief Main timer loop
-    void timer_callback()
-    {
-        // wheel_cmd_publisher_->publish(wheel_cmd_);
-        // joint_states_publisher_->publish(joint_states_);
-
     }
 };
 

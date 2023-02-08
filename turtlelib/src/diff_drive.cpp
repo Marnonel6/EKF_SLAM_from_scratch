@@ -24,6 +24,7 @@ namespace turtlelib
         wheel_position.left = wheel_position.left + new_wheel_positions.left;
         wheel_position.right = wheel_position.right + new_wheel_positions.right;
 
+        // This is change in wheel position not new_wheel_position. It will be updated.
         WheelVelocities wheel_vel;
         wheel_vel.left = new_wheel_positions.left; // - wheel_position.left;
         wheel_vel.right = new_wheel_positions.right; // - wheel_position.right;
