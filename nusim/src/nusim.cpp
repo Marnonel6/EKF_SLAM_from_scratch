@@ -240,6 +240,7 @@ class Nusim : public rclcpp::Node
         sensor_data_.stamp = this->get_clock()->now();
         // sensor_data_.left_encoder = msg.left_velocity;  // TODO Convert to rad/s
         // sensor_data_.right_encoder = msg.right_velocity;
+
         new_wheel_vel_.left = msg.left_velocity*motor_cmd_per_rad_sec_;  // TODO Convert wheel ticks to encoder ticks
         new_wheel_vel_.right = msg.right_velocity*motor_cmd_per_rad_sec_;
         // update_red_turtle_config();
@@ -253,6 +254,8 @@ class Nusim : public rclcpp::Node
         // new_wheel_pos_.right = sensor_data_.right_encoder/encoder_ticks_per_rad_;
         // new_wheel_pos_.left =  old_wheel_pos_.left + new_wheel_vel_.left*0.005;
         // new_wheel_pos_.right = old_wheel_pos_.right + new_wheel_vel_.right*0.005;
+
+        // TODO Rename to change in wheel position
         new_wheel_pos_.left = new_wheel_vel_.left*0.005; // Change in position
         new_wheel_pos_.right = new_wheel_vel_.right*0.005; // Change in position
         turtle_.ForwardKinematics(new_wheel_pos_); // Update robot position
