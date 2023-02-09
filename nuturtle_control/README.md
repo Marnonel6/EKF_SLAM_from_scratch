@@ -37,7 +37,7 @@ twist message, stopping the publishing, and setting the start position of the ro
 # Simulation
      ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=true robot:=nusim body_id:=blue/base_footprint left_wheel_joint:=blue/wheel_left_link right_wheel_joint:=blue/wheel_right_link
     
-[Screencast from 02-07-2023 07:56:13 PM.webm](https://user-images.githubusercontent.com/60977336/217707026-8dff6668-5445-4993-9686-cbb3bb548888.webm)
+[Screencast from 02-08-2023 09:24:08 PM.webm](https://user-images.githubusercontent.com/60977336/217710169-f161eccf-7cdb-4175-a96f-3732156d67a9.webm)
 
 # Physical robot - Launch on turtlebot3
      ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=false robot:=localhost body_id:=blue/base_footprint left_wheel_joint:=blue/wheel_left_link right_wheel_joint:=blue/wheel_right_link
