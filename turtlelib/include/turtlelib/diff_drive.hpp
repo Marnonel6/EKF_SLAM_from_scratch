@@ -90,6 +90,7 @@ namespace turtlelib
         Robot_configuration configuration() const;
 
         /// \brief generates a twist from wheel positions
+        /// \param new_wheel_positions - new wheel positions
         /// \return body twist
         Twist2D Twist(Wheel new_wheel_positions);
     };
