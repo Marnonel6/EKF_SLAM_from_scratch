@@ -1,3 +1,30 @@
+/// \file
+/// \brief The odometry node subscribes to joint_states and publishes to the odom navigation
+///        topic. The node handles the odometry calculations of the blue robot.
+///
+/// PARAMETERS:
+///     \param body_id (std::string): The name of the body frame of the robot
+///     \param odom_id (std::string): The name of the odometry frame
+///     \param wheel_left (std::string): The name of the left wheel joint
+///     \param wheel_right (std::string): The name of the right wheel joint
+///     \param wheelradius (float): The radius of the wheels [m]
+///     \param track_width (float): The distance between the wheels [m]
+///
+/// PUBLISHES:
+///     \param /odom (nav_msgs::msg::Odometry): Odometry publisher
+///
+/// SUBSCRIBES:
+///     \param /joint_states (sensor_msgs::msg::JointState): Subscribes joint states for blue robot
+///
+/// SERVERS:
+///     \param /initial_pose (std_srvs::srv::Empty): Sets initial pose of the turtle
+///
+/// CLIENTS:
+///     None
+///
+/// BROADCASTERS:
+///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts blue turtle position
+
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -14,9 +41,19 @@
 #include "nuturtle_control/srv/initial_config.hpp"
 
 using namespace std::chrono_literals;
-using std::placeholders::_1;
 
-/// \brief odometry
+/// \brief The odometry node subscribes to joint_states and publishes to the odom navigation
+///        topic. It has an initial pose service to set the start position of the robot.
+///        The node publishes the location of the blue robot that represents the odometry
+///        calcualtions.
+///
+///  \param body_id_ (std::string): The name of the body frame of the robot
+///  \param odom_id_ (std::string): The name of the odometry frame
+///  \param wheel_left_ (std::string): The name of the left wheel joint
+///  \param wheel_right_ (std::string): The name of the right wheel joint
+///  \param wheelradius_ (float): The radius of the wheels [m]
+///  \param track_width_ (float): The distance between the wheels [m]
+
 class odometry : public rclcpp::Node
 {
   public:
@@ -68,11 +105,10 @@ class odometry : public rclcpp::Node
         // Subscribers
         joint_states_subscriber_ = create_subscription<sensor_msgs::msg::JointState>(
                         "joint_states", 10, std::bind(&odometry::joint_states_callback,
-                                                       this, _1));
+                                                       this, std::placeholders::_1));
 
         // Initial pose service
-        initial_pose_server_ = create_service<nuturtle_control::srv::InitialConfig>(
-        "initial_pose",
+        initial_pose_server_ = create_service<nuturtle_control::srv::InitialConfig>("initial_pose",
         std::bind(&odometry::initial_pose_callback, this, std::placeholders::_1, std::placeholders::_2));
 
         // Initialize the transform broadcaster
@@ -102,8 +138,7 @@ class odometry : public rclcpp::Node
     rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
-    /// \brief
-    /// \param msg
+    /// \brief Joint states topic callback
     void joint_states_callback(const sensor_msgs::msg::JointState & msg)
     {
         new_wheel_pos_.left = msg.position[0] - prev_wheel_pos_.left;
@@ -116,7 +151,7 @@ class odometry : public rclcpp::Node
         prev_wheel_pos_.right = msg.position[1];
     }
 
-    // Ensures all values are passed via the launch file
+    /// \brief Ensures all values are passed via the launch file
     void check_frame_params()
     {
         if (body_id_ == "" || wheel_left_ == "" || wheel_right_ == "")
@@ -149,7 +184,7 @@ class odometry : public rclcpp::Node
                                                                   request->theta}};
     }
 
-    /// \brief
+    /// \brief Broadcasts blue robots position
     void transform_broadcast()
     {
         // Broadcast TF frames
@@ -166,7 +201,7 @@ class odometry : public rclcpp::Node
         tf_broadcaster_->sendTransform(t_);
     }
 
-    /// \brief
+    /// \brief Publishes the odometry to the odom topic
     void odometry_pub()
     {
         // Publish updated odometry
@@ -188,6 +223,7 @@ class odometry : public rclcpp::Node
     }
 };
 
+/// \brief Main function for node create, error handel and shutdown
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);

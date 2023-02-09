@@ -1,5 +1,5 @@
 /// \file
-/// \brief The circle package publishes to cmd_vel topic a twist that makes the turtle drive in a
+/// \brief The circle node publishes to cmd_vel topic a twist that makes the turtle drive in a
 ///        circle with a given radius and angular angular velocity
 ///
 /// PARAMETERS:

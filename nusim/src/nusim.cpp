@@ -1,5 +1,5 @@
 /// \file
-/// \brief The nusim package is a simulation and visualization tool for the turtlebot3 robots.
+/// \brief The nusim node is a simulation and visualization tool for the turtlebot3 robots.
 ///        It uses rviz2 for visualization and provides a simulated environment. The package
 ///        creates stationary walls and obstacles and track the position of a red robot.
 ///
@@ -86,6 +86,8 @@ using namespace std::chrono_literals;
 ///  \param walls_y_lenght_ (float): Inner lenght of walls in y direction [m]
 ///  \param walls_h_(float): Walls height [m]
 ///  \param walls_w_(float): Walls width [m]
+///  \param wheelradius_ (float): The radius of the wheels [m]
+///  \param track_width_ (float): The distance between the wheels [m]
 
 class Nusim : public rclcpp::Node
 {
