@@ -1,3 +1,24 @@
+/// \file
+/// \brief The circle package publishes to cmd_vel topic a twist that makes the turtle drive in a
+///        circle with a given radius and angular angular velocity
+///
+/// PARAMETERS:
+///     \param frequency (int): Timer callback frequency [Hz]
+///
+/// PUBLISHES:
+///     \param /cmd_vel (geometry_msgs::msg::Twist): Publishes a twist to the cmd_vel topic
+///
+/// SUBSCRIBES:
+///     None
+///
+/// SERVERS:
+///     \param /control (nuturtle_control::srv::Control): Sets desired twist value
+///     \param /reverse (std_srvs::srv::Empty): Inverts twist
+///     \param /stop (std_srvs::srv::Empty): Sets twist to zero and stops publishing to cmd_vel
+///
+/// CLIENTS:
+///     None
+
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -11,7 +32,15 @@
 
 using namespace std::chrono_literals;
 
-/// \brief Circle
+/// \brief This class publishes a twist to cmd_vel in the timer_callback. The control service
+///        calculates the twist corresponding to a given circle radius and angular velocity.
+///        The reverse service inverts the twist. The stop service sets the twist to zero and
+///        terminates the publishing to cmd_vel topic. The loop runs at a fixed frequency until
+///        termination.
+///
+///  \param Flag_stop_ (bool): Flag to stop publishing to cmd_vel for stop service
+///  \param body_twist_ (geometry_msgs::msg::Twist): Twist to move robot in a circle
+
 class circle : public rclcpp::Node
 {
   public:
@@ -57,7 +86,7 @@ class circle : public rclcpp::Node
     rclcpp::Service<std_srvs::srv::Empty>::SharedPtr stop_server_;
     rclcpp::TimerBase::SharedPtr timer_;
 
-    /// \brief control service callback
+    /// \brief control service callback, sets desired twist value
     void control_callback(nuturtle_control::srv::Control::Request::SharedPtr request,
                           nuturtle_control::srv::Control::Response::SharedPtr)
     {
@@ -66,7 +95,7 @@ class circle : public rclcpp::Node
         Flag_stop_ = false;
     }
 
-    /// \brief reverse service callback
+    /// \brief reverse service callback, inverts twist
     void reverse_callback(std_srvs::srv::Empty::Request::SharedPtr,
                           std_srvs::srv::Empty::Response::SharedPtr)
     {
@@ -75,7 +104,7 @@ class circle : public rclcpp::Node
         Flag_stop_ = false;
     }
 
-    /// \brief stop service callback
+    /// \brief stop service callback, sets twist to zero and stops publishing to cmd_vel
     void stop_callback(std_srvs::srv::Empty::Request::SharedPtr,
                           std_srvs::srv::Empty::Response::SharedPtr)
     {
@@ -95,6 +124,7 @@ class circle : public rclcpp::Node
     }
 };
 
+/// \brief Main function for node create and shutdown
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
