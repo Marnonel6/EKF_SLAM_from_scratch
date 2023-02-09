@@ -69,15 +69,15 @@ twist message, stopping the publishing, and setting the start position of the ro
 * ```track_width``` (float): The distance between the wheels [m]
 
 # Odometry measurement
-Start:
+* Start:
     - x = 0.1317 [m]
     - y = -0.0197 [m]
     - theta = 17.02 [deg]
-End:
+* End:
     - x = 0.1866 [m]
     - y = -0.0356 [m]
     - theta = 3.04 [deg]
-Error:
+* Error:
     - x = 0.0549 [m]
     - y = 0.0159 [m]
     - theta = 13.98 [deg]
