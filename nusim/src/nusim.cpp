@@ -288,7 +288,7 @@ private:
     // Sensor Data
     new_wheel_pos_.left = old_wheel_pos_.left + new_wheel_vel_.left * 0.005;
     new_wheel_pos_.right = old_wheel_pos_.right + new_wheel_vel_.right * 0.005;
-    sensor_data_.stamp = this->get_clock()->now();
+    sensor_data_.stamp = get_clock()->now();
     sensor_data_.left_encoder = new_wheel_pos_.left * encoder_ticks_per_rad_;
     sensor_data_.right_encoder = new_wheel_pos_.right * encoder_ticks_per_rad_;
     old_wheel_pos_.left = new_wheel_pos_.left;
@@ -321,7 +321,7 @@ private:
   {
     geometry_msgs::msg::TransformStamped t_;
 
-    t_.header.stamp = this->get_clock()->now();
+    t_.header.stamp = get_clock()->now();
     t_.header.frame_id = "nusim/world";
     t_.child_frame_id = "red/base_footprint";
     t_.transform.translation.x = x_;
@@ -348,10 +348,10 @@ private:
       throw err_;
     }
 
-    for (int i = 0; i < (int)obstacles_x_.size(); i++) {
+    for (size_t i = 0; i < obstacles_x_.size(); i++) {
       visualization_msgs::msg::Marker obstacle_;
       obstacle_.header.frame_id = "nusim/world";
-      obstacle_.header.stamp = this->get_clock()->now();
+      obstacle_.header.stamp = get_clock()->now();
       obstacle_.id = i;
       obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
       obstacle_.action = visualization_msgs::msg::Marker::ADD;
@@ -360,11 +360,7 @@ private:
       obstacle_.pose.position.z = obstacles_h_ / 2.0;
       obstacle_.pose.orientation.x = 0.0;
       obstacle_.pose.orientation.y = 0.0;
-      obstacle_.pose.orientation.z = 0.0;      if (obstacles_x_.size() != obstacles_y_.size()) {
-        int err_ = true;
-        RCLCPP_ERROR(this->get_logger(), "x and y coordinate lists are not the same lenght!");
-        throw err_;
-      }
+      obstacle_.pose.orientation.z = 0.0;
       obstacle_.pose.orientation.w = 1.0;
       obstacle_.scale.x = obstacles_r_ * 2.0;   // Diameter in x
       obstacle_.scale.y = obstacles_r_ * 2.0;   // Diameter in y
@@ -383,7 +379,7 @@ private:
     for (int i = 0; i <= 3; i++) {
       visualization_msgs::msg::Marker wall_;
       wall_.header.frame_id = "nusim/world";
-      wall_.header.stamp = this->get_clock()->now();
+      wall_.header.stamp = get_clock()->now();
       wall_.id = i;
       wall_.type = visualization_msgs::msg::Marker::CUBE;
       wall_.action = visualization_msgs::msg::Marker::ADD;
