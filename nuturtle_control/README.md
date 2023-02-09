@@ -1,19 +1,64 @@
-ros2 launch nuturtle_control start_robot.launch cmd_src:=teleop body_id:=base_footprint left_wheel_joint:=left_wheel right_wheel_joint:=right_wheel
-ros2 service call /control nuturtle_control/srv/Control "{velocity: 1.0, radius: 1.0}"
-ros2 service call /reverse std_srvs/srv/Empty "{}"
-ros2 service call /stop std_srvs/srv/Empty "{}"
-ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=teleop use_rviz:=true robot:=nusim body_id:=base_foot left_wheel_joint:=left_wheel right_wheel_joint:=right_wheel
+# Turtle Control
+* Author: Marthinus Nel
+* Published: Winter 2023
+# Package description
+This package provides functionalities for controlling the movement of a turtle robot and calculating
+its odometry. It consists of three nodes: circle node, turtle_control node, and odometry node. The
+circle node is responsible for publishing twist messages to drive the turtle in a circle, the
+turtle_control node subscribes to the twist messages and converts it into wheel commands. It also
+subscribes to sensor data and converts it into joint states. The odometry node calculates the
+odometry of the robot and publishes its location. The package provides services for reversing the
+twist message, stopping the publishing, and setting the start position of the robot.
 
+# Launchfile description
+- `start_robot.launch.xml`:
+    ### Launch arguments:
+    * `cmd_src`: Specifies which node publishes to the cmd_vel topic.
+        - circle - Run circle node
+        - teleop - Run teleop_twist_keyboard
+        - none - Other source publishes to cmd_vel
+    * `robot`: Specifies if the simulation or physical robot is use.
+        - nusim - Launch simulation launch file
+        - localhost - Run numsr_turtlebot on physical robot
+        - none - No robot
+    * `use_rviz`: Launches rviz if true
+    * `body_id`: The name of the body frame of the odometry/blue robot
+    * `odom_id`: The name of the odometry frame. Defaults to odom if not specified
+    * `left_wheel_joint`: The name of the left wheel joint
+    * `left_wheel_joint`: The name of the right wheel joint
 
-## Launch blue and red turtle
-ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=none use_rviz:=true robot:=nusim body_id:=blue/base_footprint left_wheel_joint:=left_wheel right_wheel_joint:=right_wheel
-# Better one
-ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=true robot:=nusim body_id:=blue/base_footprint left_wheel_joint:=blue/wheel_left_link right_wheel_joint:=ble/wheel_right_link
+    * The launch file launches a blue turtlebot3 for odometry representatin with the launch file
+      `nuturtle_description/launch/load_one.launch.py`.
+    * The node `turtle_control` and `odometry` is always launched.
+    * A static broadcaster broadcasts the transform between `nusim/world` and `odom`.
+    * Rviz is launched to display the robots and the environment.
+    * `ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=<X> use_rviz:=<Y> robot:=<Z>  body_id:=<A> left_wheel_joint:=<B> right_wheel_joint:=<C>`
 
-ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=true robot:=nusim body_id:=blue/base_footprint left_wheel_joint:=blue/wheel_left right_wheel_joint:=blue/wheel_right
+# Simulation
+    `ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=true robot:=nusim body_id:=blue/base_footprint left_wheel_joint:=blue/wheel_left_link right_wheel_joint:=blue/wheel_right_link`
 
+# Physical robot - Launch on turtlebot3
+    `ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=false robot:=localhost body_id:=blue/base_footprint left_wheel_joint:=blue/wheel_left_link right_wheel_joint:=blue/wheel_right_link`
 
-## Launch only blue turtle not red
-ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=none use_rviz:=true robot:=none body_id:=blue/base_footprint left_wheel_joint:=left_wheel right_wheel_joint:=right_wheel
+# Service's for circle node
+- Circle control service:
+    *        `ros2 service call /control nuturtle_control/srv/Control "{velocity: 0.2, radius: 0.5}"`
+- Reverse service:
+    *       `ros2 service call /reverse std_srvs/srv/Empty "{}"`
+- Stop service:
+    *       `ros2 service call /stop std_srvs/srv/Empty "{}"`
 
-
+# Parameters
+* ```frequency``` (int): Timer callback frequency [Hz]
+* ```wheelradius``` (float): The radius of the wheels [m]
+* ```track_width``` (float): The distance between the wheels [m]
+* ```motor_cmd_max``` (float): Maximum motor command value in ticks velocity
+* ```motor_cmd_per_rad_sec``` (float): Motor command to rad/s conversion factor
+* ```encoder_ticks_per_rad``` (float): Encoder ticks to radians conversion factor
+* ```collision_radius``` (float): Robot collision radius [m]
+* ```body_id``` (std::string): The name of the body frame of the robot
+* ```odom_id``` (std::string): The name of the odometry frame
+* ```wheel_left``` (std::string): The name of the left wheel joint
+* ```wheel_right``` (std::string): The name of the right wheel joint
+* ```wheelradius``` (float): The radius of the wheels [m]
+* ```track_width``` (float): The distance between the wheels [m]

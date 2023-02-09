@@ -4,7 +4,7 @@
   <arg name="cmd_src" default="circle"
    description="Specifies which node publishes to the cmd_vel topic - circle, teleop, none"/>
   <arg name="robot" default="nusim"
-   description="Where to launch the nodes - robot, simulator, nothing"/>
+   description="Where to launch the nodes - robot, nusim, nothing"/>
   <arg name="use_rviz" default="true"
    description="Specify if rviz needs to start - true, false"/>
   <arg name="body_id" default=""
