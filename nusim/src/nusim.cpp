@@ -16,6 +16,8 @@
 ///     \param walls.y_lenght (float): Inner lenght of walls in y direction [m]
 ///     \param walls.h (float): Walls height [m]
 ///     \param walls.w (float): Walls width [m]
+///     \param motor_cmd_per_rad_sec_ (float): Motor command to rad/s conversion factor
+///     \param encoder_ticks_per_rad_ (float): Encoder ticks to radians conversion factor
 ///
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): Current simulation timestep
@@ -88,6 +90,8 @@ using namespace std::chrono_literals;
 ///  \param walls_w_(float): Walls width [m]
 ///  \param wheelradius_ (float): The radius of the wheels [m]
 ///  \param track_width_ (float): The distance between the wheels [m]
+///  \param motor_cmd_per_rad_sec_ (float): Motor command to rad/s conversion factor
+///  \param encoder_ticks_per_rad_ (float): Encoder ticks to radians conversion factor
 
 class Nusim : public rclcpp::Node
 {

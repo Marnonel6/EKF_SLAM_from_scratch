@@ -5,7 +5,7 @@
 ///     \param wheelradius (float): The radius of the wheels [m]
 ///     \param track_width (float): The distance between the wheels [m]
 ///     \param motor_cmd_max (float): Maximum motor command value in ticks velocity
-///     \param motor_cmd_per_rad_sec (float): Motor coommand to rad/s conversion factor
+///     \param motor_cmd_per_rad_sec (float): Motor command to rad/s conversion factor
 ///     \param encoder_ticks_per_rad (float): Encoder ticks to radians conversion factor
 ///     \param collision_radius (float): Robot collision radius [m]
 ///
@@ -48,7 +48,7 @@ using namespace std::chrono_literals;
 ///  \param wheelradius_ (float): The radius of the wheels [m]
 ///  \param track_width_ (float): The distance between the wheels [m]
 ///  \param motor_cmd_max_ (float): Maximum motor command value in ticks velocity
-///  \param motor_cmd_per_rad_sec_ (float): Motor coommand to rad/s conversion factor
+///  \param motor_cmd_per_rad_sec_ (float): Motor command to rad/s conversion factor
 ///  \param encoder_ticks_per_rad_ (float): Encoder ticks to radians conversion factor
 ///  \param collision_radius_ (float): Robot collision radius [m]
 ///  \param prev_encoder_stamp_ (float): Previous encoder time stamp
