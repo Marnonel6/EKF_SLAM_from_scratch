@@ -30,7 +30,7 @@ namespace turtlelib
     /// \returns radians
     constexpr double deg2rad(double deg)
     {
-        return (deg * PI) / 180;
+        return (deg * PI) / 180.0;
     }
 
     /// \brief convert radians to degrees
@@ -38,7 +38,7 @@ namespace turtlelib
     /// \returns the angle in degrees
     constexpr double rad2deg(double rad)
     {
-        return (rad * 180) / PI;
+        return (rad * 180.0) / PI;
     }
 
     /// static_assertions test compile time assumptions.

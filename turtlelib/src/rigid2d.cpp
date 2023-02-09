@@ -13,7 +13,7 @@ namespace turtlelib
 
     std::istream &operator>>(std::istream &is, Vector2D &v)
     {
-        char c = is.peek(); // examine the next character without extracting it
+        const auto  c = is.peek(); // examine the next character without extracting it
 
         if (c == '[')
         {
@@ -38,7 +38,7 @@ namespace turtlelib
 
     std::istream &operator>>(std::istream &is, Twist2D &t)
     {
-        char c = is.peek(); // examine the next character without extracting it
+        const auto c = is.peek(); // examine the next character without extracting it
 
         if (c == '[')
         {
@@ -67,16 +67,12 @@ namespace turtlelib
 
     Vector2D Transform2D::operator()(Vector2D v) const
     {
-        return Vector2D{cos(rot)*v.x - sin(rot)*v.y + tran.x, sin(rot)*v.x + cos(rot)*v.y + tran.y};
+        return {cos(rot)*v.x - sin(rot)*v.y + tran.x, sin(rot)*v.x + cos(rot)*v.y + tran.y};
     }
 
     Transform2D Transform2D::inv() const
     {
-        Transform2D trans2D;
-        trans2D.tran.x = -tran.x*cos(rot)-tran.y*sin(rot);
-        trans2D.tran.y = -tran.y*cos(rot)+tran.x*sin(rot);
-        trans2D.rot = -rot;
-        return trans2D;
+        return {{-tran.x*cos(rot)-tran.y*sin(rot), -tran.y*cos(rot)+tran.x*sin(rot)}, -rot};
     }
 
     Transform2D & Transform2D::operator*=(const Transform2D & rhs)
@@ -108,7 +104,7 @@ namespace turtlelib
         double rot = 0.0;
         Vector2D tran{0.0,0.0};
 
-        char c = is.peek(); // examine the next character without extracting it
+        const auto c = is.peek(); // examine the next character without extracting it
 
         if (c == 'd')
         {
@@ -142,22 +138,18 @@ namespace turtlelib
 
     Twist2D Transform2D::operator()(Twist2D t) const
     {
-        Twist2D newTwist;
-        newTwist.w = t.w;
-        newTwist.x = t.w*tran.y + t.x*cos(rot) - t.y*sin(rot);
-        newTwist.y = -t.w*tran.x + t.x*sin(rot) + t.y*cos(rot);
-        return newTwist;
+        return {t.w, t.w*tran.y + t.x*cos(rot) - t.y*sin(rot), -t.w*tran.x + t.x*sin(rot) + t.y*cos(rot)};
     }
 
     Vector2D normalize(Vector2D v)
     {
-        double length = sqrt(v.x * v.x + v.y * v.y);
-        return Vector2D{v.x/length, v.y/length};
+        const auto length = sqrt(v.x * v.x + v.y * v.y);
+        return {v.x/length, v.y/length};
     }
 
     double normalize_angle(double rad)
     {
-        double rad_wrap = fmod(rad, 2*PI); // Angle wrapping - Modulas operand for floats
+        double rad_wrap = fmod(rad, 2.0*PI); // Angle wrapping - Modulas operand for floats
         if (rad_wrap > PI)
         {
             rad_wrap = -PI + (rad_wrap - PI); // -Pi side / CCW rotation
@@ -222,11 +214,7 @@ namespace turtlelib
 
     double angle(Vector2D v1, Vector2D v2)
     {
-        // double dot_product = dot(v1, v2);
-        // double magnitude_product = magnitude(v1)*magnitude(v2);
-        // double angle = acos(dot_product/magnitude_product); // TODO cange to atan2 I think because acos can't do negative angles
-        // return angle;
-        return atan2(v1.x*v2.y-v1.y*v2.x, v1.x*v2.x+v1.y*v2.y); // returns -pi, pi
+        return atan2(v1.x*v2.y-v1.y*v2.x, v1.x*v2.x+v1.y*v2.y); // -pi, pi
     }
 
     Transform2D integrate_twist(Twist2D t)
