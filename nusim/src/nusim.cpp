@@ -1,26 +1,34 @@
 /// \file
 /// \brief The nusim package is a simulation and visualization tool for the turtlebot3 robots.
 ///        It uses rviz2 for visualization and provides a simulated environment. The package
-///        will be able to create stationary walls and obstacles and track the position of a
-///        robot.
+///        creates stationary walls and obstacles and track the position of a red robot.
 ///
 /// PARAMETERS:
 ///     \param rate (int): Timer callback frequency [Hz]
-///     \param x0_ (float): Initial x coordinate of the robot [m]
-///     \param y0_ (float): Initial y coordinate of the robot [m]
-///     \param theta0_ (float): Initial theta angle of the robot [radians]
-///     \param obstacles.x_ (std::vector<double>): Vector of x coordinates for each obstacle [m]
-///     \param obstacles.y_ (std::vector<double>): Vector of y coordinates for each obstacle [m]
-///     \param obstacles.r_ (float): Radius of cylindrical obstacles [m]
-///     \param obstacles.h_ (float): Height of cylindrical obstacles [m]
+///     \param x0 (float): Initial x coordinate of the robot [m]
+///     \param y0 (float): Initial y coordinate of the robot [m]
+///     \param theta0 (float): Initial theta angle of the robot [radians]
+///     \param obstacles.x (std::vector<double>): Vector of x coordinates for each obstacle [m]
+///     \param obstacles.y (std::vector<double>): Vector of y coordinates for each obstacle [m]
+///     \param obstacles.r (float): Radius of cylindrical obstacles [m]
+///     \param obstacles.h (float): Height of cylindrical obstacles [m]
+///     \param walls.x_lenght (float): Inner lenght of walls in x direction [m]
+///     \param walls.y_lenght (float): Inner lenght of walls in y direction [m]
+///     \param walls.h (float): Walls height [m]
+///     \param walls.w (float): Walls width [m]
 ///
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): Current simulation timestep
 ///     \param ~/obstacles (visualization_msgs::msg::MarkerArray): Marker obstacles that are
 ///                                                                displayed in Rviz
+///     \param ~/walls (visualization_msgs::msg::MarkerArray): Marker walls that are
+///                                                            displayed in Rviz
+///     \param /red/sensor_data (nuturtlebot_msgs::msg::SensorData): This is the wheel encoder
+///                                                                  output in position ticks
 ///
 /// SUBSCRIBES:
-///     None
+///     \param /red/wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Wheel command velocity in
+///                                                                   ticks
 ///
 /// SERVERS:
 ///     \param ~/reset (std_srvs::srv::Empty): Resets simulation to initial state
@@ -28,6 +36,9 @@
 ///
 /// CLIENTS:
 ///     None
+///
+/// BROADCASTERS:
+///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts red turtle position
 
 #include <chrono>
 #include <functional>
@@ -50,7 +61,7 @@
 
 using namespace std::chrono_literals;
 
-/// \brief This class publishes the current timestep of the simulation and obstacles that
+/// \brief This class publishes the current timestep of the simulation, obstacles and walls that
 ///        appear in Rviz as markers. The class has a timer_callback to continually update the
 ///        simulation at each timestep. The reset service resets the simulation to the initial
 ///        state thus restarting the simulation. A teleport service is available to teleport a
@@ -67,10 +78,14 @@ using namespace std::chrono_literals;
 ///  \param x_ (float): Current x coordinate of the robot [m]
 ///  \param y_ (float): Current y coordinate of the robot [m]
 ///  \param theta_ (float): Current theta angle of the robot [radians]
-///  \param obstacles.x_ (std::vector<double>): Vector of x coordinates for each obstacle [m]
-///  \param obstacles.y_ (std::vector<double>): Vector of y coordinates for each obstacle [m]
-///  \param obstacles.r_ (float): Radius of cylindrical obstacles [m]
-///  \param obstacles.h_ (float): Height of cylindrical obstacles [m]
+///  \param obstacles_x_ (std::vector<double>): Vector of x coordinates for each obstacle [m]
+///  \param obstacles_y_ (std::vector<double>): Vector of y coordinates for each obstacle [m]
+///  \param obstacles_r_ (float): Radius of cylindrical obstacles [m]
+///  \param obstacles_h_ (float): Height of cylindrical obstacles [m]
+///  \param walls_x_lenght_ (float): Inner lenght of walls in x direction [m]
+///  \param walls_y_lenght_ (float): Inner lenght of walls in y direction [m]
+///  \param walls_h_(float): Walls height [m]
+///  \param walls_w_(float): Walls width [m]
 
 class Nusim : public rclcpp::Node
 {
@@ -233,8 +248,7 @@ class Nusim : public rclcpp::Node
     rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_server_;
     rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_server_;
 
-    /// \brief
-    /// \param msg
+    /// \brief Subscription callback function for wheel_cmd topic
     void red_wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
     {
         // Convert wheel cmd ticks to rad/sec
@@ -242,7 +256,7 @@ class Nusim : public rclcpp::Node
         new_wheel_vel_.right = msg.right_velocity*motor_cmd_per_rad_sec_;
     }
 
-    /// \brief
+    /// \brief Updates the red turtle's configuration
     void update_red_turtle_config()
     {
         // TODO Rename to change in wheel position
@@ -254,10 +268,15 @@ class Nusim : public rclcpp::Node
         x_ = turtle_.configuration().x;
         y_ = turtle_.configuration().y;
         theta_ = turtle_.configuration().theta;
+        update_sensor_data();
+    }
 
-        new_wheel_pos_.left =  old_wheel_pos_.left + new_wheel_vel_.left*0.005; // Sensor Data
-        new_wheel_pos_.right = old_wheel_pos_.right + new_wheel_vel_.right*0.005; // Sensor Data
-
+    /// \brief Generates the encoder/sensor_data
+    void update_sensor_data()
+    {
+        // Sensor Data
+        new_wheel_pos_.left =  old_wheel_pos_.left + new_wheel_vel_.left*0.005;
+        new_wheel_pos_.right = old_wheel_pos_.right + new_wheel_vel_.right*0.005;
         sensor_data_.stamp = this->get_clock()->now();
         sensor_data_.left_encoder = new_wheel_pos_.left*encoder_ticks_per_rad_;
         sensor_data_.right_encoder = new_wheel_pos_.right*encoder_ticks_per_rad_;
@@ -347,7 +366,7 @@ class Nusim : public rclcpp::Node
       }
     }
 
-    // /// \brief Create walls as a MarkerArray and publish them to a topic to display them in Rviz
+    /// \brief Create walls as a MarkerArray and publish them to a topic to display them in Rviz
     void create_walls_array()
     {
       for (int i = 0; i <= 3; i++) {
