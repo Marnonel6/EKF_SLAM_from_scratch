@@ -17,7 +17,7 @@ twist message, stopping the publishing, and setting the start position of the ro
         - circle - Run circle node
         - teleop - Run teleop_twist_keyboard
         - none - Other source publishes to cmd_vel
-    * `robot`: Specifies if the simulation or physical robot is use.
+    * `robot`: Specifies if the simulation or physical robot is used.
         - nusim - Launch simulation launch file
         - localhost - Run numsr_turtlebot on physical robot
         - none - No robot
