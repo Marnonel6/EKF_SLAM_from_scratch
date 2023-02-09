@@ -42,7 +42,7 @@
 
 using namespace std::chrono_literals;
 
-/// \brief The odometry node subscribes to joint_states and publishes to the odom navigation
+/// \brief The class subscribes to joint_states and publishes to the odom navigation
 ///        topic. It has an initial pose service to set the start position of the robot.
 ///        The node publishes the location of the blue robot that represents the odometry
 ///        calcualtions.

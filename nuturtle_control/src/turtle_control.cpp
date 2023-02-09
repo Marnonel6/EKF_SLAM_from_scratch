@@ -1,3 +1,30 @@
+/// \file
+/// \brief The turtle_control node handles the control of the physical/red robot.
+///
+/// PARAMETERS:
+///     \param wheelradius (float): The radius of the wheels [m]
+///     \param track_width (float): The distance between the wheels [m]
+///     \param motor_cmd_max (float): Maximum motor command value in ticks velocity
+///     \param motor_cmd_per_rad_sec (float): Motor coommand to rad/s conversion factor
+///     \param encoder_ticks_per_rad (float): Encoder ticks to radians conversion factor
+///     \param collision_radius (float): Robot collision radius [m]
+///
+/// PUBLISHES:
+///     \param /joint_states (sensor_msgs::msg::JointState): Publishes joint states for blue robot
+///     \param /wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Wheel command value velocity in
+///                                                               ticks
+///
+/// SUBSCRIBES:
+///     \param /cmd_vel (geometry_msgs::msg::Twist): Command velocity twist
+///     \param /sensor_data (nuturtlebot_msgs::msg::SensorData): This is the wheel encoder
+///                                                              output in position ticks
+///
+/// SERVERS:
+///     None
+///
+/// CLIENTS:
+///     None
+
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -12,9 +39,25 @@
 #include "turtlelib/diff_drive.hpp"
 
 using namespace std::chrono_literals;
-using std::placeholders::_1;
 
-/// \brief turtle_control
+/// \brief The class subscribes to cmd_vel and converts the desired twist with inverse kinematics
+///        into wheel commands and publishes it to the wheel_cmd topic. It subscribes to the
+///        sensor_data and converts it to joint states for the robot and publishes it to the joint
+///        states topic. 
+///
+///  \param wheelradius_ (float): The radius of the wheels [m]
+///  \param track_width_ (float): The distance between the wheels [m]
+///  \param motor_cmd_max_ (float): Maximum motor command value in ticks velocity
+///  \param motor_cmd_per_rad_sec_ (float): Motor coommand to rad/s conversion factor
+///  \param encoder_ticks_per_rad_ (float): Encoder ticks to radians conversion factor
+///  \param collision_radius_ (float): Robot collision radius [m]
+///  \param prev_encoder_stamp_ (float): Previous encoder time stamp
+///  \param body_twist_ (turtlelib::Twist2D): Desired twist for robot
+///  \param wheel_vel_ (turtlelib::WheelVelocities): Wheel velocities
+///  \param turtle_ (turtlelib::DiffDrive): Diff_drive object
+///  \param wheel_cmd_ (nuturtlebot_msgs::msg::WheelCommands): Desired wheel command
+///  \param joint_states_ (sensor_msgs::msg::JointState): Joint states for blue robot
+
 class turtle_control : public rclcpp::Node
 {
   public:
@@ -67,10 +110,11 @@ class turtle_control : public rclcpp::Node
 
         // Subscribers
         cmd_vel_subscriber_ = create_subscription<geometry_msgs::msg::Twist>(
-                        "cmd_vel", 10, std::bind(&turtle_control::cmd_vel_callback, this, _1));
+                        "cmd_vel", 10, std::bind(&turtle_control::cmd_vel_callback, this,
+                        std::placeholders::_1));
         sensor_data_subscriber_ = create_subscription<nuturtlebot_msgs::msg::SensorData>(
                         "sensor_data", 10, std::bind(&turtle_control::sensor_data_callback,
-                                                     this, _1));
+                                                     this, std::placeholders::_1));
     }
 
   private:
@@ -94,8 +138,7 @@ class turtle_control : public rclcpp::Node
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_subscriber_;
     rclcpp::Subscription<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_subscriber_;
 
-    /// \brief
-    /// \param msg
+    /// \brief cmd_vel topic callback
     void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
     {
         body_twist_.w = msg.angular.z;
@@ -112,8 +155,9 @@ class turtle_control : public rclcpp::Node
         wheel_cmd_publisher_->publish(wheel_cmd_);
     }
 
-    /// \brief
-    /// \param wheel_vel
+    /// \brief Limits the wheel command velocity to the max wheel command velocity
+    /// \param wheel_vel (double)
+    /// \returns wheel_vel (double)
     double limit_Max(double wheel_vel)
     {
         if (wheel_vel > motor_cmd_max_)
@@ -130,8 +174,7 @@ class turtle_control : public rclcpp::Node
         } 
     }
 
-    /// \brief
-    /// \param msg
+    /// \brief Sensor_data topic callback
     void sensor_data_callback(const nuturtlebot_msgs::msg::SensorData & msg)
     {
         joint_states_.header.stamp = msg.stamp;
@@ -155,7 +198,7 @@ class turtle_control : public rclcpp::Node
         joint_states_publisher_->publish(joint_states_);
     }
 
-    // Ensures all values are passed via .yaml file
+    /// \brief Ensures all values are passed via .yaml file
     void check_yaml_params()
     {
         if (wheelradius_ == -1.0 || track_width_ == -1.0 || motor_cmd_max_ == -1.0 ||
@@ -169,6 +212,7 @@ class turtle_control : public rclcpp::Node
     }
 };
 
+/// \brief Main function for node create, error handel and shutdown
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
