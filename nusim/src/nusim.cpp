@@ -418,9 +418,9 @@ private:
       } else {
         wall_.scale.x = walls_y_ + 2 * wall_w_;
       }
-      wall_.color.r = 0.3f;
-      wall_.color.g = 0.16f;
-      wall_.color.b = 0.52f;
+      wall_.color.r = 1.0f;
+      wall_.color.g = 0.0f;
+      wall_.color.b = 0.0f;
       wall_.color.a = 1.0;
       wall_.scale.y = wall_w_;
       wall_.scale.z = wall_h_;
