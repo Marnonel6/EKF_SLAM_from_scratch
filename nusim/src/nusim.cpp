@@ -27,6 +27,8 @@
 ///                                                            displayed in Rviz
 ///     \param /red/sensor_data (nuturtlebot_msgs::msg::SensorData): This is the wheel encoder
 ///                                                                  output in position ticks
+///     \param /red/path (nav_msgs::msg::Path): Create the red turtle's nav_msgs/Path for rviz
+///                                             visualization
 ///
 /// SUBSCRIBES:
 ///     \param /red/wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Wheel command velocity in
@@ -246,8 +248,8 @@ private:
   visualization_msgs::msg::MarkerArray obstacles_;
   visualization_msgs::msg::MarkerArray walls_;
   nuturtlebot_msgs::msg::SensorData sensor_data_;
-  geometry_msgs::msg::PoseStamped red_pose_stamped_; // TODO Add to doxygen
-  nav_msgs::msg::Path red_path_; // TODO Add to doxygen
+  geometry_msgs::msg::PoseStamped red_pose_stamped_;
+  nav_msgs::msg::Path red_path_;
   turtlelib::Wheel new_wheel_pos_;
   turtlelib::Wheel old_wheel_pos_{0.0, 0.0};
   turtlelib::WheelVelocities new_wheel_vel_{0.0, 0.0};
@@ -259,7 +261,7 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_publisher_;
-  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr red_turtle_publisher_; // TODO Add to doxygen
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr red_turtle_publisher_;
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr red_wheel_cmd_subscriber_;
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_server_;
   rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_server_;
@@ -343,6 +345,12 @@ private:
     // Send the transformation
     tf_broadcaster_->sendTransform(t_);
 
+    red_turtle_NavPath();
+  }
+
+  /// \brief Create the red turtle's nav_msgs/Path
+  void red_turtle_NavPath()
+  {
     // Update ground truth red turtle path
     red_path_.header.stamp = get_clock()->now();
     red_path_.header.frame_id = "nusim/world";
@@ -352,6 +360,8 @@ private:
     red_pose_stamped_.pose.position.x = x_;
     red_pose_stamped_.pose.position.y = y_;
     red_pose_stamped_.pose.position.z = 0.0;
+    tf2::Quaternion q_;
+    q_.setRPY(0, 0, theta_);     // Rotation around z-axis
     red_pose_stamped_.pose.orientation.x = q_.x();
     red_pose_stamped_.pose.orientation.y = q_.y();
     red_pose_stamped_.pose.orientation.z = q_.z();
