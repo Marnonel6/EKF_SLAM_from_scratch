@@ -20,6 +20,7 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(nuturtlebot_msgs REQUIRED)
 find_package(turtlelib REQUIRED)
+find_package(nav_msgs REQUIRED)
 
 if(NOT CMAKE_CROSSCOMPILING)
     # CMake also has the ability to generate doxygen documentation
@@ -48,7 +49,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(nusim src/nusim.cpp)
-ament_target_dependencies(nusim rclcpp std_msgs std_srvs tf2 tf2_ros visualization_msgs nuturtlebot_msgs)
+ament_target_dependencies(nusim rclcpp std_msgs std_srvs tf2 tf2_ros visualization_msgs nuturtlebot_msgs nav_msgs)
 target_link_libraries(nusim turtlelib::turtlelib "${cpp_typesupport_target}")
 
 install(TARGETS

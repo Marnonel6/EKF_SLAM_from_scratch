@@ -60,6 +60,7 @@
 #include "nuturtlebot_msgs/msg/wheel_commands.hpp"
 #include "turtlelib/diff_drive.hpp"
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
+#include "nav_msgs/msg/path.hpp"
 
 using namespace std::chrono_literals;
 
@@ -196,6 +197,7 @@ public:
       create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
     sensor_data_publisher_ = create_publisher<nuturtlebot_msgs::msg::SensorData>(
       "red/sensor_data", 10);
+    red_turtle_publisher_ = create_publisher<nav_msgs::msg::Path>("red/path", 10);
 
     //Subscribers
     red_wheel_cmd_subscriber_ = create_subscription<nuturtlebot_msgs::msg::WheelCommands>(
@@ -244,6 +246,8 @@ private:
   visualization_msgs::msg::MarkerArray obstacles_;
   visualization_msgs::msg::MarkerArray walls_;
   nuturtlebot_msgs::msg::SensorData sensor_data_;
+  geometry_msgs::msg::PoseStamped red_pose_stamped_; // TODO Add to doxygen
+  nav_msgs::msg::Path red_path_; // TODO Add to doxygen
   turtlelib::Wheel new_wheel_pos_;
   turtlelib::Wheel old_wheel_pos_{0.0, 0.0};
   turtlelib::WheelVelocities new_wheel_vel_{0.0, 0.0};
@@ -255,6 +259,7 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_publisher_;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr red_turtle_publisher_; // TODO Add to doxygen
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr red_wheel_cmd_subscriber_;
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_server_;
   rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_server_;
@@ -337,6 +342,22 @@ private:
 
     // Send the transformation
     tf_broadcaster_->sendTransform(t_);
+
+    // Update ground truth red turtle path
+    red_path_.header.stamp = get_clock()->now();
+    red_path_.header.frame_id = "nusim/world";
+    // Create new pose stamped
+    red_pose_stamped_.header.stamp = get_clock()->now();
+    red_pose_stamped_.header.frame_id = "nusim/world";
+    red_pose_stamped_.pose.position.x = x_;
+    red_pose_stamped_.pose.position.y = y_;
+    red_pose_stamped_.pose.position.z = 0.0;
+    red_pose_stamped_.pose.orientation.x = q_.x();
+    red_pose_stamped_.pose.orientation.y = q_.y();
+    red_pose_stamped_.pose.orientation.z = q_.z();
+    red_pose_stamped_.pose.orientation.w = q_.w();
+    // Append pose stamped
+    red_path_.poses.push_back(red_pose_stamped_);
   }
 
   /// \brief Create obstacles as a MarkerArray and publish them to a topic to display them in Rviz
@@ -439,6 +460,7 @@ private:
     update_red_turtle_config();
     sensor_data_publisher_->publish(sensor_data_);
     broadcast_red_turtle();
+    red_turtle_publisher_->publish(red_path_);
   }
 };
 
