@@ -252,7 +252,7 @@ Visualization Manager:
       Length: 0.30000001192092896
       Line Style: Lines
       Line Width: 0.029999999329447746
-      Name: Path
+      Name: RedPath
       Offset:
         X: 0
         Y: 0
@@ -269,6 +269,34 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /red/path
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz_default_plugins/Path
+      Color: 26; 95; 180
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Lines
+      Line Width: 0.029999999329447746
+      Name: BluePath
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /blue/path
       Value: true
   Enabled: true
   Global Options:
@@ -316,25 +344,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 4.155237197875977
+      Distance: 3.3035683631896973
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.23782125115394592
-        Y: 0.4497741460800171
-        Z: -0.6085016131401062
+        X: -0.06420010328292847
+        Y: 0.27451077103614807
+        Z: -0.2052711397409439
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6003981828689575
+      Pitch: 0.7103984355926514
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.6603935360908508
+      Yaw: 0.4103936553001404
     Saved: ~
 Window Geometry:
   Displays:

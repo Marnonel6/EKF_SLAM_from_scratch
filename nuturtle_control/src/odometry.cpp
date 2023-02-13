@@ -12,6 +12,8 @@
 ///
 /// PUBLISHES:
 ///     \param /odom (nav_msgs::msg::Odometry): Odometry publisher
+///     \param /blue/path (nav_msgs::msg::Path): Create the blue turtle's nav_msgs/Path for rviz
+///                                              visualization
 ///
 /// SUBSCRIBES:
 ///     \param /joint_states (sensor_msgs::msg::JointState): Subscribes joint states for blue robot
@@ -39,6 +41,7 @@
 #include "tf2_ros/transform_broadcaster.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nuturtle_control/srv/initial_config.hpp"
+#include "nav_msgs/msg/path.hpp"
 
 using namespace std::chrono_literals;
 
@@ -101,6 +104,8 @@ public:
     // Publishers
     odom_publisher_ = create_publisher<nav_msgs::msg::Odometry>(
       "odom", 10);
+    blue_turtle_publisher_ = create_publisher<nav_msgs::msg::Path>("blue/path", 10);
+
 
     // Subscribers
     joint_states_subscriber_ = create_subscription<sensor_msgs::msg::JointState>(
@@ -135,9 +140,12 @@ private:
   tf2::Quaternion q_;
   geometry_msgs::msg::TransformStamped t_;
   sensor_msgs::msg::JointState joint_states_;
+  geometry_msgs::msg::PoseStamped blue_pose_stamped_;
+  nav_msgs::msg::Path blue_path_;
 
   // Create objects
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr blue_turtle_publisher_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_subscriber_;
   rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
@@ -149,8 +157,10 @@ private:
     new_wheel_pos_.right = msg.position[1] - prev_wheel_pos_.right;
     body_twist_ = turtle_.Twist(new_wheel_pos_);
     turtle_.ForwardKinematics(new_wheel_pos_);
+    q_.setRPY(0, 0, turtle_.configuration().theta);       // Rotation around z-axis
     odometry_pub();
     transform_broadcast();
+    blue_turtle_NavPath();
     prev_wheel_pos_.left = msg.position[0];
     prev_wheel_pos_.right = msg.position[1];
   }
@@ -204,6 +214,27 @@ private:
     tf_broadcaster_->sendTransform(t_);
   }
 
+  /// \brief Create the blue turtle's nav_msgs/Path
+  void blue_turtle_NavPath()
+  {
+    // Update ground truth red turtle path
+    blue_path_.header.stamp = get_clock()->now();
+    blue_path_.header.frame_id = "nusim/world";
+    // Create new pose stamped
+    blue_pose_stamped_.header.stamp = get_clock()->now();
+    blue_pose_stamped_.header.frame_id = "nusim/world";
+    blue_pose_stamped_.pose.position.x = turtle_.configuration().x;
+    blue_pose_stamped_.pose.position.y = turtle_.configuration().y;
+    blue_pose_stamped_.pose.position.z = 0.0;
+    blue_pose_stamped_.pose.orientation.x = q_.x();
+    blue_pose_stamped_.pose.orientation.y = q_.y();
+    blue_pose_stamped_.pose.orientation.z = q_.z();
+    blue_pose_stamped_.pose.orientation.w = q_.w();
+    // Append pose stamped
+    blue_path_.poses.push_back(blue_pose_stamped_);
+    blue_turtle_publisher_->publish(blue_path_);
+  }
+
   /// \brief Publishes the odometry to the odom topic
   void odometry_pub()
   {
@@ -214,7 +245,6 @@ private:
     odom_.pose.pose.position.x = turtle_.configuration().x;
     odom_.pose.pose.position.y = turtle_.configuration().y;
     odom_.pose.pose.position.z = 0.0;
-    q_.setRPY(0, 0, turtle_.configuration().theta);       // Rotation around z-axis
     odom_.pose.pose.orientation.x = q_.x();
     odom_.pose.pose.orientation.y = q_.y();
     odom_.pose.pose.orientation.z = q_.z();
