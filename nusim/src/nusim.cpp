@@ -16,8 +16,10 @@
 ///     \param walls.y_lenght (float): Inner lenght of walls in y direction [m]
 ///     \param walls.h (float): Walls height [m]
 ///     \param walls.w (float): Walls width [m]
-///     \param motor_cmd_per_rad_sec_ (float): Motor command to rad/s conversion factor
-///     \param encoder_ticks_per_rad_ (float): Encoder ticks to radians conversion factor
+///     \param motor_cmd_per_rad_sec (float): Motor command to rad/s conversion factor
+///     \param encoder_ticks_per_rad (float): Encoder ticks to radians conversion factor
+///     \param input_noise (float): Noise added to input signals from turtlebot
+///     \param slip_fraction (float): Wheel slippage factor for turtlebot
 ///
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): Current simulation timestep
@@ -95,6 +97,8 @@ using namespace std::chrono_literals;
 ///  \param track_width_ (float): The distance between the wheels [m]
 ///  \param motor_cmd_per_rad_sec_ (float): Motor command to rad/s conversion factor
 ///  \param encoder_ticks_per_rad_ (float): Encoder ticks to radians conversion factor
+///  \param input_noise_ (float): Noise added to input signals from turtlebot
+///  \param slip_fraction_ (float): Wheel slippage factor for turtlebot
 
 class Nusim : public rclcpp::Node
 {
@@ -120,6 +124,8 @@ public:
     auto track_width_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto encoder_ticks_per_rad_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto motor_cmd_per_rad_sec_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto input_noise_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto slip_fraction_des = rcl_interfaces::msg::ParameterDescriptor{};
     rate_des.description = "Timer callback frequency [Hz]";
     x0_des.description = "Initial x coordinate of the robot [m]";
     y0_des.description = "Initial y coordinate of the robot [m]";
@@ -140,6 +146,8 @@ public:
     motor_cmd_per_rad_sec_des.description =
       "Each motor command 'tick' is 0.024 rad/sec \
                                                [tick/(rad/sec)]";
+    input_noise_des.decription = "Noise added to input signals from turtlebot";
+    slip_fraction_des.decription = "Wheel slippage factor for turtlebot";
 
     // Declare default parameters values
     declare_parameter("rate", 200, rate_des);     // Hz for timer_callback
@@ -158,6 +166,9 @@ public:
     declare_parameter("track_width", -1.0, track_width_des);
     declare_parameter("encoder_ticks_per_rad", -1.0, encoder_ticks_per_rad_des);
     declare_parameter("motor_cmd_per_rad_sec", -1.0, motor_cmd_per_rad_sec_des);
+    declare_parameter("input_noise", 0.0, input_noise_des);
+    declare_parameter("slip_fraction", 0.0, slip_fraction_des);
+
     // Get params - Read params from yaml file that is passed in the launch file
     int rate = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<float>();
@@ -177,6 +188,8 @@ public:
       get_parameter("encoder_ticks_per_rad").get_parameter_value().get<float>();
     motor_cmd_per_rad_sec_ =
       get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<float>();
+    input_noise_ = get_parameter("input_noise").get_parameter_value().get<float>();
+    slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<float>();
 
     // Set current robot pose equal to initial pose
     x_ = x0_;
@@ -243,6 +256,8 @@ private:
   float track_width_;
   float encoder_ticks_per_rad_;
   float motor_cmd_per_rad_sec_;
+  float input_noise_;
+  float slip_fraction_;
   std::vector<double> obstacles_x_;    // Location of obstacles
   std::vector<double> obstacles_y_;
   visualization_msgs::msg::MarkerArray obstacles_;
