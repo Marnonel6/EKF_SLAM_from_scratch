@@ -72,6 +72,17 @@
 
 using namespace std::chrono_literals;
 
+/// \brief Generate random number
+std::mt19937 & get_random()
+{
+  // static variables inside a function are created once and persist for the remainder of the program
+  static std::random_device rd{}; 
+  static std::mt19937 mt{rd()};
+  // we return a reference to the pseudo-random number genrator object. This is always the
+  // same object every time get_random is called
+  return mt;
+}
+
 /// \brief This class publishes the current timestep of the simulation, obstacles and walls that
 ///        appear in Rviz as markers. The class has a timer_callback to continually update the
 ///        simulation at each timestep. The reset service resets the simulation to the initial
@@ -291,17 +302,6 @@ private:
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr red_wheel_cmd_subscriber_;
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_server_;
   rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_server_;
-
-  /// \brief Generate random number
-  std::mt19937 & get_random()
-  {
-    // static variables inside a function are created once and persist for the remainder of the program
-    static std::random_device rd{}; 
-    static std::mt19937 mt{rd()};
-    // we return a reference to the pseudo-random number genrator object. This is always the
-    // same object every time get_random is called
-    return mt;
-  }
 
   /// \brief Subscription callback function for wheel_cmd topic
   void red_wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
