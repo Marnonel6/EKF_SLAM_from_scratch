@@ -50,6 +50,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <random>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
@@ -146,8 +147,8 @@ public:
     motor_cmd_per_rad_sec_des.description =
       "Each motor command 'tick' is 0.024 rad/sec \
                                                [tick/(rad/sec)]";
-    input_noise_des.decription = "Noise added to input signals from turtlebot";
-    slip_fraction_des.decription = "Wheel slippage factor for turtlebot";
+    input_noise_des.description = "Noise added to input signals from turtlebot";
+    slip_fraction_des.description = "Wheel slippage factor for turtlebot";
 
     // Declare default parameters values
     declare_parameter("rate", 200, rate_des);     // Hz for timer_callback
@@ -281,12 +282,41 @@ private:
   rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_server_;
   rclcpp::Service<nusim::srv::Teleport>::SharedPtr teleport_server_;
 
+  /// \brief Generate random number
+  std::mt19937 & get_random()
+  {
+    // static variables inside a function are created once and persist for the remainder of the program
+    static std::random_device rd{}; 
+    static std::mt19937 mt{rd()};
+    // we return a reference to the pseudo-random number genrator object. This is always the
+    // same object every time get_random is called
+    return mt;
+  }
+
   /// \brief Subscription callback function for wheel_cmd topic
   void red_wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
-    // Convert wheel cmd ticks to rad/sec
-    new_wheel_vel_.left = msg.left_velocity * motor_cmd_per_rad_sec_;
-    new_wheel_vel_.right = msg.right_velocity * motor_cmd_per_rad_sec_;
+    // To generate a gaussian variable:
+    std::normal_distribution<> d(0.0, input_noise_);
+
+    // Convert wheel cmd ticks to rad/sec and add noise if the wheel is commanded to move
+    if (msg.left_velocity!=0.0)
+    {
+        new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_ + d(get_random());
+    }
+    else
+    {
+        new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_;
+    }
+
+    if (msg.right_velocity!=0.0)
+    {
+        new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_ + d(get_random());
+    }
+    else
+    {
+        new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_;
+    }
   }
 
   /// \brief Updates the red turtle's configuration

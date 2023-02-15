@@ -7,13 +7,13 @@
    description="Where to launch the nodes - robot, nusim, nothing"/>
   <arg name="use_rviz" default="true"
    description="Specify if rviz needs to start - true, false"/>
-  <arg name="body_id" default=""
+  <arg name="body_id" default="blue/base_footprint"
    description="The name of the body frame of the robot"/>
   <arg name="odom_id" default="odom"
    description="The name of the odometry frame"/>
-  <arg name="left_wheel_joint" default=""
+  <arg name="left_wheel_joint" default="blue/wheel_left_link"
    description="The name of the left wheel joint"/>
-  <arg name="right_wheel_joint" default=""
+  <arg name="right_wheel_joint" default="blue/wheel_right_link"
    description="The name of the right wheel joint"/>
 
   <!-- Argument to specify configuration file for robot control. -->
