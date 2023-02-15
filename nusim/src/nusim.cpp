@@ -76,7 +76,7 @@ using namespace std::chrono_literals;
 std::mt19937 & get_random()
 {
   // static variables inside a function are created once and persist for the remainder of the program
-  static std::random_device rd{}; 
+  static std::random_device rd{};
   static std::mt19937 mt{rd()};
   // we return a reference to the pseudo-random number genrator object. This is always the
   // same object every time get_random is called
@@ -265,6 +265,7 @@ private:
   float x0_ = 0;
   float y0_ = 0;
   float theta0_ = 0;
+  float dt_ = 0.005; // Nusim Timer
   float obstacles_r_;    // Size of obstacles
   float obstacles_h_;
   float wall_h_;   // Size of walls
@@ -309,24 +310,26 @@ private:
     // To generate a gaussian variable:
     double left_noise = 0.0;
     double right_noise = 0.0;
-    double left_slip = 0.0;
-    double right_slip = 0.0;
+    // double left_slip = 0.0;
+    // double right_slip = 0.0;
 
     // Convert wheel cmd ticks to rad/sec and add noise if the wheel is commanded to move
     if (msg.left_velocity!=0)
     {
         left_noise = noise_(get_random());
-        left_slip = slip_(get_random());
+        // left_slip = slip_(get_random());
     }
 
     if (msg.right_velocity!=0)
     {
         right_noise = noise_(get_random());
-        right_slip = slip_(get_random());
+        // right_slip = slip_(get_random());
     }
 
-    new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_*(1 + left_slip) + left_noise;
-    new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_*(1 + right_slip) + right_noise;
+    // new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_*(1 + left_slip) + left_noise;
+    // new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_*(1 + right_slip) + right_noise;
+    new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_ + left_noise;
+    new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_ + right_noise;
   }
 
   /// \brief Updates the red turtle's configuration
@@ -335,9 +338,11 @@ private:
     // TODO Rename to change in wheel position
     // OR TODO make this new wheel position then add minus back in FK
     // This will be updated
-    new_wheel_pos_.left = new_wheel_vel_.left * 0.005;   // Change in position
-    new_wheel_pos_.right = new_wheel_vel_.right * 0.005;   // Change in position
-    turtle_.ForwardKinematics(new_wheel_pos_);     // Update robot position
+    double left_slip = slip_(get_random());  // Add slip to wheel position
+    double right_slip = slip_(get_random());
+    new_wheel_pos_.left = new_wheel_vel_.left*(1 + left_slip)*dt_;  // Change in position
+    new_wheel_pos_.right = new_wheel_vel_.right*(1 + right_slip)*dt_;
+    turtle_.ForwardKinematics(new_wheel_pos_);  // Update robot position
     x_ = turtle_.configuration().x;
     y_ = turtle_.configuration().y;
     theta_ = turtle_.configuration().theta;
