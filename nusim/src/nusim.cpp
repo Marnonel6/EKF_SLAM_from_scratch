@@ -300,22 +300,25 @@ private:
     std::normal_distribution<> d(0.0, input_noise_);
     double left_noise = 0.0;
     double right_noise = 0.0;
+    std::uniform_real_distribution slip(-slip_fraction_, slip_fraction_);
+    double left_slip = 0.0;
+    double right_slip = 0.0;
 
     // Convert wheel cmd ticks to rad/sec and add noise if the wheel is commanded to move
     if (msg.left_velocity!=0)
     {
         left_noise = d(get_random());
+        left_slip = slip(get_random());
     }
 
     if (msg.right_velocity!=0)
     {
         right_noise = d(get_random());
+        right_slip = slip(get_random());
     }
 
-    new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_ + left_noise;
-    new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_ + right_noise;
-
-
+    new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_*(1 + left_slip) + left_noise;
+    new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_*(1 + right_slip) + right_noise;
   }
 
   /// \brief Updates the red turtle's configuration
