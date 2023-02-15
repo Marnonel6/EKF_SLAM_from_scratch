@@ -31,6 +31,9 @@
 ///                                                                  output in position ticks
 ///     \param /red/path (nav_msgs::msg::Path): Create the red turtle's nav_msgs/Path for rviz
 ///                                             visualization
+///     \param ~/fake_sensor (visualization_msgs::msg::MarkerArray): It contains the measured
+///                                                                  positions of the cylindrical
+///                                                                  obstacles relative to the robot
 ///
 /// SUBSCRIBES:
 ///     \param /red/wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Wheel command velocity in
@@ -204,6 +207,8 @@ public:
 
     // Update object with params
     turtle_ = turtlelib::DiffDrive{wheelradius_, track_width_};
+    noise_ = std::normal_distribution<>{0.0, input_noise_};
+    slip_ = std::uniform_real_distribution<>{-slip_fraction_, slip_fraction_};
 
     // Publishers
     timestep_publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
@@ -214,6 +219,8 @@ public:
     sensor_data_publisher_ = create_publisher<nuturtlebot_msgs::msg::SensorData>(
       "red/sensor_data", 10);
     red_turtle_publisher_ = create_publisher<nav_msgs::msg::Path>("red/path", 10);
+    fake_sensor_publisher_ =
+      create_publisher<visualization_msgs::msg::MarkerArray>("~/fake_sensor", 10);
 
     //Subscribers
     red_wheel_cmd_subscriber_ = create_subscription<nuturtlebot_msgs::msg::WheelCommands>(
@@ -270,12 +277,15 @@ private:
   turtlelib::Wheel old_wheel_pos_{0.0, 0.0};
   turtlelib::WheelVelocities new_wheel_vel_{0.0, 0.0};
   turtlelib::DiffDrive turtle_;
+  std::normal_distribution<> noise_{0.0, 0.0};
+  std::uniform_real_distribution<> slip_{0.0, 0.0};
 
   // Create objects
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr fake_sensor_publisher_;
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr red_turtle_publisher_;
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr red_wheel_cmd_subscriber_;
@@ -297,24 +307,22 @@ private:
   void red_wheel_cmd_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
     // To generate a gaussian variable:
-    std::normal_distribution<> d(0.0, input_noise_);
     double left_noise = 0.0;
     double right_noise = 0.0;
-    std::uniform_real_distribution slip(-slip_fraction_, slip_fraction_);
     double left_slip = 0.0;
     double right_slip = 0.0;
 
     // Convert wheel cmd ticks to rad/sec and add noise if the wheel is commanded to move
     if (msg.left_velocity!=0)
     {
-        left_noise = d(get_random());
-        left_slip = slip(get_random());
+        left_noise = noise_(get_random());
+        left_slip = slip_(get_random());
     }
 
     if (msg.right_velocity!=0)
     {
-        right_noise = d(get_random());
-        right_slip = slip(get_random());
+        right_noise = noise_(get_random());
+        right_slip = slip_(get_random());
     }
 
     new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_*(1 + left_slip) + left_noise;
