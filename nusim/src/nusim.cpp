@@ -20,6 +20,8 @@
 ///     \param encoder_ticks_per_rad (float): Encoder ticks to radians conversion factor
 ///     \param input_noise (float): Noise added to input signals from turtlebot
 ///     \param slip_fraction (float): Wheel slippage factor for turtlebot
+///     \param max_range (float): Max sensor laser range
+///     \param basic_sensor_variance (float): Laser sensor variance
 ///
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): Current simulation timestep
@@ -115,6 +117,8 @@ std::mt19937 & get_random()
 ///  \param encoder_ticks_per_rad_ (float): Encoder ticks to radians conversion factor
 ///  \param input_noise_ (float): Noise added to input signals from turtlebot
 ///  \param slip_fraction_ (float): Wheel slippage factor for turtlebot
+///  \param max_range_ (float): Max sensor laser range [m]
+///  \param basic_sensor_variance_ (float): Laser sensor variance [m]
 
 class Nusim : public rclcpp::Node
 {
@@ -142,6 +146,8 @@ public:
     auto motor_cmd_per_rad_sec_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto input_noise_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto slip_fraction_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto max_range_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto basic_sensor_variance_des = rcl_interfaces::msg::ParameterDescriptor{};
     rate_des.description = "Timer callback frequency [Hz]";
     x0_des.description = "Initial x coordinate of the robot [m]";
     y0_des.description = "Initial y coordinate of the robot [m]";
@@ -164,6 +170,8 @@ public:
                                                [tick/(rad/sec)]";
     input_noise_des.description = "Noise added to input signals from turtlebot";
     slip_fraction_des.description = "Wheel slippage factor for turtlebot";
+    max_range_des.description = "Max sensor laser range [m]";
+    basic_sensor_variance_des.description = "Laser sensor variance [m]";
 
     // Declare default parameters values
     declare_parameter("rate", 200, rate_des);     // Hz for timer_callback
@@ -184,6 +192,8 @@ public:
     declare_parameter("motor_cmd_per_rad_sec", -1.0, motor_cmd_per_rad_sec_des);
     declare_parameter("input_noise", 0.0, input_noise_des);
     declare_parameter("slip_fraction", 0.0, slip_fraction_des);
+    declare_parameter("max_range", 0.0, max_range_des);
+    declare_parameter("basic_sensor_variance", 0.0, basic_sensor_variance_des);
 
     // Get params - Read params from yaml file that is passed in the launch file
     int rate = get_parameter("rate").get_parameter_value().get<int>();
@@ -206,6 +216,8 @@ public:
       get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<float>();
     input_noise_ = get_parameter("input_noise").get_parameter_value().get<float>();
     slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<float>();
+    max_range_ = get_parameter("max_range").get_parameter_value().get<float>();
+    basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<float>();
 
     // Set current robot pose equal to initial pose
     x_ = x0_;
@@ -221,6 +233,7 @@ public:
     turtle_ = turtlelib::DiffDrive{wheelradius_, track_width_};
     noise_ = std::normal_distribution<>{0.0, input_noise_};
     slip_ = std::uniform_real_distribution<>{-slip_fraction_, slip_fraction_};
+    laser_noise_ = std::normal_distribution<>{0.0, basic_sensor_variance_};
 
     // Get transform from robot to world
     T_world_red_ = turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y}, turtle_.configuration().theta};
@@ -286,6 +299,8 @@ private:
   float motor_cmd_per_rad_sec_;
   float input_noise_;
   float slip_fraction_;
+  float max_range_;  // Fake laser sensor range
+  float basic_sensor_variance_;
   std::vector<double> obstacles_x_;    // Location of obstacles
   std::vector<double> obstacles_y_;
   visualization_msgs::msg::MarkerArray obstacles_;
@@ -302,6 +317,7 @@ private:
   turtlelib::Transform2D T_red_world_{};
   std::normal_distribution<> noise_{0.0, 0.0};
   std::uniform_real_distribution<> slip_{0.0, 0.0};
+  std::normal_distribution<> laser_noise_{0.0, 0.0};
 
   // Create objects
   rclcpp::TimerBase::SharedPtr timer_;
@@ -545,7 +561,7 @@ private:
     red_turtle_publisher_->publish(red_path_);
   }
 
-  /// \brief Secondary timer loop
+  /// \brief Secondary timer loop for fake laser sensor
   void timer_callback_2()
   {
     // Get transform from robot to world
@@ -562,9 +578,14 @@ private:
       sensor_obstacle_.header.stamp = get_clock()->now();
       sensor_obstacle_.id = i;
       sensor_obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
-      sensor_obstacle_.action = visualization_msgs::msg::Marker::ADD; // TODO add delete if further away than max range
-      sensor_obstacle_.pose.position.x = obs_red.x;
-      sensor_obstacle_.pose.position.y = obs_red.y;
+      sensor_obstacle_.pose.position.x = obs_red.x + laser_noise_(get_random());
+      sensor_obstacle_.pose.position.y = obs_red.y + laser_noise_(get_random());
+      if (std::sqrt(std::pow(sensor_obstacle_.pose.position.x, 2) + std::pow(sensor_obstacle_.pose.position.y, 2)) > max_range_)
+        sensor_obstacle_.action = visualization_msgs::msg::Marker::DELETE; // Delete if further away than max range
+      else
+      {
+        sensor_obstacle_.action = visualization_msgs::msg::Marker::ADD;
+      }
       sensor_obstacle_.pose.position.z = obstacles_h_ / 2.0;
       sensor_obstacle_.pose.orientation.x = 0.0;
       sensor_obstacle_.pose.orientation.y = 0.0;
