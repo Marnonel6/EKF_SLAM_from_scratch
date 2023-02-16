@@ -304,7 +304,6 @@ private:
   std::vector<double> obstacles_x_;    // Location of obstacles
   std::vector<double> obstacles_y_;
   visualization_msgs::msg::MarkerArray obstacles_;
-  visualization_msgs::msg::MarkerArray sensor_obstacles_; // Fake laser sensor obstacles
   visualization_msgs::msg::MarkerArray walls_;
   nuturtlebot_msgs::msg::SensorData sensor_data_;
   geometry_msgs::msg::PoseStamped red_pose_stamped_;
@@ -567,20 +566,25 @@ private:
     // Get transform from robot to world
     T_world_red_ = turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y}, turtle_.configuration().theta};
     T_red_world_ = T_world_red_.inv();
+    // Fake laser sensor obstacles
+    visualization_msgs::msg::MarkerArray sensor_obstacles_;
 
     for (size_t i = 0; i < obstacles_x_.size(); i++) {
-    // Transfrom obstacles to robot frame from world frame
+      // Transfrom obstacles to robot frame from world frame
       turtlelib::Vector2D obs{obstacles_x_.at(i), obstacles_y_.at(i)};
       turtlelib::Vector2D obs_red = T_red_world_(obs);
+      turtlelib::Vector2D obs_red_noise = {obs_red.x + laser_noise_(get_random()), obs_red.y + laser_noise_(get_random())};
+      // Obstacles with noise back in world frame
+      turtlelib::Vector2D obs_world_nose = T_world_red_(obs_red_noise);
 
       visualization_msgs::msg::Marker sensor_obstacle_;
-      sensor_obstacle_.header.frame_id = "red/base_footprint";
+      sensor_obstacle_.header.frame_id = "nusim/world";
       sensor_obstacle_.header.stamp = get_clock()->now();
       sensor_obstacle_.id = i;
       sensor_obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
-      sensor_obstacle_.pose.position.x = obs_red.x + laser_noise_(get_random());
-      sensor_obstacle_.pose.position.y = obs_red.y + laser_noise_(get_random());
-      if (std::sqrt(std::pow(sensor_obstacle_.pose.position.x, 2) + std::pow(sensor_obstacle_.pose.position.y, 2)) > max_range_)
+      sensor_obstacle_.pose.position.x = obs_world_nose.x;
+      sensor_obstacle_.pose.position.y = obs_world_nose.y;
+      if (std::sqrt(std::pow(obs_red_noise.x, 2) + std::pow(obs_red_noise.y, 2)) > max_range_)
         sensor_obstacle_.action = visualization_msgs::msg::Marker::DELETE; // Delete if further away than max range
       else
       {
