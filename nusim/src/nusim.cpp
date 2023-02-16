@@ -67,6 +67,7 @@
 #include "visualization_msgs/msg/marker.hpp"
 #include "nuturtlebot_msgs/msg/wheel_commands.hpp"
 #include "turtlelib/diff_drive.hpp"
+#include "turtlelib/rigid2d.hpp"
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
 #include "nav_msgs/msg/path.hpp"
 
@@ -221,6 +222,10 @@ public:
     noise_ = std::normal_distribution<>{0.0, input_noise_};
     slip_ = std::uniform_real_distribution<>{-slip_fraction_, slip_fraction_};
 
+    // Get transform from robot to world
+    T_world_red_ = turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y}, turtle_.configuration().theta};
+    T_red_world_ = T_world_red_.inv();
+
     // Publishers
     timestep_publisher_ = create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
     obstacles_publisher_ =
@@ -255,6 +260,9 @@ public:
     timer_ = create_wall_timer(
       std::chrono::milliseconds(1000 / rate),
       std::bind(&Nusim::timer_callback, this));
+    timer2_ = create_wall_timer(
+      std::chrono::milliseconds(1000 / 5),
+      std::bind(&Nusim::timer_callback_2, this));
   }
 
 private:
@@ -281,6 +289,7 @@ private:
   std::vector<double> obstacles_x_;    // Location of obstacles
   std::vector<double> obstacles_y_;
   visualization_msgs::msg::MarkerArray obstacles_;
+  visualization_msgs::msg::MarkerArray sensor_obstacles_; // Fake laser sensor obstacles
   visualization_msgs::msg::MarkerArray walls_;
   nuturtlebot_msgs::msg::SensorData sensor_data_;
   geometry_msgs::msg::PoseStamped red_pose_stamped_;
@@ -289,11 +298,14 @@ private:
   turtlelib::Wheel old_wheel_pos_{0.0, 0.0};
   turtlelib::WheelVelocities new_wheel_vel_{0.0, 0.0};
   turtlelib::DiffDrive turtle_;
+  turtlelib::Transform2D T_world_red_{};
+  turtlelib::Transform2D T_red_world_{};
   std::normal_distribution<> noise_{0.0, 0.0};
   std::uniform_real_distribution<> slip_{0.0, 0.0};
 
   // Create objects
   rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::TimerBase::SharedPtr timer2_;
   rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
@@ -446,8 +458,8 @@ private:
       obstacle_.id = i;
       obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
       obstacle_.action = visualization_msgs::msg::Marker::ADD;
-      obstacle_.pose.position.x = obstacles_x_[i];
-      obstacle_.pose.position.y = obstacles_y_[i];
+      obstacle_.pose.position.x = obstacles_x_.at(i);
+      obstacle_.pose.position.y = obstacles_y_.at(i);
       obstacle_.pose.position.z = obstacles_h_ / 2.0;
       obstacle_.pose.orientation.x = 0.0;
       obstacle_.pose.orientation.y = 0.0;
@@ -531,6 +543,44 @@ private:
     sensor_data_publisher_->publish(sensor_data_);
     broadcast_red_turtle();
     red_turtle_publisher_->publish(red_path_);
+  }
+
+  /// \brief Secondary timer loop
+  void timer_callback_2()
+  {
+    // Get transform from robot to world
+    T_world_red_ = turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y}, turtle_.configuration().theta};
+    T_red_world_ = T_world_red_.inv();
+
+    for (size_t i = 0; i < obstacles_x_.size(); i++) {
+    // Transfrom obstacles to robot frame from world frame
+      turtlelib::Vector2D obs{obstacles_x_.at(i), obstacles_y_.at(i)};
+      turtlelib::Vector2D obs_red = T_red_world_(obs);
+
+      visualization_msgs::msg::Marker sensor_obstacle_;
+      sensor_obstacle_.header.frame_id = "red/base_footprint";
+      sensor_obstacle_.header.stamp = get_clock()->now();
+      sensor_obstacle_.id = i;
+      sensor_obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
+      sensor_obstacle_.action = visualization_msgs::msg::Marker::ADD; // TODO add delete if further away than max range
+      sensor_obstacle_.pose.position.x = obs_red.x;
+      sensor_obstacle_.pose.position.y = obs_red.y;
+      sensor_obstacle_.pose.position.z = obstacles_h_ / 2.0;
+      sensor_obstacle_.pose.orientation.x = 0.0;
+      sensor_obstacle_.pose.orientation.y = 0.0;
+      sensor_obstacle_.pose.orientation.z = 0.0;
+      sensor_obstacle_.pose.orientation.w = 1.0;
+      sensor_obstacle_.scale.x = obstacles_r_ * 2.0;   // Diameter in x
+      sensor_obstacle_.scale.y = obstacles_r_ * 2.0;   // Diameter in y
+      sensor_obstacle_.scale.z = obstacles_h_;         // Height
+      sensor_obstacle_.color.r = 1.0f;
+      sensor_obstacle_.color.g = 1.0f;
+      sensor_obstacle_.color.b = 0.0f;
+      sensor_obstacle_.color.a = 1.0;
+      sensor_obstacles_.markers.push_back(sensor_obstacle_);
+    }
+
+    fake_sensor_publisher_->publish(sensor_obstacles_);
   }
 };
 
