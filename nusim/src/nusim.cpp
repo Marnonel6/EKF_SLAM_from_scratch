@@ -393,7 +393,7 @@ private:
         if (eucl_distance < collision_radius_ + obstacles_r_)
         {
             // // Vector between robot and obstacle
-            turtlelib::Vector2D V{turtle_.configuration().x - obstacles_x_.at(i), turtle_.configuration().y - obstacles_y_.at(i)};
+            turtlelib::Vector2D V{dx, dy};
             turtlelib::Vector2D V_normal = turtlelib::normalize(V);
             // Distance to move back
             float collision_dis = collision_radius_ + obstacles_r_ - eucl_distance;
@@ -463,7 +463,10 @@ private:
     // Send the transformation
     tf_broadcaster_->sendTransform(t_);
 
-    red_turtle_NavPath();
+    if (timestep_%100 == 1)
+    {
+        red_turtle_NavPath();
+    }
   }
 
   /// \brief Create the red turtle's nav_msgs/Path
@@ -605,11 +608,9 @@ private:
       turtlelib::Vector2D obs{obstacles_x_.at(i), obstacles_y_.at(i)};
       turtlelib::Vector2D obs_red = T_red_world_(obs);
       turtlelib::Vector2D obs_red_noise = {obs_red.x + laser_noise_(get_random()), obs_red.y + laser_noise_(get_random())};
-      // Obstacles with noise back in world frame
-    //   turtlelib::Vector2D obs_world_nose = T_world_red_(obs_red_noise);
 
       visualization_msgs::msg::Marker sensor_obstacle_;
-      sensor_obstacle_.header.frame_id = "red/base_footprint"; // TODO maybe back to red/turtle_footprint
+      sensor_obstacle_.header.frame_id = "red/base_footprint";
       sensor_obstacle_.header.stamp = get_clock()->now();
       sensor_obstacle_.id = i;
       sensor_obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
