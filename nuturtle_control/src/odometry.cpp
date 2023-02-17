@@ -132,6 +132,7 @@ private:
   std::string wheel_right_;
   float wheelradius_;
   float track_width_;
+  int step_ = 0;
   turtlelib::Wheel new_wheel_pos_;
   turtlelib::Wheel prev_wheel_pos_{0.0, 0.0};
   turtlelib::Twist2D body_twist_;
@@ -160,7 +161,13 @@ private:
     q_.setRPY(0, 0, turtle_.configuration().theta);       // Rotation around z-axis
     odometry_pub();
     transform_broadcast();
-    blue_turtle_NavPath();
+
+    step_++;
+    if (step_%100 == 1)
+    {
+        blue_turtle_NavPath();
+    }
+
     prev_wheel_pos_.left = msg.position[0];
     prev_wheel_pos_.right = msg.position[1];
   }
