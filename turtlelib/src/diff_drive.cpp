@@ -87,4 +87,11 @@ namespace turtlelib
         return q;
     }
 
+    void DiffDrive::set_configuration(Robot_configuration q_new)
+    {
+        q.x = q_new.x;
+        q.y = q_new.y;
+        q.theta = q_new.theta;
+    }
+
 }

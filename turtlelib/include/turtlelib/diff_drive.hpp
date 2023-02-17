@@ -89,6 +89,9 @@ namespace turtlelib
         /// \return robots current configuration
         Robot_configuration configuration() const;
 
+        /// \brief set robots current configuration
+        void set_configuration(Robot_configuration q_new);
+
         /// \brief generates a twist from wheel positions
         /// \param new_wheel_positions - new wheel positions
         /// \return body twist
