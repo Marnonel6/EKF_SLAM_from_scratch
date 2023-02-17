@@ -380,6 +380,7 @@ private:
     update_sensor_data();
   }
 
+  /// \brief Check collision with obstacles
   void check_collision()
   {
     for (size_t i = 0; i < obstacles_x_.size(); i++)
@@ -391,15 +392,19 @@ private:
         // Check if collision occured
         if (eucl_distance < collision_radius_ + obstacles_r_)
         {
-            // std::cout << "Collision occured" << std::endl;
-            RCLCPP_ERROR_STREAM(get_logger(), "Collision");
             // // Vector between robot and obstacle
-            // turtlelib::Vector2D V{turtle_.configuration().x - obstacles_x_.at(i), turtle_.configuration().y - obstacles_y_.at(i)};
-            // turtlelib::Vector2D V_normal = turtlelib::normalize(V);
+            turtlelib::Vector2D V{turtle_.configuration().x - obstacles_x_.at(i), turtle_.configuration().y - obstacles_y_.at(i)};
+            turtlelib::Vector2D V_normal = turtlelib::normalize(V);
+            // Distance to move back
+            float collision_dis = collision_radius_ + obstacles_r_ - eucl_distance;
+            // New robot configuration
+            turtlelib::Robot_configuration after_collision{};
+            after_collision.x = turtle_.configuration().x + collision_dis*V_normal.x;
+            after_collision.y = turtle_.configuration().y + collision_dis*V_normal.y;
+            after_collision.theta = turtle_.configuration().theta;
+            turtle_.set_configuration(after_collision);
         }
-
     }
-
   }
 
   /// \brief Generates the encoder/sensor_data
