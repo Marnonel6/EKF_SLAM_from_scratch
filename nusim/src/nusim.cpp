@@ -606,15 +606,15 @@ private:
       turtlelib::Vector2D obs_red = T_red_world_(obs);
       turtlelib::Vector2D obs_red_noise = {obs_red.x + laser_noise_(get_random()), obs_red.y + laser_noise_(get_random())};
       // Obstacles with noise back in world frame
-      turtlelib::Vector2D obs_world_nose = T_world_red_(obs_red_noise);
+    //   turtlelib::Vector2D obs_world_nose = T_world_red_(obs_red_noise);
 
       visualization_msgs::msg::Marker sensor_obstacle_;
-      sensor_obstacle_.header.frame_id = "nusim/world"; // TODO maybe back to red/turtle_footprint
+      sensor_obstacle_.header.frame_id = "red/base_footprint"; // TODO maybe back to red/turtle_footprint
       sensor_obstacle_.header.stamp = get_clock()->now();
       sensor_obstacle_.id = i;
       sensor_obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
-      sensor_obstacle_.pose.position.x = obs_world_nose.x;
-      sensor_obstacle_.pose.position.y = obs_world_nose.y;
+      sensor_obstacle_.pose.position.x = obs_red_noise.x;
+      sensor_obstacle_.pose.position.y = obs_red_noise.y;
       if (std::sqrt(std::pow(obs_red_noise.x, 2) + std::pow(obs_red_noise.y, 2)) > max_range_)
         sensor_obstacle_.action = visualization_msgs::msg::Marker::DELETE; // Delete if further away than max range
       else
