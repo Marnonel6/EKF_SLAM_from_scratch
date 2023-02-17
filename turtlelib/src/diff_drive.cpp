@@ -58,7 +58,7 @@ namespace turtlelib
         // Equation 4 END //
 
         // Equation 5 START //
-        Robot_configuration q_new; // New configuration
+        // New configuration
         q.x = Tw_bprime.translation().x;
         q.y = Tw_bprime.translation().y;
         q.theta = normalize_angle(Tw_bprime.rotation());
