@@ -22,6 +22,7 @@
 ///     \param slip_fraction (float): Wheel slippage factor for turtlebot
 ///     \param max_range (float): Max sensor laser range
 ///     \param basic_sensor_variance (float): Laser sensor variance
+///     \param collision_radius (float): Robot collision radius [m]
 ///
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): Current simulation timestep
@@ -119,6 +120,7 @@ std::mt19937 & get_random()
 ///  \param slip_fraction_ (float): Wheel slippage factor for turtlebot
 ///  \param max_range_ (float): Max sensor laser range [m]
 ///  \param basic_sensor_variance_ (float): Laser sensor variance [m]
+///  \param collision_radius_ (float): Robot collision radius [m]
 
 class Nusim : public rclcpp::Node
 {
@@ -148,6 +150,7 @@ public:
     auto slip_fraction_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto max_range_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto basic_sensor_variance_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto collision_radius_des = rcl_interfaces::msg::ParameterDescriptor{};
     rate_des.description = "Timer callback frequency [Hz]";
     x0_des.description = "Initial x coordinate of the robot [m]";
     y0_des.description = "Initial y coordinate of the robot [m]";
@@ -172,6 +175,7 @@ public:
     slip_fraction_des.description = "Wheel slippage factor for turtlebot";
     max_range_des.description = "Max sensor laser range [m]";
     basic_sensor_variance_des.description = "Laser sensor variance [m]";
+    collision_radius_des.description = "Robot collision radius [m]";
 
     // Declare default parameters values
     declare_parameter("rate", 200, rate_des);     // Hz for timer_callback
@@ -194,6 +198,7 @@ public:
     declare_parameter("slip_fraction", 0.0, slip_fraction_des);
     declare_parameter("max_range", 0.0, max_range_des);
     declare_parameter("basic_sensor_variance", 0.0, basic_sensor_variance_des);
+    declare_parameter("collision_radius", 0.0, collision_radius_des);
 
     // Get params - Read params from yaml file that is passed in the launch file
     int rate = get_parameter("rate").get_parameter_value().get<int>();
@@ -218,11 +223,15 @@ public:
     slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<float>();
     max_range_ = get_parameter("max_range").get_parameter_value().get<float>();
     basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<float>();
+    collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<float>();
 
     // Set current robot pose equal to initial pose
     x_ = x0_;
     y_ = y0_;
     theta_ = theta0_;
+
+    // Timer timestep [seconds]
+    dt_ = 1.0/static_cast<double>(rate); 
 
     // Create obstacles
     create_obstacles_array();
@@ -286,7 +295,7 @@ private:
   float x0_ = 0;
   float y0_ = 0;
   float theta0_ = 0;
-  float dt_ = 0.005; // Nusim Timer
+  float dt_ = 0.0; // Nusim Timer
   float obstacles_r_;    // Size of obstacles
   float obstacles_h_;
   float wall_h_;   // Size of walls
@@ -301,6 +310,7 @@ private:
   float slip_fraction_;
   float max_range_;  // Fake laser sensor range
   float basic_sensor_variance_;
+  float collision_radius_;
   std::vector<double> obstacles_x_;    // Location of obstacles
   std::vector<double> obstacles_y_;
   visualization_msgs::msg::MarkerArray obstacles_;
@@ -337,24 +347,18 @@ private:
     // To generate a gaussian variable:
     double left_noise = 0.0;
     double right_noise = 0.0;
-    // double left_slip = 0.0;
-    // double right_slip = 0.0;
 
     // Convert wheel cmd ticks to rad/sec and add noise if the wheel is commanded to move
     if (msg.left_velocity!=0)
     {
         left_noise = noise_(get_random());
-        // left_slip = slip_(get_random());
     }
 
     if (msg.right_velocity!=0)
     {
         right_noise = noise_(get_random());
-        // right_slip = slip_(get_random());
     }
 
-    // new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_*(1 + left_slip) + left_noise;
-    // new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_*(1 + right_slip) + right_noise;
     new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_ + left_noise;
     new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_ + right_noise;
   }
