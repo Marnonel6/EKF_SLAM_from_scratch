@@ -318,6 +318,7 @@ private:
   nuturtlebot_msgs::msg::SensorData sensor_data_;
   geometry_msgs::msg::PoseStamped red_pose_stamped_;
   nav_msgs::msg::Path red_path_;
+  turtlelib::Wheel delta_wheel_pos_{0.0, 0.0};
   turtlelib::Wheel new_wheel_pos_;
   turtlelib::Wheel old_wheel_pos_{0.0, 0.0};
   turtlelib::WheelVelocities new_wheel_vel_{0.0, 0.0};
@@ -371,13 +372,20 @@ private:
     // This will be updated
     double left_slip = slip_(get_random());  // Add slip to wheel position
     double right_slip = slip_(get_random());
-    new_wheel_pos_.left = new_wheel_vel_.left*(1 + left_slip)*dt_;  // Change in position
-    new_wheel_pos_.right = new_wheel_vel_.right*(1 + right_slip)*dt_;
-    turtle_.ForwardKinematics(new_wheel_pos_);  // Update robot position
+    delta_wheel_pos_.left = new_wheel_vel_.left*(1 + left_slip)*dt_;  // Change in position
+    delta_wheel_pos_.right = new_wheel_vel_.right*(1 + right_slip)*dt_;
+    turtle_.ForwardKinematics(delta_wheel_pos_);  // Update robot position
+    // Check collision with obstacles
+    check_collision();
     x_ = turtle_.configuration().x;
-    y_ = turtle_.configuration().y;
+    y_ = turtle_.configuration().y; 
     theta_ = turtle_.configuration().theta;
     update_sensor_data();
+  }
+
+  void check_collision()
+  {
+
   }
 
   /// \brief Generates the encoder/sensor_data
@@ -582,7 +590,7 @@ private:
       turtlelib::Vector2D obs_world_nose = T_world_red_(obs_red_noise);
 
       visualization_msgs::msg::Marker sensor_obstacle_;
-      sensor_obstacle_.header.frame_id = "nusim/world";
+      sensor_obstacle_.header.frame_id = "nusim/world"; // TODO maybe back to red/turtle_footprint
       sensor_obstacle_.header.stamp = get_clock()->now();
       sensor_obstacle_.id = i;
       sensor_obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
