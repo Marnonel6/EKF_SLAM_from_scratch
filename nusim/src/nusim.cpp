@@ -367,9 +367,6 @@ private:
   /// \brief Updates the red turtle's configuration
   void update_red_turtle_config()
   {
-    // TODO Rename to change in wheel position
-    // OR TODO make this new wheel position then add minus back in FK
-    // This will be updated
     double left_slip = slip_(get_random());  // Add slip to wheel position
     double right_slip = slip_(get_random());
     delta_wheel_pos_.left = new_wheel_vel_.left*(1 + left_slip)*dt_;  // Change in position
@@ -385,6 +382,23 @@ private:
 
   void check_collision()
   {
+    for (size_t i = 0; i < obstacles_x_.size(); i++)
+    {
+        float dx = turtle_.configuration().x - obstacles_x_.at(i);
+        float dy = turtle_.configuration().y - obstacles_y_.at(i);
+        float eucl_distance = std::sqrt(std::pow((dx),2) + std::pow((dy),2));
+
+        // Check if collision occured
+        if (eucl_distance < collision_radius_ + obstacles_r_)
+        {
+            // std::cout << "Collision occured" << std::endl;
+            RCLCPP_ERROR_STREAM(get_logger(), "Collision");
+            // // Vector between robot and obstacle
+            // turtlelib::Vector2D V{turtle_.configuration().x - obstacles_x_.at(i), turtle_.configuration().y - obstacles_y_.at(i)};
+            // turtlelib::Vector2D V_normal = turtlelib::normalize(V);
+        }
+
+    }
 
   }
 
