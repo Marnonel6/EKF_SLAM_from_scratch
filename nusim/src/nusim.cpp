@@ -447,6 +447,7 @@ private:
     geometry_msgs::msg::TransformStamped t_;
 
     t_.header.stamp = get_clock()->now();
+    // t_.header.stamp.nanosec += 50000000; // TODO - Fixes the fake obstacle in Rviz
     t_.header.frame_id = "nusim/world";
     t_.child_frame_id = "red/base_footprint";
     t_.transform.translation.x = x_;
@@ -611,7 +612,9 @@ private:
 
       visualization_msgs::msg::Marker sensor_obstacle_;
       sensor_obstacle_.header.frame_id = "red/base_footprint";
+    //   sensor_obstacle_.frame_locked = false;
       sensor_obstacle_.header.stamp = get_clock()->now();
+    //   sensor_obstacle_.header.stamp.nanosec = -50000000 + sensor_obstacle_.header.stamp.nanosec;
       sensor_obstacle_.id = i;
       sensor_obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
       sensor_obstacle_.pose.position.x = obs_red_noise.x;
