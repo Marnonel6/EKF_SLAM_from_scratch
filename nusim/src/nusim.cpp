@@ -43,6 +43,8 @@
 ///     \param ~/fake_sensor (visualization_msgs::msg::MarkerArray): It contains the measured
 ///                                                                  positions of the cylindrical
 ///                                                                  obstacles relative to the robot
+///     \param ~/fake_lidar_scan (sensor_msgs::msg::LaserScan): It contains the lidar measured
+///                                                             samples in one revolution
 ///
 /// SUBSCRIBES:
 ///     \param /red/wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Wheel command velocity in
@@ -298,6 +300,8 @@ public:
     red_turtle_publisher_ = create_publisher<nav_msgs::msg::Path>("red/path", 10);
     fake_sensor_publisher_ =
       create_publisher<visualization_msgs::msg::MarkerArray>("~/fake_sensor", 10);
+    fake_lidar_publisher_ =
+      create_publisher<sensor_msgs::msg::LaserScan>("~/fake_lidar_scan", 10);
 
     //Subscribers
     red_wheel_cmd_subscriber_ = create_subscription<nuturtlebot_msgs::msg::WheelCommands>(
@@ -381,6 +385,7 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr fake_sensor_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr fake_lidar_publisher_;
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr sensor_data_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr red_turtle_publisher_;
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr red_wheel_cmd_subscriber_;
@@ -688,10 +693,107 @@ private:
     fake_sensor_publisher_->publish(sensor_obstacles_);
   }
 
-  /// \brief Secondary timer loop for fake laser sensor
+  /// \brief Calculate the euclidean distance
+  /// \param x1 point 1 x-coordinate (float)
+  /// \param y1 point 1 y-coordinate (float)
+  /// \param x2 point 2 x-coordinate (float)
+  /// \param y2 point 2 y-coordinate (float)
+  /// \return euclidean distance (float)
+  float euclidean_distance(float x1, float y1, float x2, float y2) {
+      float dx = x2 - x1;
+      float dy = y2 - y1;
+      return std::sqrt(dx*dx + dy*dy);
+  }
+
+  /// \brief Fake lidar sensor (5Hz)
+  void lidar()
+  {
+    // num_samples_lidar_
+    // resolution_lidar_
+    // noise_level_lidar_
+
+    sensor_msgs::msg::LaserScan lidar_data_;
+    lidar_data_.header.frame_id = "red/base_scan";
+    lidar_data_.header.stamp = get_clock()->now();
+    lidar_data_.header.stamp.nanosec -= 6e8;
+    lidar_data_.angle_min = 0.0;
+    lidar_data_.angle_max = 6.28319;
+    lidar_data_.angle_increment = angle_increment_lidar_;
+    lidar_data_.time_increment = 0.0005574136157520115;
+    lidar_data_.scan_time = 0.20066890120506287;
+    lidar_data_.range_min = min_range_lidar_;
+    lidar_data_.range_max = max_range_lidar_;
+
+    float actual_distance = 2.0;
+
+    for (float j; j < num_samples_lidar_; j++) // Loop through number of samples
+    {
+        // Calculate max [x,y] coordinate at given turtle and laser position and angle
+        float max_x = turtle_.configuration().x + std::cos(j*angle_increment_lidar_ + turtle_.configuration().theta)*max_range_lidar_;
+        float max_y = turtle_.configuration().y + std::sin(j*angle_increment_lidar_ + turtle_.configuration().theta)*max_range_lidar_;
+        // Slope
+        float slope = (max_y-turtle_.configuration().y)/(max_x-turtle_.configuration().x);
+
+        for (size_t i = 0; i < obstacles_x_.size(); i++) // Loop through number of obstacles
+        {
+            float sub = turtle_.configuration().y - slope*turtle_.configuration().x - obstacles_y_.at(i);
+            float a = 1 + std::pow(slope,2);
+            float b = 2*(sub*slope - obstacles_x_.at(i));
+            float c = std::pow(obstacles_x_.at(i),2) + std::pow(sub, 2) + std::pow(obstacles_r_, 2);
+            float det = 4.0*std::pow((sub*slope - obstacles_x_.at(i)),2) - 4.0*(1.0 + std::pow(slope,2))*(std::pow(obstacles_x_.at(i),2) + std::pow(sub, 2) - std::pow(obstacles_r_, 2));
+            float x = 0.0;
+
+            if (det<0.0) // No solution
+            {
+                actual_distance = 0.0;
+            }
+            else if (det == 0.0) // 1 solution
+            {
+                // x-solution
+                float x = -b/(2.0*a);
+
+                // y-solution
+                float y = slope*(x - turtle_.configuration().x) + turtle_.configuration().y;
+
+                // Distance to robot
+                actual_distance = euclidean_distance(x, y, turtle_.configuration().x, turtle_.configuration().y);
+            }
+            else if (det > 0.0) // 2 solutions
+            {
+                // x-solution
+                float x1 = (-b + std::sqrt(std::pow(b,2) - 4.0*a*c))/(2.0*a);
+                float x2 = (-b - std::sqrt(std::pow(b,2) - 4.0*a*c))/(2.0*a);
+                // y-solution
+                float y1 = slope*(x1 - turtle_.configuration().x) + turtle_.configuration().y;
+                float y2 = slope*(x2 - turtle_.configuration().x) + turtle_.configuration().y;
+
+                // Two solution distances to robot
+                float distance1 = euclidean_distance(x1, y1, turtle_.configuration().x, turtle_.configuration().y);
+                float distance2 = euclidean_distance(x2, y2, turtle_.configuration().x, turtle_.configuration().y);
+
+                // Choose smallest distance
+                if (distance1 < distance2)
+                {
+                    actual_distance = distance1;
+                }
+                else
+                {
+                    actual_distance = distance2;
+                }
+            }
+
+            lidar_data_.ranges.push_back(actual_distance);
+        }
+    }
+
+    fake_lidar_publisher_->publish(lidar_data_);
+  }
+
+  /// \brief Secondary timer loop (5Hz)
   void timer_callback_2()
   {
     basic_laser_sensor();
+    lidar();
   }
 };
 
