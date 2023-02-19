@@ -23,6 +23,12 @@
 ///     \param max_range (float): Max sensor laser range
 ///     \param basic_sensor_variance (float): Laser sensor variance
 ///     \param collision_radius (float): Robot collision radius [m]
+///     \param min_range_lidar (float): Minimum range of lidar [m]
+///     \param max_range_lidar (float): Maximum range of lidar [m]
+///     \param angle_increment_lidar (float): Lidar angle increment between samples [deg]
+///     \param num_samples_lidar (float): Number of distance samples per rotation
+///     \param resolution_lidar (float): Resolution of lidar distance measured
+///     \param noise_level_lidar (float): Noise on lidar distance samples
 ///
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): Current simulation timestep
@@ -73,6 +79,7 @@
 #include "turtlelib/rigid2d.hpp"
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
 #include "nav_msgs/msg/path.hpp"
+#include "sensor_msgs/msg/laser_scan.hpp"
 
 using namespace std::chrono_literals;
 
@@ -121,6 +128,12 @@ std::mt19937 & get_random()
 ///  \param max_range_ (float): Max sensor laser range [m]
 ///  \param basic_sensor_variance_ (float): Laser sensor variance [m]
 ///  \param collision_radius_ (float): Robot collision radius [m]
+///  \param min_range_lidar_ (float): Minimum range of lidar [m]
+///  \param max_range_lidar_ (float): Maximum range of lidar [m]
+///  \param angle_increment_lidar_ (float): Lidar angle increment between samples [deg]
+///  \param num_samples_lidar_ (float): Number of distance samples per rotation
+///  \param resolution_lidar_ (float): Resolution of lidar distance measured
+///  \param noise_level_lidar_(float): Noise on lidar distance samples
 
 class Nusim : public rclcpp::Node
 {
@@ -151,6 +164,13 @@ public:
     auto max_range_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto basic_sensor_variance_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto collision_radius_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto min_range_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto max_range_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto angle_increment_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto num_samples_lidar_des= rcl_interfaces::msg::ParameterDescriptor{};
+    auto resolution_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto noise_level_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
+
     rate_des.description = "Timer callback frequency [Hz]";
     x0_des.description = "Initial x coordinate of the robot [m]";
     y0_des.description = "Initial y coordinate of the robot [m]";
@@ -176,6 +196,13 @@ public:
     max_range_des.description = "Max sensor laser range [m]";
     basic_sensor_variance_des.description = "Laser sensor variance [m]";
     collision_radius_des.description = "Robot collision radius [m]";
+    // TODO !! CHECK DESCRIPTIONS
+    min_range_lidar_des.description = "Minimum range of lidar [m]";
+    max_range_lidar_des.description = "Maximum range of lidar [m]";
+    angle_increment_lidar_des.description = "Lidar angle increment between samples [deg]";
+    num_samples_lidar_des.description = "Number of distance samples per rotation";
+    resolution_lidar_des.description = "Resolution of lidar distance measured";
+    noise_level_lidar_des.description = "Noise on lidar distance samples";
 
     // Declare default parameters values
     declare_parameter("rate", 200, rate_des);     // Hz for timer_callback
@@ -199,6 +226,12 @@ public:
     declare_parameter("max_range", 0.0, max_range_des);
     declare_parameter("basic_sensor_variance", 0.0, basic_sensor_variance_des);
     declare_parameter("collision_radius", 0.0, collision_radius_des);
+    declare_parameter("min_range_lidar", 0.0, min_range_lidar_des);
+    declare_parameter("max_range_lidar", 0.0, max_range_lidar_des);
+    declare_parameter("angle_increment_lidar", 0.0, angle_increment_lidar_des);
+    declare_parameter("num_samples_lidar", 0.0, num_samples_lidar_des);
+    declare_parameter("resolution_lidar", 0.0, resolution_lidar_des);
+    declare_parameter("noise_level_lidar", 0.0, noise_level_lidar_des);
 
     // Get params - Read params from yaml file that is passed in the launch file
     int rate = get_parameter("rate").get_parameter_value().get<int>();
@@ -224,6 +257,12 @@ public:
     max_range_ = get_parameter("max_range").get_parameter_value().get<float>();
     basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<float>();
     collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<float>();
+    min_range_lidar_ = get_parameter("min_range_lidar").get_parameter_value().get<float>();
+    max_range_lidar_ = get_parameter("max_range_lidar").get_parameter_value().get<float>();
+    angle_increment_lidar_ = get_parameter("angle_increment_lidar").get_parameter_value().get<float>();
+    num_samples_lidar_ = get_parameter("num_samples_lidar").get_parameter_value().get<float>();
+    resolution_lidar_ = get_parameter("resolution_lidar").get_parameter_value().get<float>();
+    noise_level_lidar_ = get_parameter("noise_level_lidar").get_parameter_value().get<float>();
 
     // Set current robot pose equal to initial pose
     x_ = x0_;
@@ -311,6 +350,12 @@ private:
   float max_range_;  // Fake laser sensor range
   float basic_sensor_variance_;
   float collision_radius_;
+  float min_range_lidar_ = 0.0;
+  float max_range_lidar_ = 0.0;
+  float angle_increment_lidar_ = 0.0;
+  float num_samples_lidar_ = 0.0;
+  float resolution_lidar_ = 0.0;
+  float noise_level_lidar_ = 0.0;
   std::vector<double> obstacles_x_;    // Location of obstacles
   std::vector<double> obstacles_y_;
   visualization_msgs::msg::MarkerArray obstacles_;

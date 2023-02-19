@@ -10,3 +10,9 @@
     slip_fraction: 0.01
     max_range: 10.0
     basic_sensor_variance: 0.01
+    min_range_lidar: 0.12
+    max_range_lidar: 3.5
+    angle_increment_lidar: 1.0
+    num_samples_lidar: 360.0
+    resolution_lidar: 0.015
+    noise_level_lidar: 0.01
