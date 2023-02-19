@@ -640,8 +640,8 @@ private:
     red_turtle_publisher_->publish(red_path_);
   }
 
-  /// \brief Secondary timer loop for fake laser sensor
-  void timer_callback_2()
+  /// \brief Fake laser sensor (5Hz)
+  void basic_laser_sensor()
   {
     // Get transform from robot to world
     T_world_red_ = turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y}, turtle_.configuration().theta};
@@ -686,6 +686,12 @@ private:
     }
 
     fake_sensor_publisher_->publish(sensor_obstacles_);
+  }
+
+  /// \brief Secondary timer loop for fake laser sensor
+  void timer_callback_2()
+  {
+    basic_laser_sensor();
   }
 };
 
