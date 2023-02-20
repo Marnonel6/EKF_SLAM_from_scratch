@@ -1,0 +1,4 @@
+The start_robot.launch.xml
+    - Takes arguments that are not part of the specification for the launchfile
+    - While this is not so bad especially because it is documented, what is bad is that the launchfile does not work with the default arguments
+     - The arguments body_id, odom_id, left_wheel_joint, right_wheel_joint are not necessary and should not be in this launchfile

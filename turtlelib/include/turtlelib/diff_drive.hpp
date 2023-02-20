@@ -78,7 +78,7 @@ namespace turtlelib
         /// \brief Calculates the forward kinematics from the new wheel positions
         /// \param new_wheel_positions - new wheel positions
         /// \return new robot configuration
-        void ForwardKinematics(Wheel new_wheel_positions);
+        void ForwardKinematics(Wheel new_wheel_positions); //! comment is inconsistent with implementation
 
         /// \brief Calculates the inverse kinematics from a body twist
         /// \param twist - the body twist to preform inverse kinematics on

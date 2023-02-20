@@ -126,7 +126,7 @@ public:
 
 private:
   // Variables
-  float wheelradius_;
+    float wheelradius_; //! should probably be double unless performance is a major concern
   float track_width_;
   float motor_cmd_max_;
   float motor_cmd_per_rad_sec_;
@@ -217,7 +217,7 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
   try {
     rclcpp::spin(std::make_shared<turtle_control>());
-  } catch (int err_) {
+  } catch (int err_) { //! Don't throw int exceptions, throw various exceptions derived from std::exception
   }
   rclcpp::shutdown();
   return 0;
