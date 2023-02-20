@@ -24,7 +24,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: Lidar LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -319,7 +319,7 @@ Visualization Manager:
       Channel Name: intensity
       Class: rviz_default_plugins/LaserScan
       Color: 255; 255; 255
-      Color Transformer: ""
+      Color Transformer: Intensity
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -328,11 +328,11 @@ Visualization Manager:
       Min Color: 0; 0; 0
       Min Intensity: 0
       Name: Lidar LaserScan
-      Position Transformer: ""
+      Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.009999999776482582
-      Style: Flat Squares
+      Style: Points
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -389,25 +389,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 5.493842601776123
+      Distance: 4.297802925109863
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.06420010328292847
-        Y: 0.27451077103614807
-        Z: -0.2052711397409439
+        X: 0.16425222158432007
+        Y: -0.005364128388464451
+        Z: -0.2546766698360443
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7103984355926514
+      Pitch: 1.0047969818115234
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.4103936553001404
+      Yaw: 2.5835635662078857
     Saved: ~
 Window Geometry:
   Displays:
