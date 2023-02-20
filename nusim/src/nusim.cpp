@@ -377,6 +377,7 @@ private:
   std::normal_distribution<> noise_{0.0, 0.0};
   std::uniform_real_distribution<> slip_{0.0, 0.0};
   std::normal_distribution<> laser_noise_{0.0, 0.0};
+  sensor_msgs::msg::LaserScan lidar_data_;
 
   // Create objects
   rclcpp::TimerBase::SharedPtr timer_;
@@ -699,12 +700,19 @@ private:
   /// \param x2 point 2 x-coordinate (float)
   /// \param y2 point 2 y-coordinate (float)
   /// \return euclidean distance (float)
-  float euclidean_distance(float x1, float y1, float x2, float y2) {
-      float dx = x2 - x1;
-      float dy = y2 - y1;
+  double euclidean_distance(double x1, double y1, double x2, double y2) {
+      double dx = x2 - x1;
+      double dy = y2 - y1;
       return std::sqrt(dx*dx + dy*dy);
   }
 
+//   float detect_wall()
+//   {
+//     float wall_x_neg =
+//     float wall_x_pos =
+//     float wall_y_neg =
+//     float wall_y_pos =
+//   }
   /// \brief Fake lidar sensor (5Hz)
   void lidar()
   {
@@ -712,7 +720,6 @@ private:
     // resolution_lidar_
     // noise_level_lidar_
 
-    sensor_msgs::msg::LaserScan lidar_data_;
     lidar_data_.header.frame_id = "red/base_scan";
     lidar_data_.header.stamp = get_clock()->now();
     lidar_data_.header.stamp.nanosec -= 6e8;
@@ -723,83 +730,128 @@ private:
     lidar_data_.scan_time = 0.20066890120506287;
     lidar_data_.range_min = min_range_lidar_;
     lidar_data_.range_max = max_range_lidar_;
+    lidar_data_.ranges.resize(num_samples_lidar_);
 
-    float actual_distance = 2.0;
+    // double actual_distance = 2.0;
 
     for (int j; j < num_samples_lidar_; j++) // Loop through number of samples
     {
         // Calculate max [x,y] coordinate at given turtle and laser position and angle
-        float max_x = turtle_.configuration().x + cos(static_cast<float>(j)*angle_increment_lidar_ + turtle_.configuration().theta)*max_range_lidar_;
-        float max_y = turtle_.configuration().y + sin(static_cast<float>(j)*angle_increment_lidar_ + turtle_.configuration().theta)*max_range_lidar_;
+        double max_x = turtle_.configuration().x + cos(j*angle_increment_lidar_ + turtle_.configuration().theta)*max_range_lidar_;
+        double max_y = turtle_.configuration().y + sin(j*angle_increment_lidar_ + turtle_.configuration().theta)*max_range_lidar_;
         // Slope
-        float slope = (max_y - turtle_.configuration().y)/(max_x - turtle_.configuration().x);
+        double slope = (max_y - turtle_.configuration().y)/(max_x - turtle_.configuration().x);
 
-        // float actual_distance = 2.0; //  TODO SET TO 0.0
+        double actual_distance = 2.0; //  TODO SET TO 0.0
+        double min_distance = 1000.0;
 
         for (size_t i = 0; i < obstacles_x_.size(); i++) // Loop through number of obstacles
         {
-            actual_distance = 2.0; //  TODO SET TO 0.0
-            float sub = turtle_.configuration().y - slope*turtle_.configuration().x - obstacles_y_.at(i);
-            float a = 1.0 + std::pow(slope, 2);
-            float b = 2.0*(sub*slope - obstacles_x_.at(i));
-            float c = std::pow(obstacles_x_.at(i), 2) + std::pow(sub, 2) - std::pow(obstacles_r_, 2);
-            float det = pow(b, 2) - 4.0*a*c;
-            // float det = 4.0*std::pow((sub*slope - obstacles_x_.at(i)), 2) - 4.0*(1.0 + std::pow(slope,2))*(std::pow(obstacles_x_.at(i), 2) + std::pow(sub, 2) - std::pow(obstacles_r_, 2));
-            if (det>0.0)
-            {
-                RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
-            }
+            // actual_distance = 2.0; //  TODO SET TO 0.0
+            double sub = turtle_.configuration().y - slope*turtle_.configuration().x - obstacles_y_.at(i);
+            double a = 1.0 + std::pow(slope, 2);
+            double b = 2.0*(sub*slope - obstacles_x_.at(i));
+            double c = std::pow(obstacles_x_.at(i), 2) + std::pow(sub, 2) - std::pow(obstacles_r_, 2);
+            double det = std::pow(b, 2) - 4.0*a*c;
+            // if (det>0.0)
+            // {
+            //     RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
+            // }
+
             // if (det<0.0) // No solution
-            // {
-                // actual_distance = 0.0;
-                // RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
-                // break;
-            // }
-            // if (det == 0.0) // 1 solution
-            // {
-            //     RCLCPP_ERROR_STREAM(get_logger(), "ONE SOLUTION!!!!");
-            //     // x-solution
-            //     float x = -b/(2.0*a);
+            // {   // Wall coordinates
+            //     float wall_x = walls_x_/2.0;
+            //     float wall_y = walls_y_/2.0;
+            //     // Coordinate at angle for 4 walls
+            //     float wall_x_neg = (-wall_y/slope) + turtle_.configuration().x;
+            //     float wall_x_pos = (wall_y/slope) + turtle_.configuration().x;
+            //     float wall_y_neg = slope*(-wall_x-turtle_.configuration().x)+turtle_.configuration().y;
+            //     float wall_y_pos = slope*(wall_x-turtle_.configuration().x)+turtle_.configuration().y;
+            //     // Distances to 4 wall intersect wit lidar
+            //     float distance1 = euclidean_distance(wall_x_neg, -wall_y, turtle_.configuration().x, turtle_.configuration().y);
+            //     float distance2 = euclidean_distance(wall_x_pos, wall_y, turtle_.configuration().x, turtle_.configuration().y);
+            //     float distance3 = euclidean_distance(-wall_x, wall_y_neg, turtle_.configuration().x, turtle_.configuration().y);
+            //     float distance4 = euclidean_distance(wall_x, wall_y_pos, turtle_.configuration().x, turtle_.configuration().y);
+            //     // Check shortest distance
+            //     // float min_wall_distance = distance1;
+            //     float min_distance = std::min({distance1,distance2,distance3,distance4});
 
-            //     // y-solution
-            //     float y = slope*(x - turtle_.configuration().x) + turtle_.configuration().y;
+            //     if (min_distance < max_range_lidar_)
+            //     {
+            //         actual_distance = min_distance;
+            //     }
 
-            //     // Distance to robot
-            //     // actual_distance = euclidean_distance(x, y, turtle_.configuration().x, turtle_.configuration().y);
+            //     // actual_distance = 0.0;
+            //     // RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
+            //     break;
             // }
-            if (det > 0.0) // 2 solutions
+            if (det == 0.0) // 1 solution
             {
-                 RCLCPP_ERROR_STREAM(get_logger(), "TWOOOOOOOOOOOOOOOOOOOOOOOO SOLUTION!!!!");
+                RCLCPP_ERROR_STREAM(get_logger(), "ONE SOLUTION!!!!");
                 // x-solution
-                float x1 = (-b + std::sqrt(std::pow(b, 2) - 4.0*a*c))/(2.0*a);
-                float x2 = (-b - std::sqrt(std::pow(b, 2) - 4.0*a*c))/(2.0*a);
+                float x = -b/(2.0*a);
+
                 // y-solution
-                float y1 = slope*(x1 - turtle_.configuration().x) + turtle_.configuration().y;
-                float y2 = slope*(x2 - turtle_.configuration().x) + turtle_.configuration().y;
+                float y = slope*(x - turtle_.configuration().x) + turtle_.configuration().y;
+
+                double mm = (x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
+                double nn = (y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
+                if (mm > 0.0 && nn > 0.0)
+                {
+                    // Distance to robot
+                    actual_distance = euclidean_distance(x, y, turtle_.configuration().x, turtle_.configuration().y);
+                }
+            }
+            else if (det > 0.0) // 2 solutions
+            {
+                //  RCLCPP_ERROR_STREAM(get_logger(), "TWOOOOOOOOOOOOOOOOOOOOOOOO SOLUTION!!!!");
+                // x-solution
+                double x1 = (-b + std::sqrt(det))/(2.0*a);
+                double x2 = (-b - std::sqrt(det))/(2.0*a);
+                // y-solution
+                double y1 = slope*(x1 - turtle_.configuration().x) + turtle_.configuration().y;
+                double y2 = slope*(x2 - turtle_.configuration().x) + turtle_.configuration().y;
 
                 // Two solution distances to robot
-                float distance1 = euclidean_distance(x1, y1, turtle_.configuration().x, turtle_.configuration().y);
-                float distance2 = euclidean_distance(x2, y2, turtle_.configuration().x, turtle_.configuration().y);
+                double distance1 = euclidean_distance(x1, y1, turtle_.configuration().x, turtle_.configuration().y);
+                double distance2 = euclidean_distance(x2, y2, turtle_.configuration().x, turtle_.configuration().y);
 
-
+                min_distance = std::min({distance1,distance2});
 
                 // Choose smallest distance
-                if (distance1 < distance2)
+                if (min_distance == distance1)
                 {
-                    actual_distance = distance1;
+                    double mm = (x1 - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
+                    double nn = (y1 - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
+
+                    if (mm > 0.0 && nn > 0.0)
+                    {
+                        actual_distance = min_distance;
+                    }
                 }
                 else
                 {
-                    actual_distance = distance2;
+                    double mm = (x2 - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
+                    double nn = (y2 - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
+
+                    if (mm > 0.0 && nn > 0.0)
+                    {
+                        actual_distance = min_distance;
+                    }
                 }
-                break;
+                // break; // Add this for lidar to see all obstacles
             }
 
         //     // lidar_data_.ranges.push_back(actual_distance);
         }
 
-        lidar_data_.ranges.push_back(actual_distance);
+        // RCLCPP_ERROR_STREAM(get_logger(), "______________distance = " << actual_distance);
+
+        // lidar_data_.ranges.push_back(actual_distance);
+        lidar_data_.ranges.at(j) = actual_distance;
     }
+
+    RCLCPP_ERROR_STREAM(get_logger(), "___________________________________________________________________ = ");
 
     fake_lidar_publisher_->publish(lidar_data_);
   }

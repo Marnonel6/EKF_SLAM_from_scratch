@@ -9,7 +9,7 @@
       r: 0.038
       h: 0.25
     walls:
-      x_lenght: 4.0
+      x_lenght: 2.0
       y_lenght: 4.0
       h: 0.25
       w: 0.10
