@@ -19,15 +19,14 @@ namespace turtlelib
                                     q{robot_config},
                                     wheel_position{0.0, 0.0}{}
 
-    Twist2D DiffDrive::Twist(Wheel new_wheel_positions)
+    Twist2D DiffDrive::Twist(Wheel delta_wheel_positions)
     {
-        wheel_position.left = wheel_position.left + new_wheel_positions.left;
-        wheel_position.right = wheel_position.right + new_wheel_positions.right;
+        wheel_position.left = wheel_position.left + delta_wheel_positions.left;
+        wheel_position.right = wheel_position.right + delta_wheel_positions.right;
 
-        // This is change in wheel position not new_wheel_position. It will be updated.
         WheelVelocities wheel_vel;
-        wheel_vel.left = new_wheel_positions.left; // - wheel_position.left;
-        wheel_vel.right = new_wheel_positions.right; // - wheel_position.right;
+        wheel_vel.left = delta_wheel_positions.left;
+        wheel_vel.right = delta_wheel_positions.right;
 
         Twist2D twist_bbp;
         twist_bbp.w = (wheel_radius/2)*((-wheel_vel.left/(wheel_track/2)) + 
@@ -37,10 +36,10 @@ namespace turtlelib
         return twist_bbp;
     }
 
-    void DiffDrive::ForwardKinematics(Wheel new_wheel_positions)
+    void DiffDrive::ForwardKinematics(Wheel delta_wheel_positions)
     {
         // Equation 1 START //
-        Twist2D twist_bbp = DiffDrive::Twist(new_wheel_positions);
+        Twist2D twist_bbp = DiffDrive::Twist(delta_wheel_positions);
         // Equation 1 End //
 
         // Equation 2 START //

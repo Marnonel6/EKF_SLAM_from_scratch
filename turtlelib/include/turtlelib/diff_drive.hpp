@@ -76,9 +76,8 @@ namespace turtlelib
         DiffDrive(double radius, double track, Robot_configuration robot_config);
 
         /// \brief Calculates the forward kinematics from the new wheel positions
-        /// \param new_wheel_positions - new wheel positions
-        /// \return new robot configuration
-        void ForwardKinematics(Wheel new_wheel_positions);
+        /// \param delta_wheel_positions - change in wheel positions
+        void ForwardKinematics(Wheel delta_wheel_positions);
 
         /// \brief Calculates the inverse kinematics from a body twist
         /// \param twist - the body twist to preform inverse kinematics on
@@ -93,9 +92,9 @@ namespace turtlelib
         void set_configuration(Robot_configuration q_new);
 
         /// \brief generates a twist from wheel positions
-        /// \param new_wheel_positions - new wheel positions
+        /// \param delta_wheel_positions - change in wheel positions
         /// \return body twist
-        Twist2D Twist(Wheel new_wheel_positions);
+        Twist2D Twist(Wheel delta_wheel_positions);
     };
 
 }
