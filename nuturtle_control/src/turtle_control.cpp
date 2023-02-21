@@ -204,9 +204,7 @@ private:
       motor_cmd_per_rad_sec_ == -1.0 || encoder_ticks_per_rad_ == -1.0 ||
       collision_radius_ == -1.0)
     {
-      int err_ = true;
-      RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
-      throw err_;
+      throw std::runtime_error("Missing parameters in diff_params.yaml!");
     }
   }
 };
@@ -215,10 +213,7 @@ private:
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  try {
-    rclcpp::spin(std::make_shared<turtle_control>());
-  } catch (int err_) {
-  }
+  rclcpp::spin(std::make_shared<turtle_control>());
   rclcpp::shutdown();
   return 0;
 }

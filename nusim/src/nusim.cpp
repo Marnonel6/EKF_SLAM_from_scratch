@@ -549,9 +549,7 @@ private:
   void create_obstacles_array()
   {
     if (obstacles_x_.size() != obstacles_y_.size()) {
-      int err_ = true;
-      RCLCPP_ERROR(this->get_logger(), "x and y coordinate lists are not the same lenght!");
-      throw err_;
+      throw std::runtime_error("x and y coordinate lists are not the same lenght!");
     }
 
     for (size_t i = 0; i < obstacles_x_.size(); i++) {
@@ -818,51 +816,6 @@ private:
                         min_distance = distance4;
                     }
                 }
-
-                
-
-                // Check shortest distance
-                // float min_wall_distance = distance1;
-                // double min_wall_distance = std::min({distance1,distance2,distance3,distance4});
-
-                // if (min_wall_distance < max_range_lidar_)
-                // {
-                //     double x_wall = 0.0;
-                //     double y_wall = 0.0;
-
-                //     if (min_wall_distance == distance1)
-                //     {
-                //         x_wall = wall_x_neg;
-                //         y_wall = -wall_y;
-                //     }
-                //     else if (min_wall_distance == distance2)
-                //     {
-                //         x_wall = wall_x_pos;
-                //         y_wall = wall_y;
-                //     }
-                //     else if (min_wall_distance == distance3)
-                //     {
-                //         x_wall = -wall_x;
-                //         y_wall = wall_y_neg;
-                //     }
-                //     else if (min_wall_distance == distance4)
-                //     {
-                //         x_wall = wall_x;
-                //         y_wall = wall_y_pos;
-                //     }
-
-                //     double mm = (x_wall - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
-                //     double nn = (y_wall - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-                //     if (mm > 0.0 && nn > 0.0)
-                //     {
-                //         // Distance to robot
-                //         min_distance = min_wall_distance;
-                //     }
-                // }
-
-                // actual_distance = 0.0;
-                // RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
-                // break;
             }
             else if (det == 0.0) // 1 solution
             {
@@ -951,12 +904,7 @@ private:
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  try {
-    rclcpp::spin(std::make_shared<Nusim>());
-  } catch (int err_) {
-    RCLCPP_ERROR(
-      std::make_shared<Nusim>()->get_logger(), "x and y coordinate lists are not the same lenght!");
-  }
+  rclcpp::spin(std::make_shared<Nusim>());
   rclcpp::shutdown();
   return 0;
 }

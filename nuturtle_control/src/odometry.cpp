@@ -176,11 +176,7 @@ private:
   void check_frame_params()
   {
     if (body_id_ == "" || wheel_left_ == "" || wheel_right_ == "") {
-      int err_ = true;
-      RCLCPP_ERROR_STREAM(
-        get_logger(), "Missing frame id's! body_id, wheel_left, \
-                                                                                     wheel_right");
-      throw err_;
+      throw std::runtime_error("Missing frame id's! body_id, wheel_left, wheel_right");
     }
   }
 
@@ -188,9 +184,7 @@ private:
   void check_yaml_params()
   {
     if (wheelradius_ == -1.0 || track_width_ == -1.0) {
-      int err_ = true;
-      RCLCPP_ERROR_STREAM(get_logger(), "Missing parameters in diff_params.yaml!");
-      throw err_;
+      throw std::runtime_error("Missing parameters in diff_params.yaml!");
     }
   }
 
@@ -267,10 +261,7 @@ private:
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  try {
-    rclcpp::spin(std::make_shared<odometry>());
-  } catch (int err_) {
-  }
+  rclcpp::spin(std::make_shared<odometry>());
   rclcpp::shutdown();
   return 0;
 }
