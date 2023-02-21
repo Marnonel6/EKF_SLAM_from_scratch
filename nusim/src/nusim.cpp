@@ -772,44 +772,91 @@ private:
                 double distance2 = euclidean_distance(wall_x_pos, wall_y, turtle_.configuration().x, turtle_.configuration().y);
                 double distance3 = euclidean_distance(-wall_x, wall_y_neg, turtle_.configuration().x, turtle_.configuration().y);
                 double distance4 = euclidean_distance(wall_x, wall_y_pos, turtle_.configuration().x, turtle_.configuration().y);
-                // Check shortest distance
-                // float min_wall_distance = distance1;
-                double min_wall_distance = std::min({distance1,distance2,distance3,distance4});
 
-                if (min_wall_distance < max_range_lidar_)
+                double mm1 = (wall_x_neg - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
+                double nn1 = (-wall_y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
+                if (mm1 > 0.0 && nn1 > 0.0)
                 {
-                    double x_wall = 0.0;
-                    double y_wall = 0.0;
-
-                    if (min_wall_distance == distance1)
-                    {
-                        x_wall = wall_x_neg;
-                        y_wall = -wall_y;
-                    }
-                    else if (min_wall_distance == distance2)
-                    {
-                        x_wall = wall_x_pos;
-                        y_wall = wall_y;
-                    }
-                    else if (min_wall_distance == distance3)
-                    {
-                        x_wall = -wall_x;
-                        y_wall = wall_y_neg;
-                    }
-                    else if (min_wall_distance == distance4)
-                    {
-                        x_wall = wall_x;
-                        y_wall = wall_y_pos;
-                    }
-
-                    double mm = (x_wall - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
-                    double nn = (y_wall - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-                    if (mm > 0.0 && nn > 0.0)
+                    if (distance1 < min_distance)
                     {
                         // Distance to robot
-                        min_distance = min_wall_distance;
+                        min_distance = distance1;
                     }
                 }
+
+                double mm2 = (wall_x_pos - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
+                double nn2 = (wall_y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
+                if (mm2 > 0.0 && nn2 > 0.0)
+                {   
+                    if (distance2 < min_distance)
+                    {
+                        // Distance to robot
+                        min_distance = distance2;
+                    }
+                }
+
+                double mm3 = (-wall_x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
+                double nn3 = (wall_y_neg - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
+                if (mm3 > 0.0 && nn3 > 0.0)
+                {
+                    if (distance3 < min_distance)
+                    {
+                        // Distance to robot
+                        min_distance = distance3;
+                    }
+                }
+
+                double mm4 = (wall_x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
+                double nn4 = (wall_y_pos - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
+                if (mm4 > 0.0 && nn4 > 0.0)
+                {
+                    if (distance4 < min_distance)
+                    {
+                        // Distance to robot
+                        min_distance = distance4;
+                    }
+                }
+
+                
+
+                // Check shortest distance
+                // float min_wall_distance = distance1;
+                // double min_wall_distance = std::min({distance1,distance2,distance3,distance4});
+
+                // if (min_wall_distance < max_range_lidar_)
+                // {
+                //     double x_wall = 0.0;
+                //     double y_wall = 0.0;
+
+                //     if (min_wall_distance == distance1)
+                //     {
+                //         x_wall = wall_x_neg;
+                //         y_wall = -wall_y;
+                //     }
+                //     else if (min_wall_distance == distance2)
+                //     {
+                //         x_wall = wall_x_pos;
+                //         y_wall = wall_y;
+                //     }
+                //     else if (min_wall_distance == distance3)
+                //     {
+                //         x_wall = -wall_x;
+                //         y_wall = wall_y_neg;
+                //     }
+                //     else if (min_wall_distance == distance4)
+                //     {
+                //         x_wall = wall_x;
+                //         y_wall = wall_y_pos;
+                //     }
+
+                //     double mm = (x_wall - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
+                //     double nn = (y_wall - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
+                //     if (mm > 0.0 && nn > 0.0)
+                //     {
+                //         // Distance to robot
+                //         min_distance = min_wall_distance;
+                //     }
+                // }
 
                 // actual_distance = 0.0;
                 // RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
