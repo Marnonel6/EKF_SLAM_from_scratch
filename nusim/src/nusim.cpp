@@ -281,9 +281,10 @@ public:
 
     // Update object with params
     turtle_ = turtlelib::DiffDrive{wheelradius_, track_width_};
-    noise_ = std::normal_distribution<>{0.0, input_noise_};
+    noise_ = std::normal_distribution<>{0.0, std::sqrt(input_noise_)};
     slip_ = std::uniform_real_distribution<>{-slip_fraction_, slip_fraction_};
-    laser_noise_ = std::normal_distribution<>{0.0, basic_sensor_variance_};
+    laser_noise_ = std::normal_distribution<>{0.0, std::sqrt(basic_sensor_variance_)};
+    lidar_noise_ = std::normal_distribution<>{0.0, std::sqrt(noise_level_lidar_)};
 
     // Get transform from robot to world
     T_world_red_ = turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y}, turtle_.configuration().theta};
@@ -377,6 +378,7 @@ private:
   std::normal_distribution<> noise_{0.0, 0.0};
   std::uniform_real_distribution<> slip_{0.0, 0.0};
   std::normal_distribution<> laser_noise_{0.0, 0.0};
+  std::normal_distribution<> lidar_noise_{0.0, 0.0};
   sensor_msgs::msg::LaserScan lidar_data_;
 
   // Create objects
@@ -929,7 +931,7 @@ private:
         // RCLCPP_ERROR_STREAM(get_logger(), "______________distance = " << actual_distance);
 
         // lidar_data_.ranges.push_back(actual_distance);
-        lidar_data_.ranges.at(j) = actual_distance;
+        lidar_data_.ranges.at(j) = actual_distance + lidar_noise_(get_random());
     }
 
     RCLCPP_ERROR_STREAM(get_logger(), "___________________________________________________________________ = ");

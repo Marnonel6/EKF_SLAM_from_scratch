@@ -6,13 +6,13 @@
     motor_cmd_per_rad_sec: 0.024
     encoder_ticks_per_rad: 651.898160011
     collision_radius: 0.11
-    input_noise: 0.01
+    input_noise: 0.0001
     slip_fraction: 0.01
     max_range: 10.0
-    basic_sensor_variance: 0.01
+    basic_sensor_variance: 0.0001
     min_range_lidar: 0.12
     max_range_lidar: 3.5
     angle_increment_lidar: 0.01745329238474369
     num_samples_lidar: 360.0
     resolution_lidar: 0.015
-    noise_level_lidar: 0.01
+    noise_level_lidar: 0.0001
