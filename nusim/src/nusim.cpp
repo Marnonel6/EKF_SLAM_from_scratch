@@ -5,30 +5,30 @@
 ///
 /// PARAMETERS:
 ///     \param rate (int): Timer callback frequency [Hz]
-///     \param x0 (float): Initial x coordinate of the robot [m]
-///     \param y0 (float): Initial y coordinate of the robot [m]
-///     \param theta0 (float): Initial theta angle of the robot [radians]
+///     \param x0 (double): Initial x coordinate of the robot [m]
+///     \param y0 (double): Initial y coordinate of the robot [m]
+///     \param theta0 (double): Initial theta angle of the robot [radians]
 ///     \param obstacles.x (std::vector<double>): Vector of x coordinates for each obstacle [m]
 ///     \param obstacles.y (std::vector<double>): Vector of y coordinates for each obstacle [m]
-///     \param obstacles.r (float): Radius of cylindrical obstacles [m]
-///     \param obstacles.h (float): Height of cylindrical obstacles [m]
-///     \param walls.x_lenght (float): Inner lenght of walls in x direction [m]
-///     \param walls.y_lenght (float): Inner lenght of walls in y direction [m]
-///     \param walls.h (float): Walls height [m]
-///     \param walls.w (float): Walls width [m]
-///     \param motor_cmd_per_rad_sec (float): Motor command to rad/s conversion factor
-///     \param encoder_ticks_per_rad (float): Encoder ticks to radians conversion factor
-///     \param input_noise (float): Noise added to input signals from turtlebot
-///     \param slip_fraction (float): Wheel slippage factor for turtlebot
-///     \param max_range (float): Max sensor laser range
-///     \param basic_sensor_variance (float): Laser sensor variance
-///     \param collision_radius (float): Robot collision radius [m]
-///     \param min_range_lidar (float): Minimum range of lidar [m]
-///     \param max_range_lidar (float): Maximum range of lidar [m]
-///     \param angle_increment_lidar (float): Lidar angle increment between samples [deg]
-///     \param num_samples_lidar (float): Number of distance samples per rotation
-///     \param resolution_lidar (float): Resolution of lidar distance measured
-///     \param noise_level_lidar (float): Noise on lidar distance samples
+///     \param obstacles.r (double): Radius of cylindrical obstacles [m]
+///     \param obstacles.h (double): Height of cylindrical obstacles [m]
+///     \param walls.x_lenght (double): Inner lenght of walls in x direction [m]
+///     \param walls.y_lenght (double): Inner lenght of walls in y direction [m]
+///     \param walls.h (double): Walls height [m]
+///     \param walls.w (double): Walls width [m]
+///     \param motor_cmd_per_rad_sec (double): Motor command to rad/s conversion factor
+///     \param encoder_ticks_per_rad (double): Encoder ticks to radians conversion factor
+///     \param input_noise (double): Noise added to input signals from turtlebot
+///     \param slip_fraction (double): Wheel slippage factor for turtlebot
+///     \param max_range (double): Max sensor laser range
+///     \param basic_sensor_variance (double): Laser sensor variance
+///     \param collision_radius (double): Robot collision radius [m]
+///     \param min_range_lidar (double): Minimum range of lidar [m]
+///     \param max_range_lidar (double): Maximum range of lidar [m]
+///     \param angle_increment_lidar (double): Lidar angle increment between samples [deg]
+///     \param num_samples_lidar (double): Number of distance samples per rotation
+///     \param resolution_lidar (double): Resolution of lidar distance measured
+///     \param noise_level_lidar (double): Noise on lidar distance samples
 ///
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): Current simulation timestep
@@ -107,35 +107,35 @@ std::mt19937 & get_random()
 ///        loop runs at a fixed frequency until termination.
 ///
 ///  \param rate (int): Timer callback frequency [Hz]
-///  \param x0_ (float): Initial x coordinate of the robot [m]
-///  \param y0_ (float): Initial y coordinate of the robot [m]
-///  \param theta0_ (float): Initial theta angle of the robot [radians]
-///  \param x_ (float): Current x coordinate of the robot [m]
-///  \param y_ (float): Current y coordinate of the robot [m]
-///  \param theta_ (float): Current theta angle of the robot [radians]
+///  \param x0_ (double): Initial x coordinate of the robot [m]
+///  \param y0_ (double): Initial y coordinate of the robot [m]
+///  \param theta0_ (double): Initial theta angle of the robot [radians]
+///  \param x_ (double): Current x coordinate of the robot [m]
+///  \param y_ (double): Current y coordinate of the robot [m]
+///  \param theta_ (double): Current theta angle of the robot [radians]
 ///  \param obstacles_x_ (std::vector<double>): Vector of x coordinates for each obstacle [m]
 ///  \param obstacles_y_ (std::vector<double>): Vector of y coordinates for each obstacle [m]
-///  \param obstacles_r_ (float): Radius of cylindrical obstacles [m]
-///  \param obstacles_h_ (float): Height of cylindrical obstacles [m]
-///  \param walls_x_lenght_ (float): Inner lenght of walls in x direction [m]
-///  \param walls_y_lenght_ (float): Inner lenght of walls in y direction [m]
-///  \param walls_h_(float): Walls height [m]
-///  \param walls_w_(float): Walls width [m]
-///  \param wheelradius_ (float): The radius of the wheels [m]
-///  \param track_width_ (float): The distance between the wheels [m]
-///  \param motor_cmd_per_rad_sec_ (float): Motor command to rad/s conversion factor
-///  \param encoder_ticks_per_rad_ (float): Encoder ticks to radians conversion factor
-///  \param input_noise_ (float): Noise added to input signals from turtlebot
-///  \param slip_fraction_ (float): Wheel slippage factor for turtlebot
-///  \param max_range_ (float): Max sensor laser range [m]
-///  \param basic_sensor_variance_ (float): Laser sensor variance [m]
-///  \param collision_radius_ (float): Robot collision radius [m]
-///  \param min_range_lidar_ (float): Minimum range of lidar [m]
-///  \param max_range_lidar_ (float): Maximum range of lidar [m]
-///  \param angle_increment_lidar_ (float): Lidar angle increment between samples [deg]
-///  \param num_samples_lidar_ (float): Number of distance samples per rotation
-///  \param resolution_lidar_ (float): Resolution of lidar distance measured
-///  \param noise_level_lidar_(float): Noise on lidar distance samples
+///  \param obstacles_r_ (double): Radius of cylindrical obstacles [m]
+///  \param obstacles_h_ (double): Height of cylindrical obstacles [m]
+///  \param walls_x_lenght_ (double): Inner lenght of walls in x direction [m]
+///  \param walls_y_lenght_ (double): Inner lenght of walls in y direction [m]
+///  \param walls_h_(double): Walls height [m]
+///  \param walls_w_(double): Walls width [m]
+///  \param wheelradius_ (double): The radius of the wheels [m]
+///  \param track_width_ (double): The distance between the wheels [m]
+///  \param motor_cmd_per_rad_sec_ (double): Motor command to rad/s conversion factor
+///  \param encoder_ticks_per_rad_ (double): Encoder ticks to radians conversion factor
+///  \param input_noise_ (double): Noise added to input signals from turtlebot
+///  \param slip_fraction_ (double): Wheel slippage factor for turtlebot
+///  \param max_range_ (double): Max sensor laser range [m]
+///  \param basic_sensor_variance_ (double): Laser sensor variance [m]
+///  \param collision_radius_ (double): Robot collision radius [m]
+///  \param min_range_lidar_ (double): Minimum range of lidar [m]
+///  \param max_range_lidar_ (double): Maximum range of lidar [m]
+///  \param angle_increment_lidar_ (double): Lidar angle increment between samples [deg]
+///  \param num_samples_lidar_ (double): Number of distance samples per rotation
+///  \param resolution_lidar_ (double): Resolution of lidar distance measured
+///  \param noise_level_lidar_(double): Noise on lidar distance samples
 
 class Nusim : public rclcpp::Node
 {
@@ -237,34 +237,34 @@ public:
 
     // Get params - Read params from yaml file that is passed in the launch file
     int rate = get_parameter("rate").get_parameter_value().get<int>();
-    x0_ = get_parameter("x0").get_parameter_value().get<float>();
-    y0_ = get_parameter("y0").get_parameter_value().get<float>();
-    theta0_ = get_parameter("theta0").get_parameter_value().get<float>();
+    x0_ = get_parameter("x0").get_parameter_value().get<double>();
+    y0_ = get_parameter("y0").get_parameter_value().get<double>();
+    theta0_ = get_parameter("theta0").get_parameter_value().get<double>();
     obstacles_x_ = get_parameter("obstacles.x").get_parameter_value().get<std::vector<double>>();
     obstacles_y_ = get_parameter("obstacles.y").get_parameter_value().get<std::vector<double>>();
-    obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<float>();
-    obstacles_h_ = get_parameter("obstacles.h").get_parameter_value().get<float>();
-    walls_x_ = get_parameter("walls.x_lenght").get_parameter_value().get<float>();
-    walls_y_ = get_parameter("walls.y_lenght").get_parameter_value().get<float>();
-    wall_h_ = get_parameter("walls.h").get_parameter_value().get<float>();
-    wall_w_ = get_parameter("walls.w").get_parameter_value().get<float>();
-    wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<float>();
-    track_width_ = get_parameter("track_width").get_parameter_value().get<float>();
+    obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<double>();
+    obstacles_h_ = get_parameter("obstacles.h").get_parameter_value().get<double>();
+    walls_x_ = get_parameter("walls.x_lenght").get_parameter_value().get<double>();
+    walls_y_ = get_parameter("walls.y_lenght").get_parameter_value().get<double>();
+    wall_h_ = get_parameter("walls.h").get_parameter_value().get<double>();
+    wall_w_ = get_parameter("walls.w").get_parameter_value().get<double>();
+    wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<double>();
+    track_width_ = get_parameter("track_width").get_parameter_value().get<double>();
     encoder_ticks_per_rad_ =
-      get_parameter("encoder_ticks_per_rad").get_parameter_value().get<float>();
+      get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
     motor_cmd_per_rad_sec_ =
-      get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<float>();
-    input_noise_ = get_parameter("input_noise").get_parameter_value().get<float>();
-    slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<float>();
-    max_range_ = get_parameter("max_range").get_parameter_value().get<float>();
-    basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<float>();
-    collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<float>();
-    min_range_lidar_ = get_parameter("min_range_lidar").get_parameter_value().get<float>();
-    max_range_lidar_ = get_parameter("max_range_lidar").get_parameter_value().get<float>();
-    angle_increment_lidar_ = get_parameter("angle_increment_lidar").get_parameter_value().get<float>();
-    num_samples_lidar_ = get_parameter("num_samples_lidar").get_parameter_value().get<float>();
-    resolution_lidar_ = get_parameter("resolution_lidar").get_parameter_value().get<float>();
-    noise_level_lidar_ = get_parameter("noise_level_lidar").get_parameter_value().get<float>();
+      get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<double>();
+    input_noise_ = get_parameter("input_noise").get_parameter_value().get<double>();
+    slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<double>();
+    max_range_ = get_parameter("max_range").get_parameter_value().get<double>();
+    basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
+    collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<double>();
+    min_range_lidar_ = get_parameter("min_range_lidar").get_parameter_value().get<double>();
+    max_range_lidar_ = get_parameter("max_range_lidar").get_parameter_value().get<double>();
+    angle_increment_lidar_ = get_parameter("angle_increment_lidar").get_parameter_value().get<double>();
+    num_samples_lidar_ = get_parameter("num_samples_lidar").get_parameter_value().get<double>();
+    resolution_lidar_ = get_parameter("resolution_lidar").get_parameter_value().get<double>();
+    noise_level_lidar_ = get_parameter("noise_level_lidar").get_parameter_value().get<double>();
 
     // Set current robot pose equal to initial pose
     x_ = x0_;
@@ -335,32 +335,32 @@ private:
   // Variables
   size_t timestep_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-  float x_, y_, theta_;     // Theta in radians, x & y in meters.
-  float x0_ = 0;
-  float y0_ = 0;
-  float theta0_ = 0;
-  float dt_ = 0.0; // Nusim Timer
-  float obstacles_r_;    // Size of obstacles
-  float obstacles_h_;
-  float wall_h_;   // Size of walls
-  float wall_w_;
-  float walls_x_;    // Location of walls
-  float walls_y_;
-  float wheelradius_;
-  float track_width_;
-  float encoder_ticks_per_rad_;
-  float motor_cmd_per_rad_sec_;
-  float input_noise_;
-  float slip_fraction_;
-  float max_range_;  // Fake laser sensor range
-  float basic_sensor_variance_;
-  float collision_radius_;
-  float min_range_lidar_ = 0.0;
-  float max_range_lidar_ = 0.0;
-  float angle_increment_lidar_ = 0.0;
-  float num_samples_lidar_ = 0.0;
-  float resolution_lidar_ = 0.0;
-  float noise_level_lidar_ = 0.0;
+  double x_, y_, theta_;     // Theta in radians, x & y in meters.
+  double x0_ = 0;
+  double y0_ = 0;
+  double theta0_ = 0;
+  double dt_ = 0.0; // Nusim Timer
+  double obstacles_r_;    // Size of obstacles
+  double obstacles_h_;
+  double wall_h_;   // Size of walls
+  double wall_w_;
+  double walls_x_;    // Location of walls
+  double walls_y_;
+  double wheelradius_;
+  double track_width_;
+  double encoder_ticks_per_rad_;
+  double motor_cmd_per_rad_sec_;
+  double input_noise_;
+  double slip_fraction_;
+  double max_range_;  // Fake laser sensor range
+  double basic_sensor_variance_;
+  double collision_radius_;
+  double min_range_lidar_ = 0.0;
+  double max_range_lidar_ = 0.0;
+  double angle_increment_lidar_ = 0.0;
+  double num_samples_lidar_ = 0.0;
+  double resolution_lidar_ = 0.0;
+  double noise_level_lidar_ = 0.0;
   std::vector<double> obstacles_x_;    // Location of obstacles
   std::vector<double> obstacles_y_;
   visualization_msgs::msg::MarkerArray obstacles_;
@@ -438,9 +438,9 @@ private:
   {
     for (size_t i = 0; i < obstacles_x_.size(); i++)
     {
-        float dx = turtle_.configuration().x - obstacles_x_.at(i);
-        float dy = turtle_.configuration().y - obstacles_y_.at(i);
-        float eucl_distance = std::sqrt(std::pow((dx),2) + std::pow((dy),2));
+        double dx = turtle_.configuration().x - obstacles_x_.at(i);
+        double dy = turtle_.configuration().y - obstacles_y_.at(i);
+        double eucl_distance = std::sqrt(std::pow((dx),2) + std::pow((dy),2));
 
         // Check if collision occured
         if (eucl_distance < collision_radius_ + obstacles_r_)
@@ -449,7 +449,7 @@ private:
             turtlelib::Vector2D V{dx, dy};
             turtlelib::Vector2D V_normal = turtlelib::normalize(V);
             // Distance to move back
-            float collision_dis = collision_radius_ + obstacles_r_ - eucl_distance;
+            double collision_dis = collision_radius_ + obstacles_r_ - eucl_distance;
             // New robot configuration
             turtlelib::Robot_configuration after_collision{};
             after_collision.x = turtle_.configuration().x + collision_dis*V_normal.x;
@@ -695,23 +695,23 @@ private:
   }
 
   /// \brief Calculate the euclidean distance
-  /// \param x1 point 1 x-coordinate (float)
-  /// \param y1 point 1 y-coordinate (float)
-  /// \param x2 point 2 x-coordinate (float)
-  /// \param y2 point 2 y-coordinate (float)
-  /// \return euclidean distance (float)
+  /// \param x1 point 1 x-coordinate (double)
+  /// \param y1 point 1 y-coordinate (double)
+  /// \param x2 point 2 x-coordinate (double)
+  /// \param y2 point 2 y-coordinate (double)
+  /// \return euclidean distance (double)
   double euclidean_distance(double x1, double y1, double x2, double y2) {
       double dx = x2 - x1;
       double dy = y2 - y1;
       return std::sqrt(dx*dx + dy*dy);
   }
 
-//   float detect_wall()
+//   double detect_wall()
 //   {
-//     float wall_x_neg =
-//     float wall_x_pos =
-//     float wall_y_neg =
-//     float wall_y_pos =
+//     double wall_x_neg =
+//     double wall_x_pos =
+//     double wall_y_neg =
+//     double wall_y_pos =
 //   }
   /// \brief Fake lidar sensor (5Hz)
   void lidar()
@@ -821,10 +821,10 @@ private:
             {
                 RCLCPP_ERROR_STREAM(get_logger(), "ONE SOLUTION!!!!");
                 // x-solution
-                float x = -b/(2.0*a);
+                double x = -b/(2.0*a);
 
                 // y-solution
-                float y = slope*(x - turtle_.configuration().x) + turtle_.configuration().y;
+                double y = slope*(x - turtle_.configuration().x) + turtle_.configuration().y;
 
                 double mm = (x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
                 double nn = (y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
