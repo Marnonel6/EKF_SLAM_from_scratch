@@ -21,7 +21,7 @@
         if="$(eval '\'$(var robot)\' == \'localhost\'')">
   </node>
 
-  <!-- Launch thehlds_laser (laser) launch file -->
+  <!-- Launch the hlds_laser (laser) launch file -->
   <include file="$(find-pkg-share hls_lfcd_lds_driver)/launch/hlds_laser.launch.py"
            if="$(eval '\'$(var robot)\' == \'localhost\'')">
   </include>
