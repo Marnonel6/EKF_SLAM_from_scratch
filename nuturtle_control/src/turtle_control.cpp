@@ -2,12 +2,12 @@
 /// \brief The turtle_control node handles the control of the physical/red robot.
 ///
 /// PARAMETERS:
-///     \param wheelradius (float): The radius of the wheels [m]
-///     \param track_width (float): The distance between the wheels [m]
-///     \param motor_cmd_max (float): Maximum motor command value in ticks velocity
-///     \param motor_cmd_per_rad_sec (float): Motor command to rad/s conversion factor
-///     \param encoder_ticks_per_rad (float): Encoder ticks to radians conversion factor
-///     \param collision_radius (float): Robot collision radius [m]
+///     \param wheelradius (double): The radius of the wheels [m]
+///     \param track_width (double): The distance between the wheels [m]
+///     \param motor_cmd_max (double): Maximum motor command value in ticks velocity
+///     \param motor_cmd_per_rad_sec (double): Motor command to rad/s conversion factor
+///     \param encoder_ticks_per_rad (double): Encoder ticks to radians conversion factor
+///     \param collision_radius (double): Robot collision radius [m]
 ///
 /// PUBLISHES:
 ///     \param /joint_states (sensor_msgs::msg::JointState): Publishes joint states for blue robot
@@ -45,13 +45,13 @@ using namespace std::chrono_literals;
 ///        sensor_data and converts it to joint states for the robot and publishes it to the joint
 ///        states topic.
 ///
-///  \param wheelradius_ (float): The radius of the wheels [m]
-///  \param track_width_ (float): The distance between the wheels [m]
-///  \param motor_cmd_max_ (float): Maximum motor command value in ticks velocity
-///  \param motor_cmd_per_rad_sec_ (float): Motor command to rad/s conversion factor
-///  \param encoder_ticks_per_rad_ (float): Encoder ticks to radians conversion factor
-///  \param collision_radius_ (float): Robot collision radius [m]
-///  \param prev_encoder_stamp_ (float): Previous encoder time stamp
+///  \param wheelradius_ (double): The radius of the wheels [m]
+///  \param track_width_ (double): The distance between the wheels [m]
+///  \param motor_cmd_max_ (double): Maximum motor command value in ticks velocity
+///  \param motor_cmd_per_rad_sec_ (double): Motor command to rad/s conversion factor
+///  \param encoder_ticks_per_rad_ (double): Encoder ticks to radians conversion factor
+///  \param collision_radius_ (double): Robot collision radius [m]
+///  \param prev_encoder_stamp_ (double): Previous encoder time stamp
 ///  \param body_twist_ (turtlelib::Twist2D): Desired twist for robot
 ///  \param wheel_vel_ (turtlelib::WheelVelocities): Wheel velocities
 ///  \param turtle_ (turtlelib::DiffDrive): Diff_drive object
@@ -92,14 +92,14 @@ public:
     declare_parameter("encoder_ticks_per_rad", -1.0, encoder_ticks_per_rad_des);
     declare_parameter("collision_radius", -1.0, collision_radius_des);
     // Get params - Read params from yaml file that is passed in the launch file
-    wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<float>();
-    track_width_ = get_parameter("track_width").get_parameter_value().get<float>();
-    motor_cmd_max_ = get_parameter("motor_cmd_max").get_parameter_value().get<float>();
+    wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<double>();
+    track_width_ = get_parameter("track_width").get_parameter_value().get<double>();
+    motor_cmd_max_ = get_parameter("motor_cmd_max").get_parameter_value().get<double>();
     motor_cmd_per_rad_sec_ =
-      get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<float>();
+      get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<double>();
     encoder_ticks_per_rad_ =
-      get_parameter("encoder_ticks_per_rad").get_parameter_value().get<float>();
-    collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<float>();
+      get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
+    collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<double>();
 
     // Ensures all values are passed via .yaml file
     check_yaml_params();
@@ -126,13 +126,13 @@ public:
 
 private:
   // Variables
-  float wheelradius_;
-  float track_width_;
-  float motor_cmd_max_;
-  float motor_cmd_per_rad_sec_;
-  float encoder_ticks_per_rad_;
-  float collision_radius_;
-  float prev_encoder_stamp_ = -1.0;
+  double wheelradius_;
+  double track_width_;
+  double motor_cmd_max_;
+  double motor_cmd_per_rad_sec_;
+  double encoder_ticks_per_rad_;
+  double collision_radius_;
+  double prev_encoder_stamp_ = -1.0;
   turtlelib::Twist2D body_twist_;
   turtlelib::WheelVelocities wheel_vel_;
   turtlelib::DiffDrive turtle_;
@@ -188,7 +188,7 @@ private:
       // Change in wheel angle from encoder ticks
       joint_states_.position = {msg.left_encoder / encoder_ticks_per_rad_,
         msg.right_encoder / encoder_ticks_per_rad_};
-      float passed_time = msg.stamp.sec + msg.stamp.nanosec * 1e-9 - prev_encoder_stamp_;
+      double passed_time = msg.stamp.sec + msg.stamp.nanosec * 1e-9 - prev_encoder_stamp_;
       // Encoder ticks to rad/s
       joint_states_.velocity = {joint_states_.position.at(0) / passed_time,
         joint_states_.position.at(1) / passed_time};
