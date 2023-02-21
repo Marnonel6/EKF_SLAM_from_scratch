@@ -742,7 +742,7 @@ private:
         // Slope
         double slope = (max_y - turtle_.configuration().y)/(max_x - turtle_.configuration().x);
 
-        double actual_distance = 2.0; //  TODO SET TO 0.0
+        double actual_distance = 1000.0; //  TODO SET TO 0.0
         double min_distance = 1000.0;
 
         for (size_t i = 0; i < obstacles_x_.size(); i++) // Loop through number of obstacles
@@ -758,34 +758,64 @@ private:
             //     RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
             // }
 
-            // if (det<0.0) // No solution
-            // {   // Wall coordinates
-            //     float wall_x = walls_x_/2.0;
-            //     float wall_y = walls_y_/2.0;
-            //     // Coordinate at angle for 4 walls
-            //     float wall_x_neg = (-wall_y/slope) + turtle_.configuration().x;
-            //     float wall_x_pos = (wall_y/slope) + turtle_.configuration().x;
-            //     float wall_y_neg = slope*(-wall_x-turtle_.configuration().x)+turtle_.configuration().y;
-            //     float wall_y_pos = slope*(wall_x-turtle_.configuration().x)+turtle_.configuration().y;
-            //     // Distances to 4 wall intersect wit lidar
-            //     float distance1 = euclidean_distance(wall_x_neg, -wall_y, turtle_.configuration().x, turtle_.configuration().y);
-            //     float distance2 = euclidean_distance(wall_x_pos, wall_y, turtle_.configuration().x, turtle_.configuration().y);
-            //     float distance3 = euclidean_distance(-wall_x, wall_y_neg, turtle_.configuration().x, turtle_.configuration().y);
-            //     float distance4 = euclidean_distance(wall_x, wall_y_pos, turtle_.configuration().x, turtle_.configuration().y);
-            //     // Check shortest distance
-            //     // float min_wall_distance = distance1;
-            //     float min_distance = std::min({distance1,distance2,distance3,distance4});
+            if (det<0.0) // No solution
+            {   // Wall coordinates
+                double wall_x = walls_x_/2.0;
+                double wall_y = walls_y_/2.0;
+                // Coordinate at angle for 4 walls
+                double wall_x_neg = ((-wall_y - turtle_.configuration().y)/slope) + turtle_.configuration().x;
+                double wall_x_pos = ((wall_y - turtle_.configuration().y)/slope) + turtle_.configuration().x;
+                double wall_y_neg = slope*(-wall_x-turtle_.configuration().x)+turtle_.configuration().y;
+                double wall_y_pos = slope*(wall_x-turtle_.configuration().x)+turtle_.configuration().y;
+                // Distances to 4 wall intersect wit lidar
+                double distance1 = euclidean_distance(wall_x_neg, -wall_y, turtle_.configuration().x, turtle_.configuration().y);
+                double distance2 = euclidean_distance(wall_x_pos, wall_y, turtle_.configuration().x, turtle_.configuration().y);
+                double distance3 = euclidean_distance(-wall_x, wall_y_neg, turtle_.configuration().x, turtle_.configuration().y);
+                double distance4 = euclidean_distance(wall_x, wall_y_pos, turtle_.configuration().x, turtle_.configuration().y);
+                // Check shortest distance
+                // float min_wall_distance = distance1;
+                double min_wall_distance = std::min({distance1,distance2,distance3,distance4});
 
-            //     if (min_distance < max_range_lidar_)
-            //     {
-            //         actual_distance = min_distance;
-            //     }
+                if (min_wall_distance < max_range_lidar_)
+                {
+                    double x_wall = 0.0;
+                    double y_wall = 0.0;
 
-            //     // actual_distance = 0.0;
-            //     // RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
-            //     break;
-            // }
-            if (det == 0.0) // 1 solution
+                    if (min_wall_distance == distance1)
+                    {
+                        x_wall = wall_x_neg;
+                        y_wall = -wall_y;
+                    }
+                    else if (min_wall_distance == distance2)
+                    {
+                        x_wall = wall_x_pos;
+                        y_wall = wall_y;
+                    }
+                    else if (min_wall_distance == distance3)
+                    {
+                        x_wall = -wall_x;
+                        y_wall = wall_y_neg;
+                    }
+                    else if (min_wall_distance == distance4)
+                    {
+                        x_wall = wall_x;
+                        y_wall = wall_y_pos;
+                    }
+
+                    double mm = (x_wall - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
+                    double nn = (y_wall - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
+                    if (mm > 0.0 && nn > 0.0)
+                    {
+                        // Distance to robot
+                        min_distance = min_wall_distance;
+                    }
+                }
+
+                // actual_distance = 0.0;
+                // RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
+                // break;
+            }
+            else if (det == 0.0) // 1 solution
             {
                 RCLCPP_ERROR_STREAM(get_logger(), "ONE SOLUTION!!!!");
                 // x-solution
@@ -799,7 +829,7 @@ private:
                 if (mm > 0.0 && nn > 0.0)
                 {
                     // Distance to robot
-                    actual_distance = euclidean_distance(x, y, turtle_.configuration().x, turtle_.configuration().y);
+                    min_distance = euclidean_distance(x, y, turtle_.configuration().x, turtle_.configuration().y);
                 }
             }
             else if (det > 0.0) // 2 solutions
@@ -816,17 +846,17 @@ private:
                 double distance1 = euclidean_distance(x1, y1, turtle_.configuration().x, turtle_.configuration().y);
                 double distance2 = euclidean_distance(x2, y2, turtle_.configuration().x, turtle_.configuration().y);
 
-                min_distance = std::min({distance1,distance2});
+                double obs_min_distance = std::min({distance1,distance2});
 
                 // Choose smallest distance
-                if (min_distance == distance1)
+                if (obs_min_distance == distance1)
                 {
                     double mm = (x1 - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
                     double nn = (y1 - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
 
                     if (mm > 0.0 && nn > 0.0)
                     {
-                        actual_distance = min_distance;
+                        min_distance = obs_min_distance;
                     }
                 }
                 else
@@ -836,13 +866,17 @@ private:
 
                     if (mm > 0.0 && nn > 0.0)
                     {
-                        actual_distance = min_distance;
+                        min_distance = obs_min_distance;
                     }
                 }
                 // break; // Add this for lidar to see all obstacles
             }
 
         //     // lidar_data_.ranges.push_back(actual_distance);
+            if (min_distance < actual_distance)
+            {
+                actual_distance = min_distance;
+            }
         }
 
         // RCLCPP_ERROR_STREAM(get_logger(), "______________distance = " << actual_distance);
