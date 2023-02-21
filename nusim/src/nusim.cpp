@@ -368,6 +368,7 @@ private:
   nuturtlebot_msgs::msg::SensorData sensor_data_;
   geometry_msgs::msg::PoseStamped red_pose_stamped_;
   nav_msgs::msg::Path red_path_;
+  sensor_msgs::msg::LaserScan lidar_data_;
   turtlelib::Wheel delta_wheel_pos_{0.0, 0.0};
   turtlelib::Wheel new_wheel_pos_;
   turtlelib::Wheel old_wheel_pos_{0.0, 0.0};
@@ -379,7 +380,6 @@ private:
   std::uniform_real_distribution<> slip_{0.0, 0.0};
   std::normal_distribution<> laser_noise_{0.0, 0.0};
   std::normal_distribution<> lidar_noise_{0.0, 0.0};
-  sensor_msgs::msg::LaserScan lidar_data_;
 
   // Create objects
   rclcpp::TimerBase::SharedPtr timer_;
@@ -756,6 +756,7 @@ private:
                 double distance3 = euclidean_distance(-wall_x, wall_y_neg, turtle_.configuration().x, turtle_.configuration().y);
                 double distance4 = euclidean_distance(wall_x, wall_y_pos, turtle_.configuration().x, turtle_.configuration().y);
 
+                // Check direction
                 double mm1 = (wall_x_neg - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
                 double nn1 = (-wall_y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
                 if (mm1 > 0.0 && nn1 > 0.0)
@@ -767,6 +768,7 @@ private:
                     }
                 }
 
+                // Check direction
                 double mm2 = (wall_x_pos - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
                 double nn2 = (wall_y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
                 if (mm2 > 0.0 && nn2 > 0.0)
@@ -778,6 +780,7 @@ private:
                     }
                 }
 
+                // Check direction
                 double mm3 = (-wall_x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
                 double nn3 = (wall_y_neg - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
                 if (mm3 > 0.0 && nn3 > 0.0)
@@ -789,6 +792,7 @@ private:
                     }
                 }
 
+                // Check direction
                 double mm4 = (wall_x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
                 double nn4 = (wall_y_pos - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
                 if (mm4 > 0.0 && nn4 > 0.0)
