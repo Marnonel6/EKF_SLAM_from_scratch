@@ -706,20 +706,10 @@ private:
       return std::sqrt(dx*dx + dy*dy);
   }
 
-//   double detect_wall()
-//   {
-//     double wall_x_neg =
-//     double wall_x_pos =
-//     double wall_y_neg =
-//     double wall_y_pos =
-//   }
+
   /// \brief Fake lidar sensor (5Hz)
   void lidar()
   {
-    // num_samples_lidar_
-    // resolution_lidar_
-    // noise_level_lidar_
-
     lidar_data_.header.frame_id = "red/base_scan";
     lidar_data_.header.stamp = get_clock()->now();
     lidar_data_.header.stamp.nanosec -= 6e8;
@@ -732,8 +722,6 @@ private:
     lidar_data_.range_max = max_range_lidar_;
     lidar_data_.ranges.resize(num_samples_lidar_);
 
-    // double actual_distance = 2.0;
-
     for (int j; j < num_samples_lidar_; j++) // Loop through number of samples
     {
         // Calculate max [x,y] coordinate at given turtle and laser position and angle
@@ -742,21 +730,16 @@ private:
         // Slope
         double slope = (max_y - turtle_.configuration().y)/(max_x - turtle_.configuration().x);
 
-        double actual_distance = 1000.0; //  TODO SET TO 0.0
+        double actual_distance = 1000.0;
         double min_distance = 1000.0;
 
         for (size_t i = 0; i < obstacles_x_.size(); i++) // Loop through number of obstacles
         {
-            // actual_distance = 2.0; //  TODO SET TO 0.0
             double sub = turtle_.configuration().y - slope*turtle_.configuration().x - obstacles_y_.at(i);
             double a = 1.0 + std::pow(slope, 2);
             double b = 2.0*(sub*slope - obstacles_x_.at(i));
             double c = std::pow(obstacles_x_.at(i), 2) + std::pow(sub, 2) - std::pow(obstacles_r_, 2);
             double det = std::pow(b, 2) - 4.0*a*c;
-            // if (det>0.0)
-            // {
-            //     RCLCPP_ERROR_STREAM(get_logger(), "______________DET = " << det);
-            // }
 
             if (det<0.0) // No solution
             {   // Wall coordinates
@@ -822,10 +805,9 @@ private:
                 RCLCPP_ERROR_STREAM(get_logger(), "ONE SOLUTION!!!!");
                 // x-solution
                 double x = -b/(2.0*a);
-
                 // y-solution
                 double y = slope*(x - turtle_.configuration().x) + turtle_.configuration().y;
-
+                // Check direction
                 double mm = (x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
                 double nn = (y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
                 if (mm > 0.0 && nn > 0.0)
@@ -836,18 +818,16 @@ private:
             }
             else if (det > 0.0) // 2 solutions
             {
-                //  RCLCPP_ERROR_STREAM(get_logger(), "TWOOOOOOOOOOOOOOOOOOOOOOOO SOLUTION!!!!");
                 // x-solution
                 double x1 = (-b + std::sqrt(det))/(2.0*a);
                 double x2 = (-b - std::sqrt(det))/(2.0*a);
                 // y-solution
                 double y1 = slope*(x1 - turtle_.configuration().x) + turtle_.configuration().y;
                 double y2 = slope*(x2 - turtle_.configuration().x) + turtle_.configuration().y;
-
                 // Two solution distances to robot
                 double distance1 = euclidean_distance(x1, y1, turtle_.configuration().x, turtle_.configuration().y);
                 double distance2 = euclidean_distance(x2, y2, turtle_.configuration().x, turtle_.configuration().y);
-
+                // Get minimum
                 double obs_min_distance = std::min({distance1,distance2});
 
                 // Choose smallest distance
@@ -855,7 +835,6 @@ private:
                 {
                     double mm = (x1 - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
                     double nn = (y1 - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-
                     if (mm > 0.0 && nn > 0.0)
                     {
                         min_distance = obs_min_distance;
@@ -865,30 +844,20 @@ private:
                 {
                     double mm = (x2 - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
                     double nn = (y2 - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-
                     if (mm > 0.0 && nn > 0.0)
                     {
                         min_distance = obs_min_distance;
                     }
                 }
-                // break; // Add this for lidar to see all obstacles
             }
 
-        //     // lidar_data_.ranges.push_back(actual_distance);
             if (min_distance < actual_distance)
             {
                 actual_distance = min_distance;
             }
         }
-
-        // RCLCPP_ERROR_STREAM(get_logger(), "______________distance = " << actual_distance);
-
-        // lidar_data_.ranges.push_back(actual_distance);
         lidar_data_.ranges.at(j) = actual_distance + lidar_noise_(get_random());
     }
-
-    RCLCPP_ERROR_STREAM(get_logger(), "___________________________________________________________________ = ");
-
     fake_lidar_publisher_->publish(lidar_data_);
   }
 

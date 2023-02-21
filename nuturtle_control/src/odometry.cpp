@@ -202,7 +202,7 @@ private:
   void transform_broadcast()
   {
     // Broadcast TF frames
-    t_.header.stamp = this->get_clock()->now();
+    t_.header.stamp = get_clock()->now();
     t_.header.frame_id = odom_id_;
     t_.child_frame_id = body_id_;
     t_.transform.translation.x = turtle_.configuration().x;
@@ -242,7 +242,7 @@ private:
     // Publish updated odometry
     odom_.header.frame_id = odom_id_;
     odom_.child_frame_id = body_id_;
-    odom_.header.stamp = this->get_clock()->now();
+    odom_.header.stamp = get_clock()->now();
     odom_.pose.pose.position.x = turtle_.configuration().x;
     odom_.pose.pose.position.y = turtle_.configuration().y;
     odom_.pose.pose.position.z = 0.0;
