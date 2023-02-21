@@ -7,8 +7,8 @@
 ///     \param odom_id (std::string): The name of the odometry frame
 ///     \param wheel_left (std::string): The name of the left wheel joint
 ///     \param wheel_right (std::string): The name of the right wheel joint
-///     \param wheelradius (float): The radius of the wheels [m]
-///     \param track_width (float): The distance between the wheels [m]
+///     \param wheelradius (double): The radius of the wheels [m]
+///     \param track_width (double): The distance between the wheels [m]
 ///
 /// PUBLISHES:
 ///     \param /odom (nav_msgs::msg::Odometry): Odometry publisher
@@ -54,8 +54,8 @@ using namespace std::chrono_literals;
 ///  \param odom_id_ (std::string): The name of the odometry frame
 ///  \param wheel_left_ (std::string): The name of the left wheel joint
 ///  \param wheel_right_ (std::string): The name of the right wheel joint
-///  \param wheelradius_ (float): The radius of the wheels [m]
-///  \param track_width_ (float): The distance between the wheels [m]
+///  \param wheelradius_ (double): The radius of the wheels [m]
+///  \param track_width_ (double): The distance between the wheels [m]
 
 class odometry : public rclcpp::Node
 {
@@ -78,10 +78,10 @@ public:
     track_width_des.description = "The distance between the wheels [m]";
 
     // Declare default parameters values
-    declare_parameter("body_id", "", body_id_des);
+    declare_parameter("body_id", "blue/base_footprint", body_id_des);
     declare_parameter("odom_id", "odom", odom_id_des);
-    declare_parameter("wheel_left", "", wheel_left_des);
-    declare_parameter("wheel_right", "", wheel_right_des);
+    declare_parameter("wheel_left", "blue/wheel_left_link", wheel_left_des);
+    declare_parameter("wheel_right", "blue/wheel_right_link", wheel_right_des);
     declare_parameter("wheelradius", -1.0, wheelradius_des);
     declare_parameter("track_width", -1.0, track_width_des);
     // Get params - Read params from yaml file that is passed in the launch file
@@ -89,8 +89,8 @@ public:
     odom_id_ = get_parameter("odom_id").get_parameter_value().get<std::string>();
     wheel_left_ = get_parameter("wheel_left").get_parameter_value().get<std::string>();
     wheel_right_ = get_parameter("wheel_right").get_parameter_value().get<std::string>();
-    wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<float>();
-    track_width_ = get_parameter("track_width").get_parameter_value().get<float>();
+    wheelradius_ = get_parameter("wheelradius").get_parameter_value().get<double>();
+    track_width_ = get_parameter("track_width").get_parameter_value().get<double>();
 
     // Ensures all values are passed via the launch file
     check_frame_params();
@@ -130,8 +130,8 @@ private:
   std::string odom_id_;
   std::string wheel_left_;
   std::string wheel_right_;
-  float wheelradius_;
-  float track_width_;
+  double wheelradius_;
+  double track_width_;
   int step_ = 0;
   turtlelib::Wheel new_wheel_pos_;
   turtlelib::Wheel prev_wheel_pos_{0.0, 0.0};
