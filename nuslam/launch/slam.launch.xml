@@ -51,7 +51,7 @@
     <!-- Pass required arguments to the Python launch file -->
     <arg name="color" value="green"/>
     <arg name="use_rviz" value="false"/>
-    <arg name="use_jsp" value="false"/> 
+    <arg name="use_jsp" value="true"/> 
   </include>
 
 </launch>
