@@ -712,7 +712,6 @@ private:
   {
     lidar_data_.header.frame_id = "red/base_scan";
     lidar_data_.header.stamp = get_clock()->now();
-    lidar_data_.header.stamp.nanosec -= 6e8;
     lidar_data_.angle_min = 0.0;
     lidar_data_.angle_max = 6.28319;
     lidar_data_.angle_increment = angle_increment_lidar_;
