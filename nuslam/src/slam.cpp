@@ -1,6 +1,6 @@
 /// \file
-/// \brief The odometry node subscribes to joint_states and publishes to the odom navigation
-///        topic. The node handles the odometry calculations of the blue robot.
+/// \brief The slam node subscribes to joint_states and publishes to the green/odom navigation
+///        topic. The node handles the SLAM calculations of the green robot.
 ///
 /// PARAMETERS:
 ///     \param body_id (std::string): The name of the body frame of the robot
@@ -12,11 +12,11 @@
 ///
 /// PUBLISHES:
 ///     \param /odom (nav_msgs::msg::Odometry): Odometry publisher
-///     \param /blue/path (nav_msgs::msg::Path): Create the blue turtle's nav_msgs/Path for rviz
+///     \param /green/path (nav_msgs::msg::Path): Create the green turtle's nav_msgs/Path for rviz
 ///                                              visualization
 ///
 /// SUBSCRIBES:
-///     \param /joint_states (sensor_msgs::msg::JointState): Subscribes joint states for blue robot
+///     \param /joint_states (sensor_msgs::msg::JointState): Subscribes joint states for green robot
 ///
 /// SERVERS:
 ///     \param /initial_pose (std_srvs::srv::Empty): Sets initial pose of the turtle
@@ -25,7 +25,7 @@
 ///     None
 ///
 /// BROADCASTERS:
-///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts blue turtle position
+///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts green turtle position
 
 #include <chrono>
 #include <functional>
@@ -47,8 +47,8 @@ using namespace std::chrono_literals;
 
 /// \brief The class subscribes to joint_states and publishes to the odom navigation
 ///        topic. It has an initial pose service to set the start position of the robot.
-///        The node publishes the location of the blue robot that represents the odometry
-///        calcualtions.
+///        The node publishes the location of the green robot that represents the SLAM
+///        calculations.
 ///
 ///  \param body_id_ (std::string): The name of the body frame of the robot
 ///  \param odom_id_ (std::string): The name of the odometry frame
@@ -104,7 +104,7 @@ public:
     // Publishers
     odom_publisher_ = create_publisher<nav_msgs::msg::Odometry>(
       "green/odom", 10);
-    blue_turtle_publisher_ = create_publisher<nav_msgs::msg::Path>("green/path", 10);
+    green_turtle_publisher_ = create_publisher<nav_msgs::msg::Path>("green/path", 10);
 
 
     // Subscribers
@@ -141,12 +141,12 @@ private:
   tf2::Quaternion q_;
   geometry_msgs::msg::TransformStamped t_;
   sensor_msgs::msg::JointState joint_states_;
-  geometry_msgs::msg::PoseStamped blue_pose_stamped_;
-  nav_msgs::msg::Path blue_path_;
+  geometry_msgs::msg::PoseStamped green_pose_stamped_;
+  nav_msgs::msg::Path green_path_;
 
   // Create objects
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
-  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr blue_turtle_publisher_;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr green_turtle_publisher_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_subscriber_;
   rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
@@ -165,7 +165,7 @@ private:
     step_++;
     if (step_%100 == 1)
     {
-        blue_turtle_NavPath();
+        green_turtle_NavPath();
     }
 
     prev_wheel_pos_.left = msg.position[0];
@@ -198,7 +198,7 @@ private:
         request->theta}};
   }
 
-  /// \brief Broadcasts blue robots position
+  /// \brief Broadcasts green robots position
   void transform_broadcast()
   {
     // Broadcast TF frames
@@ -215,25 +215,25 @@ private:
     tf_broadcaster_->sendTransform(t_);
   }
 
-  /// \brief Create the blue turtle's nav_msgs/Path
-  void blue_turtle_NavPath()
+  /// \brief Create the green turtle's nav_msgs/Path
+  void green_turtle_NavPath()
   {
-    // Update ground truth red turtle path
-    blue_path_.header.stamp = get_clock()->now();
-    blue_path_.header.frame_id = "nusim/world";
+    // Update ground truth green turtle path
+    green_path_.header.stamp = get_clock()->now();
+    green_path_.header.frame_id = "nusim/world";
     // Create new pose stamped
-    blue_pose_stamped_.header.stamp = get_clock()->now();
-    blue_pose_stamped_.header.frame_id = "nusim/world";
-    blue_pose_stamped_.pose.position.x = turtle_.configuration().x;
-    blue_pose_stamped_.pose.position.y = turtle_.configuration().y;
-    blue_pose_stamped_.pose.position.z = 0.0;
-    blue_pose_stamped_.pose.orientation.x = q_.x();
-    blue_pose_stamped_.pose.orientation.y = q_.y();
-    blue_pose_stamped_.pose.orientation.z = q_.z();
-    blue_pose_stamped_.pose.orientation.w = q_.w();
+    green_pose_stamped_.header.stamp = get_clock()->now();
+    green_pose_stamped_.header.frame_id = "nusim/world";
+    green_pose_stamped_.pose.position.x = turtle_.configuration().x;
+    green_pose_stamped_.pose.position.y = turtle_.configuration().y;
+    green_pose_stamped_.pose.position.z = 0.0;
+    green_pose_stamped_.pose.orientation.x = q_.x();
+    green_pose_stamped_.pose.orientation.y = q_.y();
+    green_pose_stamped_.pose.orientation.z = q_.z();
+    green_pose_stamped_.pose.orientation.w = q_.w();
     // Append pose stamped
-    blue_path_.poses.push_back(blue_pose_stamped_);
-    blue_turtle_publisher_->publish(blue_path_);
+    green_path_.poses.push_back(green_pose_stamped_);
+    green_turtle_publisher_->publish(green_path_);
   }
 
   /// \brief Publishes the odometry to the odom topic

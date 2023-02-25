@@ -37,7 +37,7 @@
   <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_to_map"
         args="0 0 0 0 0 0 1 /nusim/world /map"/>
 
-  <!-- Static transform publisher between nusim/world and map tf frames -->
+  <!-- TODO SHOULD COME FROM SLAM NODE -->
   <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_green_odom"
         args="0 0 0 0 0 0 1 /map green/odom"/>
 
