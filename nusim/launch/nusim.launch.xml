@@ -19,6 +19,11 @@
   <arg name="rviz_config" default="$(find-pkg-share nusim)/config/nusim.rviz" 
    description=".rviz file to configure the simulator"/>
 
+  <!-- Argument to specify configuration file for robot. -->
+  <arg name="use_rviz" default="false" 
+   description="Specify if rviz needs to start - true, false"/>
+
+
   <!-- <arg name="draw_only" default="false"
    description="Specify that only the obstacles should be drawn, but the real robot is used."/> -->
 
@@ -37,6 +42,6 @@
 
   <!-- Declare the RViz node -->
   <!-- Load the config file -->
-  <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(var rviz_config)"/>
+  <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(var rviz_config)" if="$(eval '\'$(var use_rviz)\' == \'true\'')"/>
 
 </launch>
