@@ -7,6 +7,8 @@
    description="Where to launch the nodes - robot, nusim, nothing"/>
   <arg name="use_rviz" default="true"
    description="Specify if rviz needs to start - true, false"/>
+  <!-- <arg name="draw_only" default="true"
+   description="Specify that only the obstacles should be drawn, but the real robot is used."/> -->
 
   <!-- Argument to specify configuration file for robot control. -->
   <arg name="config_file1" default="diff_params.yaml" 
@@ -39,6 +41,13 @@
            if="$(eval '\'$(var robot)\' == \'nusim\'')">
       <arg name="rviz_config" value="$(var rviz_config)"/>
   </include>
+
+  <!-- Launch the Nusim simulation launch file
+  <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"
+           if="$(eval '\'$(var robot)\' == \'none\'')">
+      <arg name="rviz_config" value="$(var rviz_config)"/>
+      <arg name="draw_only" value="$(var draw_only)"/>
+  </include> -->
 
   <!-- Turtle control node if using nusim-->
   <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control"

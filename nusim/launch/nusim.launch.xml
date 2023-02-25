@@ -19,11 +19,21 @@
   <arg name="rviz_config" default="$(find-pkg-share nusim)/config/nusim.rviz" 
    description=".rviz file to configure the simulator"/>
 
+  <!-- <arg name="draw_only" default="false"
+   description="Specify that only the obstacles should be drawn, but the real robot is used."/> -->
+
   <!-- Main simulation node -->
   <node pkg="nusim" exec="nusim" name="nusim">
     <param from="$(find-pkg-share nusim)/config/$(var config_file)"/>
     <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file2)"/>
   </node>
+
+  <!-- Environment simulation node
+  <node pkg="nusim" exec="nusim" name="nuwall">
+    <param from="$(find-pkg-share nusim)/config/$(var config_file)"/>
+    <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file2)"/>
+    <param from="$(draw_only)"/>
+  </node> -->
 
   <!-- Declare the RViz node -->
   <!-- Load the config file -->
