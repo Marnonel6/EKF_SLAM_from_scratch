@@ -716,7 +716,8 @@ private:
     lidar_data_.angle_min = 0.0;
     lidar_data_.angle_max = 6.28319;
     lidar_data_.angle_increment = angle_increment_lidar_;
-    lidar_data_.time_increment = 0.0005574136157520115;
+    // lidar_data_.time_increment = 0.0005574136157520115;
+    lidar_data_.time_increment = 0.0;
     lidar_data_.scan_time = 0.20066890120506287;
     lidar_data_.range_min = min_range_lidar_;
     lidar_data_.range_max = max_range_lidar_;
