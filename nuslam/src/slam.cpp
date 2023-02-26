@@ -31,6 +31,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <armadillo>
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"

@@ -23,6 +23,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(turtlelib REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(nuturtle_control REQUIRED)
+find_package(Armadillo REQUIRED)
 
 if(NOT CMAKE_CROSSCOMPILING)
     # CMake also has the ability to generate doxygen documentation
@@ -58,6 +59,5 @@ install(DIRECTORY
   config
   DESTINATION share/${PROJECT_NAME}/
 )
-
 
 ament_package()
