@@ -26,6 +26,7 @@
 ///
 /// BROADCASTERS:
 ///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts green turtle position
+///     \param tf_broadcaster_2_
 
 #include <chrono>
 #include <functional>
@@ -131,6 +132,7 @@ public:
 
     // Initialize the transform broadcaster
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+    tf_broadcaster_2_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
   }
 
 private:
@@ -150,6 +152,7 @@ private:
   nav_msgs::msg::Odometry odom_;
   tf2::Quaternion q_;
   geometry_msgs::msg::TransformStamped t_;
+  geometry_msgs::msg::TransformStamped t2_;
   sensor_msgs::msg::JointState joint_states_;
   geometry_msgs::msg::PoseStamped green_pose_stamped_;
   nav_msgs::msg::Path green_path_;
@@ -161,6 +164,7 @@ private:
   rclcpp::Subscription<visualization_msgs::msg::MarkerArray>::SharedPtr fake_sensor_subscriber_;
   rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_2_;
 
   /// \brief Joint states topic callback
   void joint_states_callback(const sensor_msgs::msg::JointState & msg)
@@ -172,6 +176,7 @@ private:
     q_.setRPY(0, 0, turtle_.configuration().theta);       // Rotation around z-axis
     odometry_pub();
     transform_broadcast();
+    transform_broadcast_map_odom(); // EKFSlam Update
 
     step_++;
     if (step_%100 == 1)
@@ -241,6 +246,37 @@ private:
     t_.transform.rotation.w = q_.w();
     tf_broadcaster_->sendTransform(t_);
   }
+
+  /// \brief Broadcasts green robots position
+  void transform_broadcast_map_odom()
+  {
+    turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config();
+    turtlelib::Transform2D Tmap_RobotGreen{{green_turtle.x, green_turtle.y},green_turtle.theta};
+    turtlelib::Transform2D TodomGreen_RobotGreen{{turtle_.configuration().x,turtle_.configuration().y},turtle_.configuration().theta};
+    turtlelib::Transform2D Tmap_odomGreen{};
+    Tmap_odomGreen = Tmap_RobotGreen*TodomGreen_RobotGreen.inv();
+
+    // Broadcast TF frames
+    t2_.header.stamp = get_clock()->now();
+    t2_.header.frame_id = "map";
+    t2_.child_frame_id = odom_id_;
+    t2_.transform.translation.x = Tmap_odomGreen.translation().x;
+    t2_.transform.translation.y = Tmap_odomGreen.translation().y;
+    t2_.transform.translation.z = 0.0;     // Turtle only exists in 2D
+    tf2::Quaternion q2_;
+    q_.setRPY(0, 0, Tmap_odomGreen.rotation());       // Rotation around z-axis
+    t2_.transform.rotation.x = q2_.x();
+    t2_.transform.rotation.y = q2_.y();
+    t2_.transform.rotation.z = q2_.z();
+    t2_.transform.rotation.w = q2_.w();
+    tf_broadcaster_2_->sendTransform(t2_);
+  }
+
+
+//   <!-- TODO SHOULD COME FROM SLAM NODE -->
+//   <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_green_odom"
+//         args="0 0 0 0 0 0 1 /map green/odom"/>
+
 
   /// \brief Create the green turtle's nav_msgs/Path
   void green_turtle_NavPath()

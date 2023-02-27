@@ -38,8 +38,8 @@
         args="0 0 0 0 0 0 1 /nusim/world /map"/>
 
   <!-- TODO SHOULD COME FROM SLAM NODE -->
-  <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_green_odom"
-        args="0 0 0 0 0 0 1 /map green/odom"/>
+  <!-- <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_green_odom"
+        args="0 0 0 0 0 0 1 /map green/odom"/> -->
 
   <!-- Declare the RViz node and load the config file-->
   <node name="rviz2" pkg="rviz2" exec="rviz2"

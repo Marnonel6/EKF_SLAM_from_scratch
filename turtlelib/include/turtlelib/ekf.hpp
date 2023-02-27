@@ -95,6 +95,9 @@ namespace turtlelib
         /// \param y - landmark y-coordinate
         /// \param j - landmark index j
         void EKFSlam_Correct(double x, double y, size_t j);
+
+        /// \brief get SLAM corrected configuration
+        Robot_configuration EKFSlam_config();
     };
 }
 

@@ -155,4 +155,9 @@ namespace turtlelib
         covariance = (I - Ki*Hj)*covariance_estimate;
     }
 
+    Robot_configuration EKFSlam::EKFSlam_config()
+    {
+        return {zai(1), zai(2), zai(0)};
+    }
+
 }
