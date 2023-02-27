@@ -39,7 +39,7 @@ namespace turtlelib
         // Calculate commad twist
         ut(0) = normalize_angle(twist.w - prev_twist.w);
         ut(1) = twist.x - prev_twist.x;
-        ut(2) = 0.0;
+        ut(2) = twist.y - prev_twist.y;
         // Set previous twist
         prev_twist = twist;
 
@@ -47,39 +47,38 @@ namespace turtlelib
         // zai_estimate(1) += zai(1) + ut(1);
         // zai_estimate(2) += zai(2) + ut(2);
 
-        // zai_estimate(0) += zai(0) + ut(0);
-        // zai_estimate(1) += zai(1) + ut(1);
-        // zai_estimate(2) += zai(2) + ut(2);
+        zai_estimate(0) += zai(0) + ut(0);
+        zai_estimate(1) += zai(1) + ut(1);
+        zai_estimate(2) += zai(2) + ut(2);
 
 
-        // CALCULATE NEW CURRENT ESTIMATE STATE -> Zai_hat
-        arma::colvec delta_state{m+2*n,arma::fill::zeros};
-        if (almost_equal(ut(0), 0.0)) // Zero rotational velocity
-        {
-            delta_state(1) = ut(1)*cos(zai(0));
-            delta_state(2) = ut(1)*sin(zai(0));
+        // // CALCULATE NEW CURRENT ESTIMATE STATE -> Zai_hat
+        // arma::colvec delta_state{m+2*n,arma::fill::zeros};
+        // if (almost_equal(ut(0), 0.0)) // Zero rotational velocity
+        // {
+        //     delta_state(1) = ut(1)*cos(zai(0));
+        //     delta_state(2) = ut(1)*sin(zai(0));
 
-            // arma::colvec noise{m+2*n,arma::fill::zeros};
-            // noise(0,0) = 
-            // noise(1,0) = 
-            // noise(2,0) = 
+        //     // arma::colvec noise{m+2*n,arma::fill::zeros};
+        //     // noise(0,0) = 
+        //     // noise(1,0) = 
+        //     // noise(2,0) = 
 
-            zai_estimate += zai + delta_state; //+ noise;
-        }
-        else // Non-zero rotational velocity
-        {
-            delta_state(0) = ut(0);
-            delta_state(1) = -((ut(1)/ut(0))*sin(zai(0))) + (ut(1)/ut(0))*sin(zai(0)+ut(0));
-            delta_state(2) = (ut(1)/ut(0))*cos(zai(0)) - (ut(1)/ut(0))*cos(zai(0)+ut(0));
+        //     zai_estimate += zai + delta_state; //+ noise;
+        // }
+        // else // Non-zero rotational velocity
+        // {
+        //     delta_state(0) = ut(0);
+        //     delta_state(1) = -((ut(1)/ut(0))*sin(zai(0))) + (ut(1)/ut(0))*sin(zai(0)+ut(0));
+        //     delta_state(2) = (ut(1)/ut(0))*cos(zai(0)) - (ut(1)/ut(0))*cos(zai(0)+ut(0));
 
-            // arma::colvec noise{m+2*n,arma::fill::zeros};
-            // noise(0,0) = 
-            // noise(1,0) = 
-            // noise(2,0) = 
+        //     // arma::colvec noise{m+2*n,arma::fill::zeros};
+        //     // noise(0,0) = 
+        //     // noise(1,0) = 
+        //     // noise(2,0) = 
 
-            zai_estimate += zai + delta_state; //+ noise;
-        }
-
+        //     zai_estimate += zai + delta_state; //+ noise;
+        // }
 
 
         // CALCULATE At matrix

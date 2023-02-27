@@ -192,7 +192,7 @@ private:
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray & msg)
   {
     // EKFSlam_.EKFSlam_Predict(body_twist_);
-    RCLCPP_ERROR_STREAM(get_logger(), "Turtle -> x: " << turtle_.configuration().x << " y: " << turtle_.configuration().y  << " theta: " << turtle_.configuration().theta);
+    // RCLCPP_ERROR_STREAM(get_logger(), "Turtle -> x: " << turtle_.configuration().x << " y: " << turtle_.configuration().y  << " theta: " << turtle_.configuration().theta);
     EKFSlam_.EKFSlam_Predict({turtle_.configuration().theta,turtle_.configuration().x,turtle_.configuration().y});
 
     // visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
@@ -254,13 +254,15 @@ private:
   {
     // turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config();
     turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config_predicted();
+
     turtlelib::Transform2D Tmap_RobotGreen{{green_turtle.x, green_turtle.y},green_turtle.theta};
     turtlelib::Transform2D TodomGreen_RobotGreen{{turtle_.configuration().x,turtle_.configuration().y},turtle_.configuration().theta};
     turtlelib::Transform2D Tmap_odomGreen{};
+
     Tmap_odomGreen = Tmap_RobotGreen*TodomGreen_RobotGreen.inv();
 
-    // RCLCPP_ERROR_STREAM(get_logger(), "green_turtle -> x: " << green_turtle.x << " y: " << green_turtle.y  << " theta: " << green_turtle.theta);
-
+    RCLCPP_ERROR_STREAM(get_logger(), "green_turtle -> x: " << green_turtle.x << " y: " << green_turtle.y  << " theta: " << green_turtle.theta);
+    // RCLCPP_ERROR_STREAM(get_logger(), "Tmap_odomGreen -> rot: " << Tmap_odomGreen.rotation()<< " trans: "<<Tmap_odomGreen.translation().x<<" "<<Tmap_odomGreen.translation().y);
     // Broadcast TF frames
     t2_.header.stamp = get_clock()->now();
     t2_.header.frame_id = "map";
@@ -271,7 +273,6 @@ private:
     // t2_.transform.translation.y = -(green_turtle.y - turtle_.configuration().y);
     t2_.transform.translation.z = 0.0;     // Turtle only exists in 2D
     tf2::Quaternion q2_;
-    // RCLCPP_ERROR_STREAM(get_logger(), "Tmap_odomGreen -> rot: " << Tmap_odomGreen.rotation());
     q2_.setRPY(0, 0, Tmap_odomGreen.rotation());       // Rotation around z-axis
     // // q_.setRPY(0, 0, turtlelib::normalize_angle(-(green_turtle.theta - turtle_.configuration().theta)));       // Rotation around z-axis
     t2_.transform.rotation.x = q2_.x();
