@@ -9,13 +9,14 @@ add_library(turtlelib src/rigid2d.cpp src/diff_drive.cpp src/ekf.cpp)
 
 # find dependencies
 find_package(Armadillo REQUIRED)
+include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 # Public include directories can be used by other targets that link against turtlelib
 # By adding include/ to the include path, this means that files in e.g., include/turtlelib
 # can be included with #include"turtlelib/file.hpp"
 # target_include_directories(turtlelib PUBLIC include/)
 # Use target_include_directories so that #include"mylibrary/header.hpp" works
-# The use of the <BUILD_INTERFACE> and <INSTALL_INTERFACE> is because when
+# The use of the <BUILD_INTERFACE>${ARMADILLO_LIBRARIES} and <INSTALL_INTERFACE> is because when
 # Using the library from the build directory or after installation
 # During build, the headers are read from the source code directory
 # When used from the installed location, headers are in the 

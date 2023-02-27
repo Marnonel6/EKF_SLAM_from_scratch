@@ -24,6 +24,7 @@ find_package(turtlelib REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(nuturtle_control REQUIRED)
 find_package(Armadillo REQUIRED)
+include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 if(NOT CMAKE_CROSSCOMPILING)
     # CMake also has the ability to generate doxygen documentation
@@ -46,7 +47,7 @@ endif()
 
 add_executable(slam src/slam.cpp)
 ament_target_dependencies(slam rclcpp sensor_msgs nav_msgs tf2_ros tf2 geometry_msgs nuturtle_control)
-target_link_libraries(slam turtlelib::turtlelib "${cpp_typesupport_target}")
+target_link_libraries(slam turtlelib::turtlelib "${cpp_typesupport_target}" ${ARMADILLO_LIBRARIES})
 
 install(TARGETS
   slam

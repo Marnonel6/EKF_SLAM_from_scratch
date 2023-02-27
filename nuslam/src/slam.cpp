@@ -38,6 +38,7 @@
 #include "nav_msgs/msg/odometry.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "turtlelib/diff_drive.hpp"
+#include "turtlelib/ekf.hpp"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -138,6 +139,7 @@ private:
   turtlelib::Wheel prev_wheel_pos_{0.0, 0.0};
   turtlelib::Twist2D body_twist_;
   turtlelib::DiffDrive turtle_;
+  turtlelib::EKFSlam ekfSLAM_{};
   nav_msgs::msg::Odometry odom_;
   tf2::Quaternion q_;
   geometry_msgs::msg::TransformStamped t_;
