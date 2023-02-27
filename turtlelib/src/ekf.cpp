@@ -73,7 +73,6 @@ namespace turtlelib
 
 
 
-
         // CALCULATE At matrix
         arma::mat zero_3_2n{m,2*n,arma::fill::zeros};
         arma::mat zero_2n_2n{m,2*n,arma::fill::zeros};
@@ -93,6 +92,67 @@ namespace turtlelib
 
         Q_bar = arma::join_rows(arma::join_cols(Q,zero_3_2n.t()),arma::join_cols(zero_3_2n,zero_2n_2n));
         covariance_estimate = At*covariance*At.t() + Q_bar;
+    }
+
+    void EKFSlam::EKFSlam_correct(double x, double y, size_t j)
+    {
+        // Convert relative measurements to range bearing
+        double r_j = std::sqrt(x*x + y*y);
+        double phi_j = std::atan2(y,x); // Normalize ?? TODO ??
+
+        // Check if landmark has been seen before
+        if (auto search = seen_landmarks.find(j); search != seen_landmarks.end())
+        {
+            // Initialize the landmark estimate x and y coordinates in zai_estimate
+            zai_estimate(m+j,0) = zai_estimate(1,0) + r_j*cos(phi_j + zai_estimate(0,0));
+            zai_estimate(m+j+1,0) = zai_estimate(2,0) + r_j*sin(phi_j + zai_estimate(0,0));
+            // Insert the new landmark index in the unordered_set
+            seen_landmarks.insert(j);
+        }
+
+        // Actual measurements
+        zj(0,0) = r_j;
+        zj(1,0) = phi_j;
+
+        // Estimate measurements
+        Vector2D estimate_rel_dist_j;
+        estimate_rel_dist_j.x = zai_estimate(m+j,0) - zai_estimate(1,0);
+        estimate_rel_dist_j.y = zai_estimate(m+j+1,0) - zai_estimate(2,0);
+        double d_j = estimate_rel_dist_j.x*estimate_rel_dist_j.x + estimate_rel_dist_j.y*estimate_rel_dist_j.y;
+        double r_j_hat = std::sqrt(d_j);
+        double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai_estimate(0,0));
+        zj_hat(0,0) = r_j_hat; // TODO NO ADDED NOISE?? eq13
+        zj_hat(1,0) = phi_j_hat;
+
+        // Calculate H matrix
+        arma::mat zeros_1j(1,2*j);
+        arma::mat zeros_1nj(1,2*n - 2*(j-1));
+        arma::mat temp1(3,3);
+        arma::mat temp2(2,2);
+
+        temp1(1,0) = -1;
+        temp1(0,1) = -estimate_rel_dist_j.x/std::sqrt(d_j);
+        temp1(1,1) = estimate_rel_dist_j.y/d_j;
+        temp1(0,2) = -estimate_rel_dist_j.y/std::sqrt(d_j);
+        temp1(1,2) = estimate_rel_dist_j.x/d_j;
+
+        temp2(0,0) = estimate_rel_dist_j.x/std::sqrt(d_j);
+        temp2(1,0) = -estimate_rel_dist_j.y/d_j;
+        temp2(0,1) = estimate_rel_dist_j.y/std::sqrt(d_j);
+        temp2(1,1) = estimate_rel_dist_j.x/d_j;
+
+        Hj = arma::join_rows(arma::join_rows(temp1,zeros_1j),arma::join_rows(temp2,zeros_1nj));
+
+        // Noise
+        R = arma::mat{j,j,arma::fill::eye}*R_noise;
+        Rj = R.submat(j, j, j+1, j+1);
+        // Kalman gain
+        Ki = covariance_estimate*Hj.t()*(Hj*covariance_estimate*Hj.t() + Rj).i();
+
+        // Update state to corrected prediction
+        zai = zai_estimate + Ki*(zj - zj_hat);
+        // Update covariance
+        covariance = (I - Ki*Hj)*covariance_estimate;
     }
 
 }

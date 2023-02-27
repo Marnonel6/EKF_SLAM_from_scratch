@@ -8,6 +8,7 @@
 #include "turtlelib/rigid2d.hpp"
 #include "turtlelib/diff_drive.hpp"
 #include <armadillo>
+#include <unordered_set>
 
 namespace turtlelib
 {
@@ -17,14 +18,24 @@ namespace turtlelib
     constexpr int m=3;
     /// \brief process noise
     constexpr double wt = 0.0;
+    /// \brief noise on landmarks
+    constexpr double R_noise = 0.0;
+
+    /// \brief Landmark location
+    struct Landmark
+    {
+        /// \brief the x coordinate
+        double x = 0.0;
+
+        /// \brief the y coordinate
+        double y = 0.0;
+    };
+
 
     /// \brief Kinematics of a differential drive robot.
     class EKFSlam
     {
     private:
-        /// \brief State of the robot at time t
-        // arma::colvec qt{m,arma::fill::zeros};
-        // arma::colvec mt{n,arma::fill::zeros};
         /// \brief State of the robot at time t
         arma::colvec zai{};
         /// \brief Covariance
@@ -45,6 +56,20 @@ namespace turtlelib
         arma::mat Q{arma::mat{m,m,arma::fill::eye}*wt};
         /// \brief Process noise for robot motion model
         arma::mat Q_bar{m+2*n,m+2*n,arma::fill::zeros};
+        /// \brief Previously seen landmark id's
+        std::unordered_set<int> seen_landmarks{};
+        /// \brief Actual measurement
+        arma::colvec zj{2,arma::fill::zeros};
+        /// \brief Estimate measurement
+        arma::colvec zj_hat{2,arma::fill::zeros};
+        /// \brief H matrix
+        arma::mat Hj{};
+        /// \brief Kalman gain
+        arma::mat Ki{};
+        /// \brief Noise
+        arma::mat R{2*n,2*n,arma::fill::eye};
+        /// \brief Noise for j landmark
+        arma::mat Rj{};
 
     public:
         /// \brief start at origin and default the uncertainty
@@ -64,6 +89,12 @@ namespace turtlelib
         /// \brief predict/estimate the robot state and propogate the uncertainty
         /// \param twist - twist control at time t
         void EKFSlam_Predict(Twist2D twist);
+
+        /// \brief correction calculations
+        /// \param x - landmark x-coordinate
+        /// \param y - landmark y-coordinate
+        /// \param j - landmark index j
+        void EKFSlam_correct(double x, double y, size_t j);
     };
 }
 
