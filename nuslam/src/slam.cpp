@@ -195,15 +195,21 @@ private:
     // RCLCPP_ERROR_STREAM(get_logger(), "Turtle -> x: " << turtle_.configuration().x << " y: " << turtle_.configuration().y  << " theta: " << turtle_.configuration().theta);
     EKFSlam_.EKFSlam_Predict({turtle_.configuration().theta,turtle_.configuration().x,turtle_.configuration().y});
 
-    // visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
+    visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
 
-    // for (size_t j = 0; j < sensed_landmarks.markers.size(); j++)
-    // {
-    //     if (sensed_landmarks.markers[j].action < 2) // Only use landmarks that the sensor currently sees
-    //     {
-    //         EKFSlam_.EKFSlam_Correct(sensed_landmarks.markers[j].pose.position.x,sensed_landmarks.markers[j].pose.position.y,j);
-    //     }
-    // }
+    for (size_t j = 0; j < sensed_landmarks.markers.size(); j++)
+    {
+        if (sensed_landmarks.markers[j].action < 2) // Only use landmarks that the sensor currently sees
+        {
+            // if (auto search = EKFSlam_.seen_landmarks.find(j); search != EKFSlam_.seen_landmarks.end()){
+            //     RCLCPP_ERROR_STREAM(get_logger(), "seen_landmarks " << *search);
+            // }
+            // else{ RCLCPP_ERROR_STREAM(get_logger(), "_______________NO LANDMARKS");}
+
+            EKFSlam_.EKFSlam_Correct(sensed_landmarks.markers[j].pose.position.x,sensed_landmarks.markers[j].pose.position.y,j);
+            // RCLCPP_ERROR_STREAM(get_logger(), "Hj*estimate*Hj.T " << EKFSlam_.Hj*EKFSlam_.covariance_estimate*EKFSlam_.Hj.t());
+        }
+    }
   }
 
   /// \brief Ensures all values are passed via the launch file
@@ -252,8 +258,8 @@ private:
   /// \brief Broadcasts green robots position
   void transform_broadcast_map_odom()
   {
-    // turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config();
-    turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config_predicted();
+    turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config();
+    // turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config_predicted();
 
     turtlelib::Transform2D Tmap_RobotGreen{{green_turtle.x, green_turtle.y},green_turtle.theta};
     turtlelib::Transform2D TodomGreen_RobotGreen{{turtle_.configuration().x,turtle_.configuration().y},turtle_.configuration().theta};
@@ -261,7 +267,8 @@ private:
 
     Tmap_odomGreen = Tmap_RobotGreen*TodomGreen_RobotGreen.inv();
 
-    RCLCPP_ERROR_STREAM(get_logger(), "green_turtle -> x: " << green_turtle.x << " y: " << green_turtle.y  << " theta: " << green_turtle.theta);
+    // RCLCPP_ERROR_STREAM(get_logger(), "green_turtle -> x: " << green_turtle.x << " y: " << green_turtle.y  << " theta: " << green_turtle.theta);
+    
     // RCLCPP_ERROR_STREAM(get_logger(), "Tmap_odomGreen -> rot: " << Tmap_odomGreen.rotation()<< " trans: "<<Tmap_odomGreen.translation().x<<" "<<Tmap_odomGreen.translation().y);
     // Broadcast TF frames
     t2_.header.stamp = get_clock()->now();

@@ -47,9 +47,9 @@ namespace turtlelib
         // zai_estimate(1) += zai(1) + ut(1);
         // zai_estimate(2) += zai(2) + ut(2);
 
-        zai_estimate(0) += zai(0) + ut(0);
-        zai_estimate(1) += zai(1) + ut(1);
-        zai_estimate(2) += zai(2) + ut(2);
+        zai_estimate(0) = zai(0) + ut(0);
+        zai_estimate(1) = zai(1) + ut(1);
+        zai_estimate(2) = zai(2) + ut(2);
 
 
         // // CALCULATE NEW CURRENT ESTIMATE STATE -> Zai_hat
@@ -106,10 +106,11 @@ namespace turtlelib
     {
         // Convert relative measurements to range bearing
         double r_j = std::sqrt(x*x + y*y);
-        double phi_j = std::atan2(y,x); // Normalize ?? TODO ??
+        double phi_j = normalize_angle(std::atan2(y,x)); // Normalize ?? TODO ??
 
         // Check if landmark has been seen before
-        if (auto search = seen_landmarks.find(j); search != seen_landmarks.end())
+        // if (auto search = seen_landmarks.find(j); search != seen_landmarks.end())
+        if (seen_landmarks.find(j) == seen_landmarks.end())
         {
             // Initialize the landmark estimate x and y coordinates in zai_estimate
             zai_estimate(m+j) = zai_estimate(1) + r_j*cos(phi_j + zai_estimate(0));
@@ -117,6 +118,10 @@ namespace turtlelib
             // Insert the new landmark index in the unordered_set
             seen_landmarks.insert(j);
         }
+
+        // Initialize the landmark estimate x and y coordinates in zai_estimate
+        // zai_estimate(m+j) = zai_estimate(1) + r_j*cos(phi_j + zai_estimate(0));
+        // zai_estimate(m+j+1) = zai_estimate(2) + r_j*sin(phi_j + zai_estimate(0));
 
         // Actual measurements
         zj(0) = r_j;
@@ -154,6 +159,7 @@ namespace turtlelib
         // Noise
         R = arma::mat{2*n,2*n,arma::fill::eye}*R_noise;
         Rj = R.submat(j, j, j+1, j+1);
+        
         // Kalman gain
         Ki = covariance_estimate*Hj.t()*(Hj*covariance_estimate*Hj.t() + Rj).i();
 

@@ -17,9 +17,9 @@ namespace turtlelib
     /// \brief size of robot state vector
     constexpr int m=3;
     /// \brief process noise
-    constexpr double wt = 0.0;
+    constexpr double wt = 0.01;
     /// \brief noise on landmarks
-    constexpr double R_noise = 0.0;
+    constexpr double R_noise = 0.01;
 
     /// \brief Landmark location
     struct Landmark
@@ -43,7 +43,7 @@ namespace turtlelib
         /// \brief Estimate state of the robot at time t
         arma::colvec zai_estimate{m+2*n,arma::fill::zeros};
         /// \brief Covariance estimate
-        arma::mat covariance_estimate{m+2*n,m+2*n,arma::fill::zeros};
+        // arma::mat covariance_estimate{m+2*n,m+2*n,arma::fill::zeros};
         /// \brief Given twist
         arma::colvec ut{m,arma::fill::zeros};
         /// \brief Previous twist
@@ -57,13 +57,13 @@ namespace turtlelib
         /// \brief Process noise for robot motion model
         arma::mat Q_bar{m+2*n,m+2*n,arma::fill::zeros};
         /// \brief Previously seen landmark id's
-        std::unordered_set<int> seen_landmarks{};
+        // std::unordered_set<int> seen_landmarks{};
         /// \brief Actual measurement
         arma::colvec zj{2,arma::fill::zeros};
         /// \brief Estimate measurement
         arma::colvec zj_hat{2,arma::fill::zeros};
         /// \brief H matrix
-        arma::mat Hj{};
+        // arma::mat Hj{};
         /// \brief Kalman gain
         arma::mat Ki{};
         /// \brief Noise
@@ -72,6 +72,12 @@ namespace turtlelib
         arma::mat Rj{};
 
     public:
+        arma::mat Hj{};
+        arma::mat covariance_estimate{m+2*n,m+2*n,arma::fill::zeros};
+        std::unordered_set<int> seen_landmarks{};
+
+
+
         /// \brief start at origin and default the uncertainty
         EKFSlam();
 
