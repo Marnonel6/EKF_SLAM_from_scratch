@@ -104,30 +104,30 @@ namespace turtlelib
         if (auto search = seen_landmarks.find(j); search != seen_landmarks.end())
         {
             // Initialize the landmark estimate x and y coordinates in zai_estimate
-            zai_estimate(m+j,0) = zai_estimate(1,0) + r_j*cos(phi_j + zai_estimate(0,0));
-            zai_estimate(m+j+1,0) = zai_estimate(2,0) + r_j*sin(phi_j + zai_estimate(0,0));
+            zai_estimate(m+j) = zai_estimate(1) + r_j*cos(phi_j + zai_estimate(0));
+            zai_estimate(m+j+1) = zai_estimate(2) + r_j*sin(phi_j + zai_estimate(0));
             // Insert the new landmark index in the unordered_set
             seen_landmarks.insert(j);
         }
 
         // Actual measurements
-        zj(0,0) = r_j;
-        zj(1,0) = phi_j;
+        zj(0) = r_j;
+        zj(1) = phi_j;
 
         // Estimate measurements
         Vector2D estimate_rel_dist_j;
-        estimate_rel_dist_j.x = zai_estimate(m+j,0) - zai_estimate(1,0);
-        estimate_rel_dist_j.y = zai_estimate(m+j+1,0) - zai_estimate(2,0);
+        estimate_rel_dist_j.x = zai_estimate(m+j) - zai_estimate(1);
+        estimate_rel_dist_j.y = zai_estimate(m+j+1) - zai_estimate(2);
         double d_j = estimate_rel_dist_j.x*estimate_rel_dist_j.x + estimate_rel_dist_j.y*estimate_rel_dist_j.y;
         double r_j_hat = std::sqrt(d_j);
-        double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai_estimate(0,0));
-        zj_hat(0,0) = r_j_hat; // TODO NO ADDED NOISE?? eq13
-        zj_hat(1,0) = phi_j_hat;
+        double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai_estimate(0));
+        zj_hat(0) = r_j_hat; // TODO NO ADDED NOISE?? eq13
+        zj_hat(1) = phi_j_hat;
 
         // Calculate H matrix
-        arma::mat zeros_1j(1,2*j);
-        arma::mat zeros_1nj(1,2*n - 2*(j-1));
-        arma::mat temp1(3,3);
+        arma::mat zeros_1j(2,2*j);
+        arma::mat zeros_1nj(2,2*n - 2*(j+1));
+        arma::mat temp1(2,3);
         arma::mat temp2(2,2);
 
         temp1(1,0) = -1;
@@ -144,7 +144,7 @@ namespace turtlelib
         Hj = arma::join_rows(arma::join_rows(temp1,zeros_1j),arma::join_rows(temp2,zeros_1nj));
 
         // Noise
-        R = arma::mat{j,j,arma::fill::eye}*R_noise;
+        R = arma::mat{2*n,2*n,arma::fill::eye}*R_noise;
         Rj = R.submat(j, j, j+1, j+1);
         // Kalman gain
         Ki = covariance_estimate*Hj.t()*(Hj*covariance_estimate*Hj.t() + Rj).i();

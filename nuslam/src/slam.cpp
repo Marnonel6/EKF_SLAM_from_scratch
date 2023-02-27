@@ -188,8 +188,15 @@ private:
   {
     EKFSlam_.EKFSlam_Predict(body_twist_);
 
-    // for ()
-    //     EKFSlam_Correct(x,y,j);
+    visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
+
+    for (size_t j = 0; j < sensed_landmarks.markers.size(); j++)
+    {
+        if (sensed_landmarks.markers[j].action < 2) // Only use landmarks that the sensor currently sees
+        {
+            EKFSlam_.EKFSlam_Correct(sensed_landmarks.markers[j].pose.position.x,sensed_landmarks.markers[j].pose.position.y,j);
+        }
+    }
   }
 
   /// \brief Ensures all values are passed via the launch file
