@@ -45,7 +45,7 @@ namespace turtlelib
         /// \brief Covariance estimate
         arma::mat covariance_estimate{m+2*n,m+2*n,arma::fill::zeros};
         /// \brief Given twist
-        arma::colvec ut{m};
+        arma::colvec ut{m,arma::fill::zeros};
         /// \brief Previous twist
         Twist2D prev_twist;
         /// \brief Identity matrix
@@ -94,7 +94,7 @@ namespace turtlelib
         /// \param x - landmark x-coordinate
         /// \param y - landmark y-coordinate
         /// \param j - landmark index j
-        void EKFSlam_correct(double x, double y, size_t j);
+        void EKFSlam_Correct(double x, double y, size_t j);
     };
 }
 

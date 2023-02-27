@@ -44,6 +44,7 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nuturtle_control/srv/initial_config.hpp"
 #include "nav_msgs/msg/path.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 using namespace std::chrono_literals;
 
@@ -59,11 +60,11 @@ using namespace std::chrono_literals;
 ///  \param wheelradius_ (double): The radius of the wheels [m]
 ///  \param track_width_ (double): The distance between the wheels [m]
 
-class odometry : public rclcpp::Node
+class slam : public rclcpp::Node
 {
 public:
-  odometry()
-  : Node("odometry")
+  slam()
+  : Node("slam")
   {
     // Parameter descirption
     auto body_id_des = rcl_interfaces::msg::ParameterDescriptor{};
@@ -102,6 +103,8 @@ public:
 
     // Update object with params
     turtle_ = turtlelib::DiffDrive{wheelradius_, track_width_};
+    // Extended Kalman Filter SLAM object
+    EKFSlam_ = turtlelib::EKFSlam{turtle_.configuration()};
 
     // Publishers
     odom_publisher_ = create_publisher<nav_msgs::msg::Odometry>(
@@ -112,14 +115,18 @@ public:
     // Subscribers
     joint_states_subscriber_ = create_subscription<sensor_msgs::msg::JointState>(
       "joint_states", 10, std::bind(
-        &odometry::joint_states_callback,
+        &slam::joint_states_callback,
+        this, std::placeholders::_1));
+    fake_sensor_subscriber_ = create_subscription<visualization_msgs::msg::MarkerArray>(
+      "/nusim/fake_sensor", 10, std::bind(
+        &slam::fake_sensor_callback,
         this, std::placeholders::_1));
 
     // Initial pose service
     initial_pose_server_ = create_service<nuturtle_control::srv::InitialConfig>(
       "initial_pose",
       std::bind(
-        &odometry::initial_pose_callback, this, std::placeholders::_1,
+        &slam::initial_pose_callback, this, std::placeholders::_1,
         std::placeholders::_2));
 
     // Initialize the transform broadcaster
@@ -139,7 +146,7 @@ private:
   turtlelib::Wheel prev_wheel_pos_{0.0, 0.0};
   turtlelib::Twist2D body_twist_;
   turtlelib::DiffDrive turtle_;
-  turtlelib::EKFSlam ekfSLAM_{};
+  turtlelib::EKFSlam EKFSlam_{};
   nav_msgs::msg::Odometry odom_;
   tf2::Quaternion q_;
   geometry_msgs::msg::TransformStamped t_;
@@ -151,6 +158,7 @@ private:
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr green_turtle_publisher_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_subscriber_;
+  rclcpp::Subscription<visualization_msgs::msg::MarkerArray>::SharedPtr fake_sensor_subscriber_;
   rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
@@ -173,6 +181,15 @@ private:
 
     prev_wheel_pos_.left = msg.position[0];
     prev_wheel_pos_.right = msg.position[1];
+  }
+
+  /// \brief Joint states topic callback
+  void fake_sensor_callback(const visualization_msgs::msg::MarkerArray & msg)
+  {
+    EKFSlam_.EKFSlam_Predict(body_twist_);
+
+    // for ()
+    //     EKFSlam_Correct(x,y,j);
   }
 
   /// \brief Ensures all values are passed via the launch file
@@ -264,7 +281,7 @@ private:
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<odometry>());
+  rclcpp::spin(std::make_shared<slam>());
   rclcpp::shutdown();
   return 0;
 }
