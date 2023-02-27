@@ -47,7 +47,7 @@ namespace turtlelib
         /// \brief Given twist
         arma::colvec ut{m,arma::fill::zeros};
         /// \brief Previous twist
-        Twist2D prev_twist;
+        Twist2D prev_twist{0.0,0.0,0.0};
         /// \brief Identity matrix
         arma::mat I{m+2*n,m+2*n,arma::fill::eye};
         /// \brief At matrix
@@ -98,6 +98,9 @@ namespace turtlelib
 
         /// \brief get SLAM corrected configuration
         Robot_configuration EKFSlam_config();
+
+        /// \brief get SLAM predicted configuration
+        Robot_configuration EKFSlam_config_predicted();
     };
 }
 

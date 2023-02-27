@@ -43,32 +43,41 @@ namespace turtlelib
         // Set previous twist
         prev_twist = twist;
 
+        // zai_estimate(0) += zai(0) + ut(0);
+        // zai_estimate(1) += zai(1) + ut(1);
+        // zai_estimate(2) += zai(2) + ut(2);
+
+        // zai_estimate(0) += zai(0) + ut(0);
+        // zai_estimate(1) += zai(1) + ut(1);
+        // zai_estimate(2) += zai(2) + ut(2);
+
+
         // CALCULATE NEW CURRENT ESTIMATE STATE -> Zai_hat
         arma::colvec delta_state{m+2*n,arma::fill::zeros};
         if (almost_equal(ut(0), 0.0)) // Zero rotational velocity
         {
-            delta_state(1) = ut(1)*cos(zai(1));
-            delta_state(2) = ut(1)*sin(zai(1));
+            delta_state(1) = ut(1)*cos(zai(0));
+            delta_state(2) = ut(1)*sin(zai(0));
 
             // arma::colvec noise{m+2*n,arma::fill::zeros};
             // noise(0,0) = 
             // noise(1,0) = 
             // noise(2,0) = 
 
-            zai_estimate = zai + delta_state; //+ noise;
+            zai_estimate += zai + delta_state; //+ noise;
         }
         else // Non-zero rotational velocity
         {
             delta_state(0) = ut(0);
-            delta_state(1) = -(ut(1)/ut(0))*sin(zai(1)) + (ut(1)/ut(0))*sin(zai(1)+ut(0));
-            delta_state(2) = (ut(1)/ut(0))*cos(zai(1)) + (ut(1)/ut(0))*cos(zai(1)+ut(0));
+            delta_state(1) = -((ut(1)/ut(0))*sin(zai(0))) + (ut(1)/ut(0))*sin(zai(0)+ut(0));
+            delta_state(2) = (ut(1)/ut(0))*cos(zai(0)) - (ut(1)/ut(0))*cos(zai(0)+ut(0));
 
             // arma::colvec noise{m+2*n,arma::fill::zeros};
             // noise(0,0) = 
             // noise(1,0) = 
             // noise(2,0) = 
 
-            zai_estimate = zai + delta_state; //+ noise;
+            zai_estimate += zai + delta_state; //+ noise;
         }
 
 
@@ -79,14 +88,14 @@ namespace turtlelib
         arma::mat temp(m,m,arma::fill::zeros);
         if (almost_equal(ut(0), 0.0)) // Zero rotational velocity
         {
-            temp(1,0) = -(ut(1))*sin(zai(1));
-            temp(2,0) = ut(1)*cos(zai(1));
+            temp(1,0) = -(ut(1))*sin(zai(0));
+            temp(2,0) = ut(1)*cos(zai(0));
             At = I + arma::join_rows(arma::join_cols(temp,zero_3_2n.t()),arma::join_cols(zero_3_2n,zero_2n_2n));
         }
         else // Non-zero rotational velocity
         {
-            temp(1,0) = -(ut(1)/ut(0))*cos(zai(1)) + (ut(1)/ut(0))*cos(zai(1)+ut(0));
-            temp(2,0) = -(ut(1)/ut(0))*sin(zai(1)) + (ut(1)/ut(0))*sin(zai(1)+ut(0));
+            temp(1,0) = -(ut(1)/ut(0))*cos(zai(0)) + (ut(1)/ut(0))*cos(zai(0)+ut(0));
+            temp(2,0) = -(ut(1)/ut(0))*sin(zai(0)) + (ut(1)/ut(0))*sin(zai(0)+ut(0));
             At = I + arma::join_rows(arma::join_cols(temp,zero_3_2n.t()),arma::join_cols(zero_3_2n,zero_2n_2n));
         }
 
@@ -158,6 +167,11 @@ namespace turtlelib
     Robot_configuration EKFSlam::EKFSlam_config()
     {
         return {zai(1), zai(2), zai(0)};
+    }
+
+    Robot_configuration EKFSlam::EKFSlam_config_predicted()
+    {
+        return {zai_estimate(1), zai_estimate(2), zai_estimate(0)};
     }
 
 }
