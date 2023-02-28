@@ -106,22 +106,18 @@ namespace turtlelib
     {
         // Convert relative measurements to range bearing
         double r_j = std::sqrt(x*x + y*y);
-        double phi_j = normalize_angle(std::atan2(y,x)); // Normalize ?? TODO ??
+        double phi_j = std::atan2(y,x); // Normalize ?? TODO ??
 
         // Check if landmark has been seen before
         // if (auto search = seen_landmarks.find(j); search != seen_landmarks.end())
         if (seen_landmarks.find(j) == seen_landmarks.end())
         {
             // Initialize the landmark estimate x and y coordinates in zai_estimate
-            zai_estimate(m+j) = zai_estimate(1) + r_j*cos(phi_j + zai_estimate(0));
-            zai_estimate(m+j+1) = zai_estimate(2) + r_j*sin(phi_j + zai_estimate(0));
+            zai_estimate(m+2*j) = zai_estimate(1) + r_j*cos(phi_j + zai_estimate(0));
+            zai_estimate(m+2*j+1) = zai_estimate(2) + r_j*sin(phi_j + zai_estimate(0));
             // Insert the new landmark index in the unordered_set
             seen_landmarks.insert(j);
         }
-
-        // Initialize the landmark estimate x and y coordinates in zai_estimate
-        // zai_estimate(m+j) = zai_estimate(1) + r_j*cos(phi_j + zai_estimate(0));
-        // zai_estimate(m+j+1) = zai_estimate(2) + r_j*sin(phi_j + zai_estimate(0));
 
         // Actual measurements
         zj(0) = r_j;
@@ -129,8 +125,8 @@ namespace turtlelib
 
         // Estimate measurements
         Vector2D estimate_rel_dist_j;
-        estimate_rel_dist_j.x = zai_estimate(m+j) - zai_estimate(1);
-        estimate_rel_dist_j.y = zai_estimate(m+j+1) - zai_estimate(2);
+        estimate_rel_dist_j.x = zai_estimate(m+2*j) - zai_estimate(1);
+        estimate_rel_dist_j.y = zai_estimate(m+2*j+1) - zai_estimate(2);
         double d_j = estimate_rel_dist_j.x*estimate_rel_dist_j.x + estimate_rel_dist_j.y*estimate_rel_dist_j.y;
         double r_j_hat = std::sqrt(d_j);
         double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai_estimate(0));
@@ -147,7 +143,7 @@ namespace turtlelib
         temp1(0,1) = -estimate_rel_dist_j.x/std::sqrt(d_j);
         temp1(1,1) = estimate_rel_dist_j.y/d_j;
         temp1(0,2) = -estimate_rel_dist_j.y/std::sqrt(d_j);
-        temp1(1,2) = estimate_rel_dist_j.x/d_j;
+        temp1(1,2) = -estimate_rel_dist_j.x/d_j;
 
         temp2(0,0) = estimate_rel_dist_j.x/std::sqrt(d_j);
         temp2(1,0) = -estimate_rel_dist_j.y/d_j;
@@ -165,6 +161,7 @@ namespace turtlelib
 
         // Update state to corrected prediction
         zai = zai_estimate + Ki*(zj - zj_hat);
+        // zai(0) = normalize_angle(zai(0));
         // Update covariance
         covariance = (I - Ki*Hj)*covariance_estimate;
     }

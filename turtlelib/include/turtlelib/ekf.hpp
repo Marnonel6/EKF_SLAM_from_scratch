@@ -37,7 +37,7 @@ namespace turtlelib
     {
     private:
         /// \brief State of the robot at time t
-        arma::colvec zai{};
+        // arma::colvec zai{};
         /// \brief Covariance
         arma::mat covariance{};
         /// \brief Estimate state of the robot at time t
@@ -65,7 +65,7 @@ namespace turtlelib
         /// \brief H matrix
         // arma::mat Hj{};
         /// \brief Kalman gain
-        arma::mat Ki{};
+        // arma::mat Ki{};
         /// \brief Noise
         arma::mat R{2*n,2*n,arma::fill::eye};
         /// \brief Noise for j landmark
@@ -75,6 +75,8 @@ namespace turtlelib
         arma::mat Hj{};
         arma::mat covariance_estimate{m+2*n,m+2*n,arma::fill::zeros};
         std::unordered_set<int> seen_landmarks{};
+        arma::colvec zai{};
+        arma::mat Ki{};
 
 
 

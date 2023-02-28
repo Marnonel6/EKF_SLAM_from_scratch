@@ -666,6 +666,7 @@ private:
     //   sensor_obstacle_.frame_locked = false;
       sensor_obstacle_.header.stamp = get_clock()->now();
     //   sensor_obstacle_.header.stamp.nanosec = -50000000 + sensor_obstacle_.header.stamp.nanosec;
+      sensor_obstacle_.header.stamp.nanosec = -100000000 + sensor_obstacle_.header.stamp.nanosec; // TODO
       sensor_obstacle_.id = i;
       sensor_obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
       sensor_obstacle_.pose.position.x = obs_red_noise.x;

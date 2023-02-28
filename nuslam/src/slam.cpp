@@ -198,9 +198,11 @@ private:
     visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
 
     for (size_t j = 0; j < sensed_landmarks.markers.size(); j++)
-    {
+    {  
         if (sensed_landmarks.markers[j].action < 2) // Only use landmarks that the sensor currently sees
         {
+            RCLCPP_ERROR_STREAM(get_logger(), " j = " << j << " x " << sensed_landmarks.markers[j].pose.position.x << " y " << sensed_landmarks.markers[j].pose.position.y);
+            // RCLCPP_ERROR_STREAM(get_logger(), "\n j = " << j);
             // if (auto search = EKFSlam_.seen_landmarks.find(j); search != EKFSlam_.seen_landmarks.end()){
             //     RCLCPP_ERROR_STREAM(get_logger(), "seen_landmarks " << *search);
             // }
@@ -208,8 +210,12 @@ private:
 
             EKFSlam_.EKFSlam_Correct(sensed_landmarks.markers[j].pose.position.x,sensed_landmarks.markers[j].pose.position.y,j);
             // RCLCPP_ERROR_STREAM(get_logger(), "Hj*estimate*Hj.T " << EKFSlam_.Hj*EKFSlam_.covariance_estimate*EKFSlam_.Hj.t());
+            // RCLCPP_ERROR_STREAM(get_logger(), "zai = " << EKFSlam_.zai);
+            // RCLCPP_ERROR_STREAM(get_logger(), "\n\n" << EKFSlam_.Hj);
+            RCLCPP_ERROR_STREAM(get_logger(), "\n" << EKFSlam_.Kj);
         }
     }
+    // throw 1;
   }
 
   /// \brief Ensures all values are passed via the launch file
@@ -294,10 +300,10 @@ private:
   {
     // Update ground truth green turtle path
     green_path_.header.stamp = get_clock()->now();
-    green_path_.header.frame_id = "nusim/world";
+    green_path_.header.frame_id = "green/odom";
     // Create new pose stamped
     green_pose_stamped_.header.stamp = get_clock()->now();
-    green_pose_stamped_.header.frame_id = "nusim/world";
+    green_pose_stamped_.header.frame_id = "green/odom";
     green_pose_stamped_.pose.position.x = turtle_.configuration().x;
     green_pose_stamped_.pose.position.y = turtle_.configuration().y;
     green_pose_stamped_.pose.position.z = 0.0;
