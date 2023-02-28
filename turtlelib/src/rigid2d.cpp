@@ -149,16 +149,24 @@ namespace turtlelib
 
     double normalize_angle(double rad)
     {
-        double rad_wrap = fmod(rad, 2.0*PI); // Angle wrapping - Modulas operand for floats
-        if (rad_wrap > PI)
-        {
-            rad_wrap = -PI + (rad_wrap - PI); // -Pi side / CCW rotation
-        }
-        else if (rad_wrap <= -PI)
-        {
-            rad_wrap = PI - (rad_wrap + PI); // Pi side / CW rotation
-        }
-        return rad_wrap;
+        // double rad_wrap = fmod(rad, 2.0*PI); // Angle wrapping - Modulas operand for floats
+        // if (rad_wrap > PI)
+        // {
+        //     rad_wrap = -PI + (rad_wrap - PI); // -Pi side / CCW rotation
+        // }
+        // else if (rad_wrap <= -PI)
+        // {
+        //     rad_wrap = PI - (rad_wrap + PI); // Pi side / CW rotation
+        // }
+        // return rad_wrap;
+
+        double deg = rad2deg(rad); // 180
+        // deg = fmod(deg + 180, 360); // 0
+        // if (deg < 0) {
+        //   deg += 360;
+        // }
+        // return deg2rad(deg-180); // Makes it negative
+        return deg2rad(remainder(deg, 360.0));
     }
 
     Vector2D & Vector2D::operator+=(const Vector2D & rhs)

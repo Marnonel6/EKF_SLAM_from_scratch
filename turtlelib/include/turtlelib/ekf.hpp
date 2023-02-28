@@ -13,7 +13,7 @@
 namespace turtlelib
 {
     /// \brief maximum number of obstacles
-    constexpr int n=20;
+    constexpr int n=3;
     /// \brief size of robot state vector
     constexpr int m=3;
     /// \brief process noise
@@ -39,7 +39,7 @@ namespace turtlelib
         /// \brief State of the robot at time t
         // arma::colvec zai{};
         /// \brief Covariance
-        arma::mat covariance{};
+        // arma::mat covariance{};
         /// \brief Estimate state of the robot at time t
         arma::colvec zai_estimate{m+2*n,arma::fill::zeros};
         /// \brief Covariance estimate
@@ -59,9 +59,9 @@ namespace turtlelib
         /// \brief Previously seen landmark id's
         // std::unordered_set<int> seen_landmarks{};
         /// \brief Actual measurement
-        arma::colvec zj{2,arma::fill::zeros};
+        // arma::colvec zj{2,arma::fill::zeros};
         /// \brief Estimate measurement
-        arma::colvec zj_hat{2,arma::fill::zeros};
+        // arma::colvec zj_hat{2,arma::fill::zeros};
         /// \brief H matrix
         // arma::mat Hj{};
         /// \brief Kalman gain
@@ -77,6 +77,9 @@ namespace turtlelib
         std::unordered_set<int> seen_landmarks{};
         arma::colvec zai{};
         arma::mat Ki{};
+        arma::mat covariance{};
+        arma::colvec zj{2,arma::fill::zeros};
+        arma::colvec zj_hat{2,arma::fill::zeros};
 
 
 

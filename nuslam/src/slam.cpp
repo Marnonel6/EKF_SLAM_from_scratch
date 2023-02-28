@@ -201,7 +201,7 @@ private:
     {  
         if (sensed_landmarks.markers[j].action < 2) // Only use landmarks that the sensor currently sees
         {
-            RCLCPP_ERROR_STREAM(get_logger(), " j = " << j << " x " << sensed_landmarks.markers[j].pose.position.x << " y " << sensed_landmarks.markers[j].pose.position.y);
+            // RCLCPP_ERROR_STREAM(get_logger(), " j = " << j << " x " << sensed_landmarks.markers[j].pose.position.x << " y " << sensed_landmarks.markers[j].pose.position.y);
             // RCLCPP_ERROR_STREAM(get_logger(), "\n j = " << j);
             // if (auto search = EKFSlam_.seen_landmarks.find(j); search != EKFSlam_.seen_landmarks.end()){
             //     RCLCPP_ERROR_STREAM(get_logger(), "seen_landmarks " << *search);
@@ -210,9 +210,13 @@ private:
 
             EKFSlam_.EKFSlam_Correct(sensed_landmarks.markers[j].pose.position.x,sensed_landmarks.markers[j].pose.position.y,j);
             // RCLCPP_ERROR_STREAM(get_logger(), "Hj*estimate*Hj.T " << EKFSlam_.Hj*EKFSlam_.covariance_estimate*EKFSlam_.Hj.t());
-            // RCLCPP_ERROR_STREAM(get_logger(), "zai = " << EKFSlam_.zai);
+            // RCLCPP_ERROR_STREAM(get_logger(), "\n zai = " << EKFSlam_.zai);
+            // RCLCPP_ERROR_STREAM(get_logger(), "\n covariance = " << EKFSlam_.covariance);
+            RCLCPP_ERROR_STREAM(get_logger(), "\n covariance_estimate = \n" << EKFSlam_.covariance_estimate);
             // RCLCPP_ERROR_STREAM(get_logger(), "\n\n" << EKFSlam_.Hj);
-            RCLCPP_ERROR_STREAM(get_logger(), "\n" << EKFSlam_.Kj);
+            // RCLCPP_ERROR_STREAM(get_logger(), "\n Ki \n" << EKFSlam_.Ki);
+            // RCLCPP_ERROR_STREAM(get_logger(), "\n zj \n" << EKFSlam_.zj);
+            // RCLCPP_ERROR_STREAM(get_logger(), "\n zj_hat \n" << EKFSlam_.zj_hat);
         }
     }
     // throw 1;
