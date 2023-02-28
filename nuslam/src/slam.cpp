@@ -157,6 +157,14 @@ private:
   geometry_msgs::msg::PoseStamped green_pose_stamped_;
   nav_msgs::msg::Path green_path_;
 
+
+  // TODO
+  turtlelib::Robot_configuration green_turtle{};
+  turtlelib::Transform2D Tmap_RobotGreen{};
+  turtlelib::Transform2D TodomGreen_RobotGreen{};
+  turtlelib::Transform2D Tmap_odomGreen{};
+  tf2::Quaternion q2_;
+
   // Create objects
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr green_turtle_publisher_;
@@ -212,7 +220,7 @@ private:
             // RCLCPP_ERROR_STREAM(get_logger(), "Hj*estimate*Hj.T " << EKFSlam_.Hj*EKFSlam_.covariance_estimate*EKFSlam_.Hj.t());
             // RCLCPP_ERROR_STREAM(get_logger(), "\n zai = " << EKFSlam_.zai);
             // RCLCPP_ERROR_STREAM(get_logger(), "\n covariance_estimate = \n" << EKFSlam_.covariance_estimate);
-            RCLCPP_ERROR_STREAM(get_logger(), "\n covariance = \n" << EKFSlam_.covariance);
+            // RCLCPP_ERROR_STREAM(get_logger(), "\n covariance = \n" << EKFSlam_.covariance);
             // RCLCPP_ERROR_STREAM(get_logger(), "\n\n" << EKFSlam_.Hj);
             // RCLCPP_ERROR_STREAM(get_logger(), "\n Ki \n" << EKFSlam_.Ki);
             // RCLCPP_ERROR_STREAM(get_logger(), "\n zj \n" << EKFSlam_.zj);
@@ -270,12 +278,19 @@ private:
   /// \brief Broadcasts green robots position
   void transform_broadcast_map_odom()
   {
-    turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config();
+    // turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config();
+    // // turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config_predicted();
+
+    // turtlelib::Transform2D Tmap_RobotGreen{{green_turtle.x, green_turtle.y},green_turtle.theta};
+    // turtlelib::Transform2D TodomGreen_RobotGreen{{turtle_.configuration().x,turtle_.configuration().y},turtle_.configuration().theta};
+    // turtlelib::Transform2D Tmap_odomGreen{};
+
+    green_turtle = EKFSlam_.EKFSlam_config();
     // turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config_predicted();
 
-    turtlelib::Transform2D Tmap_RobotGreen{{green_turtle.x, green_turtle.y},green_turtle.theta};
-    turtlelib::Transform2D TodomGreen_RobotGreen{{turtle_.configuration().x,turtle_.configuration().y},turtle_.configuration().theta};
-    turtlelib::Transform2D Tmap_odomGreen{};
+    Tmap_RobotGreen = {{green_turtle.x, green_turtle.y},green_turtle.theta};
+    TodomGreen_RobotGreen = {{turtle_.configuration().x,turtle_.configuration().y},turtle_.configuration().theta};
+    // Tmap_odomGreen{};
 
     Tmap_odomGreen = Tmap_RobotGreen*TodomGreen_RobotGreen.inv();
 
@@ -291,7 +306,7 @@ private:
     // t2_.transform.translation.x = -(green_turtle.x - turtle_.configuration().x);
     // t2_.transform.translation.y = -(green_turtle.y - turtle_.configuration().y);
     t2_.transform.translation.z = 0.0;     // Turtle only exists in 2D
-    tf2::Quaternion q2_;
+    // tf2::Quaternion q2_;
     q2_.setRPY(0, 0, Tmap_odomGreen.rotation());       // Rotation around z-axis
     // // q_.setRPY(0, 0, turtlelib::normalize_angle(-(green_turtle.theta - turtle_.configuration().theta)));       // Rotation around z-axis
     t2_.transform.rotation.x = q2_.x();
@@ -306,17 +321,17 @@ private:
   {
     // Update ground truth green turtle path
     green_path_.header.stamp = get_clock()->now();
-    green_path_.header.frame_id = "green/odom";
+    green_path_.header.frame_id = "map"; // TODO was green/odom
     // Create new pose stamped
     green_pose_stamped_.header.stamp = get_clock()->now();
-    green_pose_stamped_.header.frame_id = "green/odom";
-    green_pose_stamped_.pose.position.x = turtle_.configuration().x;
-    green_pose_stamped_.pose.position.y = turtle_.configuration().y;
+    green_pose_stamped_.header.frame_id = "map"; // TODO was green/odom
+    green_pose_stamped_.pose.position.x = Tmap_RobotGreen.translation().x; //turtle_.configuration().x;
+    green_pose_stamped_.pose.position.y = Tmap_RobotGreen.translation().y; //turtle_.configuration().y;
     green_pose_stamped_.pose.position.z = 0.0;
-    green_pose_stamped_.pose.orientation.x = q_.x();
-    green_pose_stamped_.pose.orientation.y = q_.y();
-    green_pose_stamped_.pose.orientation.z = q_.z();
-    green_pose_stamped_.pose.orientation.w = q_.w();
+    green_pose_stamped_.pose.orientation.x = q2_.x(); // q_.x();
+    green_pose_stamped_.pose.orientation.y = q2_.y(); // q_.y();
+    green_pose_stamped_.pose.orientation.z = q2_.z(); // q_.z();
+    green_pose_stamped_.pose.orientation.w = q2_.w(); // q_.w();
     // Append pose stamped
     green_path_.poses.push_back(green_pose_stamped_);
     green_turtle_publisher_->publish(green_path_);

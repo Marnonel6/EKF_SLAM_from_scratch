@@ -17,7 +17,7 @@ namespace turtlelib
     /// \brief size of robot state vector
     constexpr int m=3;
     /// \brief process noise
-    constexpr double wt = 0.01;
+    constexpr double wt = 0.001;
     /// \brief noise on landmarks
     constexpr double R_noise = 0.01;
 
