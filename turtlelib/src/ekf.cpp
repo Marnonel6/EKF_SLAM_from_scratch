@@ -9,12 +9,16 @@ namespace turtlelib
     EKFSlam::EKFSlam() : zai{m+2*n,arma::fill::zeros}, covariance{m+2*n,m+2*n,arma::fill::zeros}
     {
         initialize_covariance();
+        // TODO2
+        zai_estimate = zai;
     }
 
     EKFSlam::EKFSlam(Robot_configuration robot_config): zai{m+2*n,arma::fill::zeros}, covariance{m+2*n,m+2*n,arma::fill::zeros}
     {
         initialize_covariance();
         initialize_robot_state(robot_config);
+        // TODO2
+        zai_estimate = zai;
     }
 
     void EKFSlam::initialize_covariance()
@@ -25,6 +29,8 @@ namespace turtlelib
         cov_zero1 = arma::mat {m,2*n,arma::fill::zeros};
         cov_zero2 = arma::mat {2*n,m,arma::fill::zeros};
         covariance = arma::join_rows(arma::join_cols(cov_state,cov_zero2), arma::join_cols(cov_zero1,cov_obstacles));
+        // TODO2
+        covariance_estimate = covariance;
     }
 
     void EKFSlam::initialize_robot_state(Robot_configuration robot_config)
@@ -47,9 +53,14 @@ namespace turtlelib
         // zai_estimate(1) += zai(1) + ut(1);
         // zai_estimate(2) += zai(2) + ut(2);
 
-        zai_estimate(0) = zai(0) + ut(0);
-        zai_estimate(1) = zai(1) + ut(1);
-        zai_estimate(2) = zai(2) + ut(2);
+        // zai_estimate(0) = zai(0) + ut(0);
+        // zai_estimate(1) = zai(1) + ut(1);
+        // zai_estimate(2) = zai(2) + ut(2);
+        // TODO2
+        zai_estimate(0) = zai_estimate(0) + ut(0);
+        zai_estimate(1) = zai_estimate(1) + ut(1);
+        zai_estimate(2) = zai_estimate(2) + ut(2);
+        zai = zai_estimate;
 
 
         // // CALCULATE NEW CURRENT ESTIMATE STATE -> Zai_hat
@@ -99,7 +110,9 @@ namespace turtlelib
         }
 
         Q_bar = arma::join_rows(arma::join_cols(Q,zero_3_2n.t()),arma::join_cols(zero_3_2n,zero_2n_2n));
-        covariance_estimate = At*covariance*At.t() + Q_bar;
+        // covariance_estimate = At*covariance*At.t() + Q_bar;
+        // TODO2
+        covariance_estimate = At*covariance_estimate*At.t() + Q_bar;
     }
 
     void EKFSlam::EKFSlam_Correct(double x, double y, size_t j)
@@ -160,10 +173,16 @@ namespace turtlelib
         Ki = covariance_estimate*Hj.t()*(Hj*covariance_estimate*Hj.t() + Rj).i();
 
         // Update state to corrected prediction
-        zai = zai_estimate + Ki*(zj - zj_hat);
+        // zai = zai_estimate + Ki*(zj - zj_hat);
+        // TODO2
+        zai_estimate = zai_estimate + Ki*(zj - zj_hat);
+        zai = zai_estimate;
         // zai(0) = normalize_angle(zai(0));
         // Update covariance
-        covariance = (I - Ki*Hj)*covariance_estimate;
+        // covariance = (I - Ki*Hj)*covariance_estimate;
+        // TODO2
+        covariance_estimate = (I - Ki*Hj)*covariance_estimate;
+        covariance = covariance_estimate;
     }
 
     Robot_configuration EKFSlam::EKFSlam_config()
