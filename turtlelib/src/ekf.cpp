@@ -9,16 +9,12 @@ namespace turtlelib
     EKFSlam::EKFSlam() : zai{m+2*n,arma::fill::zeros}, covariance{m+2*n,m+2*n,arma::fill::zeros}
     {
         initialize_covariance();
-        // TODO2
-        zai_estimate = zai;
     }
 
     EKFSlam::EKFSlam(Robot_configuration robot_config): zai{m+2*n,arma::fill::zeros}, covariance{m+2*n,m+2*n,arma::fill::zeros}
     {
         initialize_covariance();
         initialize_robot_state(robot_config);
-        // TODO2
-        zai_estimate = zai;
     }
 
     void EKFSlam::initialize_covariance()
@@ -29,8 +25,6 @@ namespace turtlelib
         cov_zero1 = arma::mat {m,2*n,arma::fill::zeros};
         cov_zero2 = arma::mat {2*n,m,arma::fill::zeros};
         covariance = arma::join_rows(arma::join_cols(cov_state,cov_zero2), arma::join_cols(cov_zero1,cov_obstacles));
-        // TODO2
-        covariance_estimate = covariance;
     }
 
     void EKFSlam::initialize_robot_state(Robot_configuration robot_config)
@@ -49,47 +43,9 @@ namespace turtlelib
         // Set previous twist
         prev_twist = twist;
 
-        // zai_estimate(0) += zai(0) + ut(0);
-        // zai_estimate(1) += zai(1) + ut(1);
-        // zai_estimate(2) += zai(2) + ut(2);
-
-        // zai_estimate(0) = zai(0) + ut(0);
-        // zai_estimate(1) = zai(1) + ut(1);
-        // zai_estimate(2) = zai(2) + ut(2);
-        // TODO2
-        zai_estimate(0) = zai_estimate(0) + ut(0);
-        zai_estimate(1) = zai_estimate(1) + ut(1);
-        zai_estimate(2) = zai_estimate(2) + ut(2);
-        zai = zai_estimate;
-
-
-        // // CALCULATE NEW CURRENT ESTIMATE STATE -> Zai_hat
-        // arma::colvec delta_state{m+2*n,arma::fill::zeros};
-        // if (almost_equal(ut(0), 0.0)) // Zero rotational velocity
-        // {
-        //     delta_state(1) = ut(1)*cos(zai(0));
-        //     delta_state(2) = ut(1)*sin(zai(0));
-
-        //     // arma::colvec noise{m+2*n,arma::fill::zeros};
-        //     // noise(0,0) = 
-        //     // noise(1,0) = 
-        //     // noise(2,0) = 
-
-        //     zai_estimate += zai + delta_state; //+ noise;
-        // }
-        // else // Non-zero rotational velocity
-        // {
-        //     delta_state(0) = ut(0);
-        //     delta_state(1) = -((ut(1)/ut(0))*sin(zai(0))) + (ut(1)/ut(0))*sin(zai(0)+ut(0));
-        //     delta_state(2) = (ut(1)/ut(0))*cos(zai(0)) - (ut(1)/ut(0))*cos(zai(0)+ut(0));
-
-        //     // arma::colvec noise{m+2*n,arma::fill::zeros};
-        //     // noise(0,0) = 
-        //     // noise(1,0) = 
-        //     // noise(2,0) = 
-
-        //     zai_estimate += zai + delta_state; //+ noise;
-        // }
+        zai(0) = zai(0) + ut(0);
+        zai(1) = zai(1) + ut(1);
+        zai(2) = zai(2) + ut(2);
 
 
         // CALCULATE At matrix
@@ -110,9 +66,7 @@ namespace turtlelib
         }
 
         Q_bar = arma::join_rows(arma::join_cols(Q,zero_3_2n.t()),arma::join_cols(zero_3_2n,zero_2n_2n));
-        // covariance_estimate = At*covariance*At.t() + Q_bar;
-        // TODO2
-        covariance_estimate = At*covariance_estimate*At.t() + Q_bar;
+        covariance = At*covariance*At.t() + Q_bar;
     }
 
     void EKFSlam::EKFSlam_Correct(double x, double y, size_t j)
@@ -125,9 +79,9 @@ namespace turtlelib
         // if (auto search = seen_landmarks.find(j); search != seen_landmarks.end())
         if (seen_landmarks.find(j) == seen_landmarks.end())
         {
-            // Initialize the landmark estimate x and y coordinates in zai_estimate
-            zai_estimate(m+2*j) = zai_estimate(1) + r_j*cos(phi_j + zai_estimate(0));
-            zai_estimate(m+2*j+1) = zai_estimate(2) + r_j*sin(phi_j + zai_estimate(0));
+            // Initialize the landmark estimate x and y coordinates in zai
+            zai(m+2*j) = zai(1) + r_j*cos(phi_j + zai(0));
+            zai(m+2*j+1) = zai(2) + r_j*sin(phi_j + zai(0));
             // Insert the new landmark index in the unordered_set
             seen_landmarks.insert(j);
         }
@@ -138,11 +92,11 @@ namespace turtlelib
 
         // Estimate measurements
         Vector2D estimate_rel_dist_j;
-        estimate_rel_dist_j.x = zai_estimate(m+2*j) - zai_estimate(1);
-        estimate_rel_dist_j.y = zai_estimate(m+2*j+1) - zai_estimate(2);
+        estimate_rel_dist_j.x = zai(m+2*j) - zai(1);
+        estimate_rel_dist_j.y = zai(m+2*j+1) - zai(2);
         double d_j = estimate_rel_dist_j.x*estimate_rel_dist_j.x + estimate_rel_dist_j.y*estimate_rel_dist_j.y;
         double r_j_hat = std::sqrt(d_j);
-        double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai_estimate(0));
+        double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai(0));
         zj_hat(0) = r_j_hat; // TODO NO ADDED NOISE?? eq13
         zj_hat(1) = phi_j_hat;
 
@@ -170,19 +124,13 @@ namespace turtlelib
         Rj = R.submat(j, j, j+1, j+1);
         
         // Kalman gain
-        Ki = covariance_estimate*Hj.t()*(Hj*covariance_estimate*Hj.t() + Rj).i();
+        Ki = covariance*Hj.t()*(Hj*covariance*Hj.t() + Rj).i();
 
         // Update state to corrected prediction
-        // zai = zai_estimate + Ki*(zj - zj_hat);
-        // TODO2
-        zai_estimate = zai_estimate + Ki*(zj - zj_hat);
-        zai = zai_estimate;
-        // zai(0) = normalize_angle(zai(0));
+        zai = zai + Ki*(zj - zj_hat);
+
         // Update covariance
-        // covariance = (I - Ki*Hj)*covariance_estimate;
-        // TODO2
-        covariance_estimate = (I - Ki*Hj)*covariance_estimate;
-        covariance = covariance_estimate;
+        covariance = (I - Ki*Hj)*covariance;
     }
 
     Robot_configuration EKFSlam::EKFSlam_config()

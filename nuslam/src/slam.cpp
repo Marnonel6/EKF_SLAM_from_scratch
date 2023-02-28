@@ -211,7 +211,7 @@ private:
             EKFSlam_.EKFSlam_Correct(sensed_landmarks.markers[j].pose.position.x,sensed_landmarks.markers[j].pose.position.y,j);
             // RCLCPP_ERROR_STREAM(get_logger(), "Hj*estimate*Hj.T " << EKFSlam_.Hj*EKFSlam_.covariance_estimate*EKFSlam_.Hj.t());
             // RCLCPP_ERROR_STREAM(get_logger(), "\n zai = " << EKFSlam_.zai);
-            RCLCPP_ERROR_STREAM(get_logger(), "\n covariance_estimate = \n" << EKFSlam_.covariance_estimate);
+            // RCLCPP_ERROR_STREAM(get_logger(), "\n covariance_estimate = \n" << EKFSlam_.covariance_estimate);
             RCLCPP_ERROR_STREAM(get_logger(), "\n covariance = \n" << EKFSlam_.covariance);
             // RCLCPP_ERROR_STREAM(get_logger(), "\n\n" << EKFSlam_.Hj);
             // RCLCPP_ERROR_STREAM(get_logger(), "\n Ki \n" << EKFSlam_.Ki);
