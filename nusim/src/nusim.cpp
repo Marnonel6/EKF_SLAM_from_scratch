@@ -647,10 +647,6 @@ private:
     timestep_publisher_->publish(message);
     obstacles_publisher_->publish(obstacles_);
     walls_publisher_->publish(walls_);
-    // update_red_turtle_config();
-    // sensor_data_publisher_->publish(sensor_data_);
-    // broadcast_red_turtle();
-    // red_turtle_publisher_->publish(red_path_);
    if (draw_only_ == false)
     {
         update_red_turtle_config();
@@ -883,8 +879,6 @@ private:
   /// \brief Secondary timer loop (5Hz)
   void timer_callback_2()
   {
-    // basic_laser_sensor();
-    // lidar();
    if (draw_only_ == false)
     {
         basic_laser_sensor();
