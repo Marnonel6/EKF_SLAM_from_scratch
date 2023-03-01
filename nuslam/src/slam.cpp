@@ -349,7 +349,7 @@ private:
         if (zai(i) != 0)
         {
             visualization_msgs::msg::Marker obstacle_;
-            obstacle_.header.frame_id = "nusim/world";
+            obstacle_.header.frame_id = "map";
             obstacle_.header.stamp = get_clock()->now();
             obstacle_.id = i;
             obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
