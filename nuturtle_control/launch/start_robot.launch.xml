@@ -68,19 +68,19 @@
   </node>
 
   <!-- Turtle control node if using robot:=none-->
-  <!-- <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control"
+  <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control"
         if="$(eval '\'$(var robot)\' == \'none\'')">
-      <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
-      <remap from="/joint_states" to="blue/joint_states"/> -->
-      <!-- Remap jsp to get wheels to rotate -->
-  <!-- </node> -->
-
-  <!-- Odometry node -->
-  <node pkg="nuturtle_control" exec="odometry" name="odometry" if="$(eval '\'$(var robot)\' != \'none\'')">
       <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
       <remap from="/joint_states" to="blue/joint_states"/>
       <!-- Remap jsp to get wheels to rotate -->
   </node>
+
+  <!-- Odometry node -->
+  <!-- <node pkg="nuturtle_control" exec="odometry" name="odometry" if="$(eval '\'$(var robot)\' != \'none\'')">
+      <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
+      <remap from="/joint_states" to="blue/joint_states"/> -->
+      <!-- Remap jsp to get wheels to rotate -->
+  <!-- </node> -->
 
   <!-- Static transform publisher between nusim/world and odom tf frames -->
   <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_to_odom"

@@ -8,17 +8,13 @@
   <arg name="use_rviz" default="false"
    description="Specify if rviz needs to start - true, false"/>
 
-  <!-- Argument to specify configuration file for rviz. -->
-  <!-- <arg name="rviz_config" default="$(find-pkg-share nuturtle_control)/config/nuturtle_sim.rviz" 
-   description=".rviz file to configure the simulator"/> -->
-
   <!-- Argument to specify configuration file for robot control. -->
   <arg name="config_file1" default="diff_params.yaml" 
    description=".yaml file to configure robot controls"/>
 
-  <!-- Teleop keyboard node -->
-  <!-- <node pkg="teleop_twist_keyboard" exec="teleop_twist_keyboard" name="teleop_twist_keyboard" 
-        output='screen' launch-prefix="xterm -e" if="$(eval '\'$(var cmd_src)\' == \'teleop\'')"/> -->
+  <!-- Argument to specify configuration file for simulator. -->
+  <arg name="config_file2" default="basic_world.yaml" 
+   description=".yaml file to configure the simulator"/>
 
   <!-- Launch the Nusim simulation launch file -->
   <include file="$(find-pkg-share nuturtle_control)/launch/start_robot.launch.xml">
@@ -29,6 +25,7 @@
   <!-- Slam node -->
   <node pkg="nuslam" exec="slam" name="slam">
       <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
+      <param from="$(find-pkg-share nusim)/config/$(var config_file2)"/>
       <remap from="/joint_states" to="blue/joint_states"/>
       <!-- Remap jsp to get wheels to rotate -->
   </node>
@@ -37,14 +34,9 @@
   <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_world_to_map"
         args="0 0 0 0 0 0 1 /nusim/world /map"/>
 
-  <!-- TODO SHOULD COME FROM SLAM NODE -->
-  <!-- <node pkg="tf2_ros" exec="static_transform_publisher" name="map_to_green_odom"
-        args="0 0 0 0 0 0 1 /map green/odom"/> -->
-
   <!-- Declare the RViz node and load the config file-->
   <node name="rviz2" pkg="rviz2" exec="rviz2"
         args="-d $(find-pkg-share nuslam)/config/nuslam.rviz" />
-        <!-- if="$(eval '\'$(var use_rviz)\' == \'true\' and \'$(var robot)\' != \'localhost\'')"/> -->
 
   <!-- Launch the Python launch file with the green (SLAM) robot -->
   <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
