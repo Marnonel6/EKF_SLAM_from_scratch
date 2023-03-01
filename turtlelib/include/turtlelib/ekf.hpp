@@ -82,7 +82,6 @@ namespace turtlelib
         arma::colvec zj_hat{2,arma::fill::zeros};
 
 
-
         /// \brief start at origin and default the uncertainty
         EKFSlam();
 
