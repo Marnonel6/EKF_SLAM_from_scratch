@@ -37,13 +37,9 @@ namespace turtlelib
     {
     private:
         /// \brief State of the robot at time t
-        // arma::colvec zai{};
+        arma::colvec zai{};
         /// \brief Covariance
-        // arma::mat covariance{};
-        /// \brief Estimate state of the robot at time t
-        arma::colvec zai_estimate{m+2*n,arma::fill::zeros};
-        /// \brief Covariance estimate
-        // arma::mat covariance_estimate{m+2*n,m+2*n,arma::fill::zeros};
+        arma::mat covariance{};
         /// \brief Given twist
         arma::colvec ut{m,arma::fill::zeros};
         /// \brief Previous twist
@@ -57,31 +53,21 @@ namespace turtlelib
         /// \brief Process noise for robot motion model
         arma::mat Q_bar{m+2*n,m+2*n,arma::fill::zeros};
         /// \brief Previously seen landmark id's
-        // std::unordered_set<int> seen_landmarks{};
+        std::unordered_set<int> seen_landmarks{};
         /// \brief Actual measurement
-        // arma::colvec zj{2,arma::fill::zeros};
+        arma::colvec zj{2,arma::fill::zeros};
         /// \brief Estimate measurement
-        // arma::colvec zj_hat{2,arma::fill::zeros};
+        arma::colvec zj_hat{2,arma::fill::zeros};
         /// \brief H matrix
-        // arma::mat Hj{};
+        arma::mat Hj{};
         /// \brief Kalman gain
-        // arma::mat Ki{};
+        arma::mat Ki{};
         /// \brief Noise
         arma::mat R{2*n,2*n,arma::fill::eye};
         /// \brief Noise for j landmark
         arma::mat Rj{};
 
     public:
-        arma::mat Hj{};
-        arma::mat covariance_estimate{m+2*n,m+2*n,arma::fill::zeros};
-        std::unordered_set<int> seen_landmarks{};
-        arma::colvec zai{};
-        arma::mat Ki{};
-        arma::mat covariance{};
-        arma::colvec zj{2,arma::fill::zeros};
-        arma::colvec zj_hat{2,arma::fill::zeros};
-
-
         /// \brief start at origin and default the uncertainty
         EKFSlam();
 
@@ -108,9 +94,6 @@ namespace turtlelib
 
         /// \brief get SLAM corrected configuration
         Robot_configuration EKFSlam_config();
-
-        /// \brief get SLAM predicted configuration
-        Robot_configuration EKFSlam_config_predicted();
     };
 }
 

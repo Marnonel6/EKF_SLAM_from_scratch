@@ -137,10 +137,4 @@ namespace turtlelib
     {
         return {zai(1), zai(2), zai(0)};
     }
-
-    Robot_configuration EKFSlam::EKFSlam_config_predicted()
-    {
-        return {zai_estimate(1), zai_estimate(2), zai_estimate(0)};
-    }
-
 }
