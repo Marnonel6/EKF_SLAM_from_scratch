@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /SLAM Landmarks1
       Splitter Ratio: 0.5
     Tree Height: 746
   - Class: rviz_common/Selection
@@ -388,7 +389,7 @@ Visualization Manager:
       Enabled: true
       Name: FakeSensor Obstacles
       Namespaces:
-        "": true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -429,6 +430,18 @@ Visualization Manager:
         Value: /nusim/fake_lidar_scan
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: SLAM Landmarks
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /slam/obstacles
       Value: true
   Enabled: true
   Global Options:

@@ -16,6 +16,10 @@
   <arg name="config_file1" default="diff_params.yaml" 
    description=".yaml file to configure robot controls"/>
 
+  <!-- Argument to specify configuration file for simulator. -->
+  <arg name="config_file_world" default="basic_world.yaml" 
+   description=".yaml file to configure the simulator"/>
+
   <!-- Teleop keyboard node -->
   <!-- <node pkg="teleop_twist_keyboard" exec="teleop_twist_keyboard" name="teleop_twist_keyboard" 
         output='screen' launch-prefix="xterm -e" if="$(eval '\'$(var cmd_src)\' == \'teleop\'')"/> -->
@@ -29,6 +33,7 @@
   <!-- Slam node -->
   <node pkg="nuslam" exec="slam" name="slam">
       <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
+      <param from="$(find-pkg-share nusim)/config/$(var config_file_world)"/>
       <remap from="/joint_states" to="blue/joint_states"/>
       <!-- Remap jsp to get wheels to rotate -->
   </node>

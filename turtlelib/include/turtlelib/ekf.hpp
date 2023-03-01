@@ -94,6 +94,9 @@ namespace turtlelib
 
         /// \brief get SLAM corrected configuration
         Robot_configuration EKFSlam_config();
+
+        /// \brief get zai from ekf slam update
+        arma::colvec EKFSlam_zai();
     };
 }
 

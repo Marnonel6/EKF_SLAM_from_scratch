@@ -137,4 +137,9 @@ namespace turtlelib
     {
         return {zai(1), zai(2), zai(0)};
     }
+
+    arma::colvec EKFSlam::EKFSlam_zai()
+    {
+        return zai;
+    }
 }
