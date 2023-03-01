@@ -29,6 +29,7 @@
 ///     \param num_samples_lidar (double): Number of distance samples per rotation
 ///     \param resolution_lidar (double): Resolution of lidar distance measured
 ///     \param noise_level_lidar (double): Noise on lidar distance samples
+///     \param draw_only (bool) Only draw obstacles and walls
 ///
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): Current simulation timestep
@@ -136,6 +137,7 @@ std::mt19937 & get_random()
 ///  \param num_samples_lidar_ (double): Number of distance samples per rotation
 ///  \param resolution_lidar_ (double): Resolution of lidar distance measured
 ///  \param noise_level_lidar_(double): Noise on lidar distance samples
+///  \param draw_only_ (bool) Only draw obstacles and walls
 
 class Nusim : public rclcpp::Node
 {
@@ -172,6 +174,7 @@ public:
     auto num_samples_lidar_des= rcl_interfaces::msg::ParameterDescriptor{};
     auto resolution_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto noise_level_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto draw_only_des = rcl_interfaces::msg::ParameterDescriptor{};
 
     rate_des.description = "Timer callback frequency [Hz]";
     x0_des.description = "Initial x coordinate of the robot [m]";
@@ -205,6 +208,7 @@ public:
     num_samples_lidar_des.description = "Number of distance samples per rotation";
     resolution_lidar_des.description = "Resolution of lidar distance measured";
     noise_level_lidar_des.description = "Noise on lidar distance samples";
+    draw_only_des.description = "Only draw obstacles and walls";
 
     // Declare default parameters values
     declare_parameter("rate", 200, rate_des);     // Hz for timer_callback
@@ -234,6 +238,7 @@ public:
     declare_parameter("num_samples_lidar", 0.0, num_samples_lidar_des);
     declare_parameter("resolution_lidar", 0.0, resolution_lidar_des);
     declare_parameter("noise_level_lidar", 0.0, noise_level_lidar_des);
+    declare_parameter("draw_only", false, draw_only_des);
 
     // Get params - Read params from yaml file that is passed in the launch file
     int rate = get_parameter("rate").get_parameter_value().get<int>();
@@ -265,6 +270,7 @@ public:
     num_samples_lidar_ = get_parameter("num_samples_lidar").get_parameter_value().get<double>();
     resolution_lidar_ = get_parameter("resolution_lidar").get_parameter_value().get<double>();
     noise_level_lidar_ = get_parameter("noise_level_lidar").get_parameter_value().get<double>();
+    draw_only_ = get_parameter("draw_only").get_parameter_value().get<bool>();
 
     // Set current robot pose equal to initial pose
     x_ = x0_;
@@ -361,6 +367,7 @@ private:
   double num_samples_lidar_ = 0.0;
   double resolution_lidar_ = 0.0;
   double noise_level_lidar_ = 0.0;
+  bool draw_only_ = false;
   std::vector<double> obstacles_x_;    // Location of obstacles
   std::vector<double> obstacles_y_;
   visualization_msgs::msg::MarkerArray obstacles_;
@@ -640,10 +647,13 @@ private:
     timestep_publisher_->publish(message);
     obstacles_publisher_->publish(obstacles_);
     walls_publisher_->publish(walls_);
-    update_red_turtle_config();
-    sensor_data_publisher_->publish(sensor_data_);
-    broadcast_red_turtle();
-    red_turtle_publisher_->publish(red_path_);
+    if (draw_only_ == false)
+    {
+        update_red_turtle_config();
+        sensor_data_publisher_->publish(sensor_data_);
+        broadcast_red_turtle();
+        red_turtle_publisher_->publish(red_path_);
+    }
   }
 
   /// \brief Fake laser sensor (5Hz)
@@ -869,8 +879,11 @@ private:
   /// \brief Secondary timer loop (5Hz)
   void timer_callback_2()
   {
-    basic_laser_sensor();
-    lidar();
+    if (draw_only_ == false)
+    {
+        basic_laser_sensor();
+        lidar();
+    }
   }
 };
 

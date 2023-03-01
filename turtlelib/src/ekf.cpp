@@ -97,7 +97,7 @@ namespace turtlelib
         double d_j = estimate_rel_dist_j.x*estimate_rel_dist_j.x + estimate_rel_dist_j.y*estimate_rel_dist_j.y;
         double r_j_hat = std::sqrt(d_j);
         double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai(0));
-        zj_hat(0) = r_j_hat; // TODO NO ADDED NOISE?? eq13
+        zj_hat(0) = r_j_hat;
         zj_hat(1) = phi_j_hat;
 
         // Calculate H matrix

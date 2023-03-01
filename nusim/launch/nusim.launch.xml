@@ -1,5 +1,9 @@
 <launch>
 
+  <!-- Declare the RViz node -->
+  <!-- Load the config file -->
+  <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(var rviz_config)" if="$(eval '\'$(var use_rviz)\' == \'true\'')"/>
+
   <!-- Launch the Python launch file -->
   <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
     <!-- Pass required arguments to the Python launch file -->
@@ -23,25 +27,10 @@
   <arg name="use_rviz" default="false" 
    description="Specify if rviz needs to start - true, false"/>
 
-
-  <!-- <arg name="draw_only" default="false"
-   description="Specify that only the obstacles should be drawn, but the real robot is used."/> -->
-
   <!-- Main simulation node -->
   <node pkg="nusim" exec="nusim" name="nusim">
     <param from="$(find-pkg-share nusim)/config/$(var config_file)"/>
     <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file2)"/>
   </node>
-
-  <!-- Environment simulation node
-  <node pkg="nusim" exec="nusim" name="nuwall">
-    <param from="$(find-pkg-share nusim)/config/$(var config_file)"/>
-    <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file2)"/>
-    <param from="$(draw_only)"/>
-  </node> -->
-
-  <!-- Declare the RViz node -->
-  <!-- Load the config file -->
-  <node name="rviz2" pkg="rviz2" exec="rviz2" args="-d $(var rviz_config)" if="$(eval '\'$(var use_rviz)\' == \'true\'')"/>
 
 </launch>
