@@ -14,6 +14,10 @@
   <arg name="config_file1" default="diff_params.yaml" 
    description=".yaml file to configure robot controls"/>
 
+ <!-- Argument to specify configuration file for simulator. -->
+  <arg name="config_file_world" default="basic_world.yaml" 
+   description=".yaml file to configure the simulator"/>
+
   <!-- Argument to specify configuration file for rviz. -->
   <arg name="rviz_config" default="$(find-pkg-share nuturtle_control)/config/nuturtle_sim.rviz" 
    description=".rviz file to configure the simulator"/>
@@ -42,12 +46,12 @@
       <arg name="rviz_config" value="$(var rviz_config)"/>
   </include>
 
-  <!-- Launch the Nusim simulation launch file
-  <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"
-           if="$(eval '\'$(var robot)\' == \'none\'')">
-      <arg name="rviz_config" value="$(var rviz_config)"/>
-      <arg name="draw_only" value="$(var draw_only)"/>
-  </include> -->
+  <!-- Environment simulation node -->
+  <node pkg="nusim" exec="nusim" name="nuwall"  if="$(eval '\'$(var robot)\' == \'none\'')">
+    <param from="$(find-pkg-share nusim)/config/$(var config_file_world)"/>
+    <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
+    <param name="draw_only" value="true"/>
+  </node>
 
   <!-- Turtle control node if using nusim-->
   <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control"
@@ -66,15 +70,15 @@
   </node>
 
   <!-- Turtle control node if using robot:=none-->
-  <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control"
+  <!-- <node pkg="nuturtle_control" exec="turtle_control" name="turtle_control"
         if="$(eval '\'$(var robot)\' == \'none\'')">
       <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
-      <remap from="/joint_states" to="blue/joint_states"/>
+      <remap from="/joint_states" to="blue/joint_states"/> -->
       <!-- Remap jsp to get wheels to rotate -->
-  </node>
+  <!-- </node> -->
 
   <!-- Odometry node -->
-  <node pkg="nuturtle_control" exec="odometry" name="odometry">
+  <node pkg="nuturtle_control" exec="odometry" name="odometry"  if="$(eval '\'$(var robot)\' != \'none\'')">
       <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
       <remap from="/joint_states" to="blue/joint_states"/>
       <!-- Remap jsp to get wheels to rotate -->
