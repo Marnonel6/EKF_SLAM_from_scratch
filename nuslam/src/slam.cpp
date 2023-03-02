@@ -217,8 +217,6 @@ private:
   /// \brief Joint states topic callback
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray & msg)
   {
-    // EKFSlam_.EKFSlam_Predict(body_twist_);
-    // RCLCPP_ERROR_STREAM(get_logger(), "Turtle -> x: " << turtle_.configuration().x << " y: " << turtle_.configuration().y  << " theta: " << turtle_.configuration().theta);
     EKFSlam_.EKFSlam_Predict({turtle_.configuration().theta,turtle_.configuration().x,turtle_.configuration().y});
 
     visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
@@ -227,27 +225,9 @@ private:
     {  
         if (sensed_landmarks.markers[j].action == visualization_msgs::msg::Marker::ADD) // Only use landmarks that the sensor currently sees
         {
-            // RCLCPP_ERROR_STREAM(get_logger(), " j = " << j << " x " << sensed_landmarks.markers[j].pose.position.x << " y " << sensed_landmarks.markers[j].pose.position.y);
-            // RCLCPP_ERROR_STREAM(get_logger(), "\n j = " << j);
-            // if (auto search = EKFSlam_.seen_landmarks.find(j); search != EKFSlam_.seen_landmarks.end()){
-            //     RCLCPP_ERROR_STREAM(get_logger(), "seen_landmarks " << *search);
-            // }
-            // else{ RCLCPP_ERROR_STREAM(get_logger(), "_______________NO LANDMARKS");}
-
             EKFSlam_.EKFSlam_Correct(sensed_landmarks.markers[j].pose.position.x,sensed_landmarks.markers[j].pose.position.y,j);
-            // RCLCPP_ERROR_STREAM(get_logger(), "Hj*estimate*Hj.T " << EKFSlam_.Hj*EKFSlam_.covariance_estimate*EKFSlam_.Hj.t());
-            // RCLCPP_ERROR_STREAM(get_logger(), "\n zai = " << EKFSlam_.zai);
-            // RCLCPP_ERROR_STREAM(get_logger(), "\n covariance_estimate = \n" << EKFSlam_.covariance_estimate);
-            // RCLCPP_ERROR_STREAM(get_logger(), "\n covariance = \n" << EKFSlam_.covariance);
-            // RCLCPP_ERROR_STREAM(get_logger(), "\n\n" << EKFSlam_.Hj);
-            // RCLCPP_ERROR_STREAM(get_logger(), "\n Ki \n" << EKFSlam_.Ki);
-            // RCLCPP_ERROR_STREAM(get_logger(), "\n zj \n" << EKFSlam_.zj);
-            // RCLCPP_ERROR_STREAM(get_logger(), "\n zj_hat \n" << EKFSlam_.zj_hat);
         }
     }
-
-    // RCLCPP_ERROR_STREAM(get_logger(), "\n covariance = \n" << EKFSlam_.covariance);
-    // throw 1;
   }
 
   /// \brief Ensures all values are passed via the launch file
@@ -296,37 +276,19 @@ private:
   /// \brief Broadcasts green robots position
   void transform_broadcast_map_odom()
   {
-    // turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config();
-    // // turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config_predicted();
-
-    // turtlelib::Transform2D Tmap_RobotGreen{{green_turtle.x, green_turtle.y},green_turtle.theta};
-    // turtlelib::Transform2D TodomGreen_RobotGreen{{turtle_.configuration().x,turtle_.configuration().y},turtle_.configuration().theta};
-    // turtlelib::Transform2D Tmap_odomGreen{};
-
     green_turtle = EKFSlam_.EKFSlam_config();
-    // turtlelib::Robot_configuration green_turtle = EKFSlam_.EKFSlam_config_predicted();
-
     Tmap_RobotGreen = {{green_turtle.x, green_turtle.y},green_turtle.theta};
     TodomGreen_RobotGreen = {{turtle_.configuration().x,turtle_.configuration().y},turtle_.configuration().theta};
-    // Tmap_odomGreen{};
-
     Tmap_odomGreen = Tmap_RobotGreen*TodomGreen_RobotGreen.inv();
 
-    // RCLCPP_ERROR_STREAM(get_logger(), "green_turtle -> x: " << green_turtle.x << " y: " << green_turtle.y  << " theta: " << green_turtle.theta);
-    
-    // RCLCPP_ERROR_STREAM(get_logger(), "Tmap_odomGreen -> rot: " << Tmap_odomGreen.rotation()<< " trans: "<<Tmap_odomGreen.translation().x<<" "<<Tmap_odomGreen.translation().y);
     // Broadcast TF frames
     t2_.header.stamp = get_clock()->now();
     t2_.header.frame_id = "map";
     t2_.child_frame_id = odom_id_;
     t2_.transform.translation.x = Tmap_odomGreen.translation().x;
     t2_.transform.translation.y = Tmap_odomGreen.translation().y;
-    // t2_.transform.translation.x = -(green_turtle.x - turtle_.configuration().x);
-    // t2_.transform.translation.y = -(green_turtle.y - turtle_.configuration().y);
     t2_.transform.translation.z = 0.0;     // Turtle only exists in 2D
-    // tf2::Quaternion q2_;
     q2_.setRPY(0, 0, Tmap_odomGreen.rotation());       // Rotation around z-axis
-    // // q_.setRPY(0, 0, turtlelib::normalize_angle(-(green_turtle.theta - turtle_.configuration().theta)));       // Rotation around z-axis
     t2_.transform.rotation.x = q2_.x();
     t2_.transform.rotation.y = q2_.y();
     t2_.transform.rotation.z = q2_.z();
@@ -337,15 +299,14 @@ private:
     create_obstacles_array();
   }
 
-  /// \brief Create obstacles as a MarkerArray and publish them to a topic to display them in Rviz
+  /// \brief Create obstacles MarkerArray as seen by SLAM and publish them to a topic to display them in Rviz
   void create_obstacles_array()
   {
 
     arma::colvec zai = EKFSlam_.EKFSlam_zai();
-    RCLCPP_ERROR_STREAM(get_logger(), "\n zai \n" << zai);
     visualization_msgs::msg::MarkerArray obstacles_;
 
-    for (auto i = 3; i < zai.size(); i = i+2) {
+    for (auto i = 3; i < static_cast<int>(zai.size()); i = i+2) {
         if (zai(i) != 0)
         {
             visualization_msgs::msg::Marker obstacle_;
