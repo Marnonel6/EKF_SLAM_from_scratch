@@ -399,14 +399,14 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 3.0102458000183105
+        Min Value: -0.7049580812454224
         Value: true
-      Axis: Z
+      Axis: X
       Channel Name: intensity
       Class: rviz_default_plugins/LaserScan
       Color: 255; 255; 255
-      Color Transformer: Intensity
+      Color Transformer: AxisColor
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -429,6 +429,18 @@ Visualization Manager:
         Value: /nusim/fake_lidar_scan
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: SLAM Landmarks
+      Namespaces:
+        "": true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /slam/obstacles
       Value: true
   Enabled: true
   Global Options:
@@ -476,25 +488,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 4.297802925109863
+      Distance: 9.231719970703125
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.16425222158432007
-        Y: -0.005364128388464451
-        Z: -0.2546766698360443
+        X: 0.735737144947052
+        Y: -0.21052300930023193
+        Z: -0.14864397048950195
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0047969818115234
+      Pitch: 0.5297971963882446
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.5835635662078857
+      Yaw: 2.3685715198516846
     Saved: ~
 Window Geometry:
   Displays:
