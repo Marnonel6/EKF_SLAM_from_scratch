@@ -37,3 +37,7 @@ larger project on robot mapping and localization.
 * ```obstacles.h``` (double): Height of cylindrical obstacles [m]
 
 # Example
+
+![Screenshot from 2023-03-01 19-48-34](https://user-images.githubusercontent.com/60977336/222309949-d921b76a-55d2-4852-8559-c2b7599159ab.png)
+
+
