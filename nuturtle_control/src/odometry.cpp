@@ -163,9 +163,8 @@ private:
     transform_broadcast();
 
     step_++;
-    if (step_%100 == 1)
-    {
-        blue_turtle_NavPath();
+    if (step_ % 100 == 1) {
+      blue_turtle_NavPath();
     }
 
     prev_wheel_pos_.left = msg.position[0];

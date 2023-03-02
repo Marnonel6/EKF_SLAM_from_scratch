@@ -205,9 +205,8 @@ private:
     transform_broadcast_map_odom(); // EKFSlam Update
 
     step_++;
-    if (step_%100 == 1)
-    {
-        green_turtle_NavPath();
+    if (step_ % 100 == 1) {
+      green_turtle_NavPath();
     }
 
     prev_wheel_pos_.left = msg.position[0];
@@ -217,16 +216,18 @@ private:
   /// \brief Joint states topic callback
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray & msg)
   {
-    EKFSlam_.EKFSlam_Predict({turtle_.configuration().theta,turtle_.configuration().x,turtle_.configuration().y});
+    EKFSlam_.EKFSlam_Predict(
+      {turtle_.configuration().theta,
+        turtle_.configuration().x, turtle_.configuration().y});
 
     visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
 
-    for (size_t j = 0; j < sensed_landmarks.markers.size(); j++)
-    {  
-        if (sensed_landmarks.markers[j].action == visualization_msgs::msg::Marker::ADD) // Only use landmarks that the sensor currently sees
-        {
-            EKFSlam_.EKFSlam_Correct(sensed_landmarks.markers[j].pose.position.x,sensed_landmarks.markers[j].pose.position.y,j);
-        }
+    for (size_t j = 0; j < sensed_landmarks.markers.size(); j++) {
+      if (sensed_landmarks.markers[j].action == visualization_msgs::msg::Marker::ADD) { // Only use landmarks that the sensor currently sees
+        EKFSlam_.EKFSlam_Correct(
+          sensed_landmarks.markers[j].pose.position.x,
+          sensed_landmarks.markers[j].pose.position.y, j);
+      }
     }
   }
 
@@ -277,9 +278,10 @@ private:
   void transform_broadcast_map_odom()
   {
     green_turtle = EKFSlam_.EKFSlam_config();
-    Tmap_RobotGreen = {{green_turtle.x, green_turtle.y},green_turtle.theta};
-    TodomGreen_RobotGreen = {{turtle_.configuration().x,turtle_.configuration().y},turtle_.configuration().theta};
-    Tmap_odomGreen = Tmap_RobotGreen*TodomGreen_RobotGreen.inv();
+    Tmap_RobotGreen = {{green_turtle.x, green_turtle.y}, green_turtle.theta};
+    TodomGreen_RobotGreen =
+    {{turtle_.configuration().x, turtle_.configuration().y}, turtle_.configuration().theta};
+    Tmap_odomGreen = Tmap_RobotGreen * TodomGreen_RobotGreen.inv();
 
     // Broadcast TF frames
     t2_.header.stamp = get_clock()->now();
@@ -306,36 +308,34 @@ private:
     arma::colvec zai = EKFSlam_.EKFSlam_zai();
     visualization_msgs::msg::MarkerArray obstacles_;
 
-    for (auto i = 3; i < static_cast<int>(zai.size()); i = i+2) {
-        if (zai(i) != 0)
-        {
-            visualization_msgs::msg::Marker obstacle_;
-            obstacle_.header.frame_id = "map";
-            obstacle_.header.stamp = get_clock()->now();
-            obstacle_.id = i;
-            obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
-            obstacle_.action = visualization_msgs::msg::Marker::ADD;
-            obstacle_.pose.position.x = zai(i);
-            obstacle_.pose.position.y = zai(i+1);
-            obstacle_.pose.position.z = obstacles_h_ / 2.0;
-            obstacle_.pose.orientation.x = 0.0;
-            obstacle_.pose.orientation.y = 0.0;
-            obstacle_.pose.orientation.z = 0.0;
-            obstacle_.pose.orientation.w = 1.0;
-            obstacle_.scale.x = obstacles_r_ * 2.0;   // Diameter in x
-            obstacle_.scale.y = obstacles_r_ * 2.0;   // Diameter in y
-            obstacle_.scale.z = obstacles_h_;         // Height
-            obstacle_.color.r = 0.0f;
-            obstacle_.color.g = 1.0f;
-            obstacle_.color.b = 0.0f;
-            obstacle_.color.a = 1.0;
-            obstacles_.markers.push_back(obstacle_);
-            Flag_obstacle_seen_ = true;
-        }
+    for (auto i = 3; i < static_cast<int>(zai.size()); i = i + 2) {
+      if (zai(i) != 0) {
+        visualization_msgs::msg::Marker obstacle_;
+        obstacle_.header.frame_id = "map";
+        obstacle_.header.stamp = get_clock()->now();
+        obstacle_.id = i;
+        obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
+        obstacle_.action = visualization_msgs::msg::Marker::ADD;
+        obstacle_.pose.position.x = zai(i);
+        obstacle_.pose.position.y = zai(i + 1);
+        obstacle_.pose.position.z = obstacles_h_ / 2.0;
+        obstacle_.pose.orientation.x = 0.0;
+        obstacle_.pose.orientation.y = 0.0;
+        obstacle_.pose.orientation.z = 0.0;
+        obstacle_.pose.orientation.w = 1.0;
+        obstacle_.scale.x = obstacles_r_ * 2.0;       // Diameter in x
+        obstacle_.scale.y = obstacles_r_ * 2.0;       // Diameter in y
+        obstacle_.scale.z = obstacles_h_;             // Height
+        obstacle_.color.r = 0.0f;
+        obstacle_.color.g = 1.0f;
+        obstacle_.color.b = 0.0f;
+        obstacle_.color.a = 1.0;
+        obstacles_.markers.push_back(obstacle_);
+        Flag_obstacle_seen_ = true;
+      }
     }
-    if (Flag_obstacle_seen_ == true)
-    {
-        obstacles_publisher_->publish(obstacles_);
+    if (Flag_obstacle_seen_ == true) {
+      obstacles_publisher_->publish(obstacles_);
     }
   }
 

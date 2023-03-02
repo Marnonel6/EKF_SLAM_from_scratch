@@ -171,7 +171,7 @@ public:
     auto min_range_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto max_range_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto angle_increment_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
-    auto num_samples_lidar_des= rcl_interfaces::msg::ParameterDescriptor{};
+    auto num_samples_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto resolution_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto noise_level_lidar_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto draw_only_des = rcl_interfaces::msg::ParameterDescriptor{};
@@ -262,11 +262,13 @@ public:
     input_noise_ = get_parameter("input_noise").get_parameter_value().get<double>();
     slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<double>();
     max_range_ = get_parameter("max_range").get_parameter_value().get<double>();
-    basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
+    basic_sensor_variance_ =
+      get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
     collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<double>();
     min_range_lidar_ = get_parameter("min_range_lidar").get_parameter_value().get<double>();
     max_range_lidar_ = get_parameter("max_range_lidar").get_parameter_value().get<double>();
-    angle_increment_lidar_ = get_parameter("angle_increment_lidar").get_parameter_value().get<double>();
+    angle_increment_lidar_ =
+      get_parameter("angle_increment_lidar").get_parameter_value().get<double>();
     num_samples_lidar_ = get_parameter("num_samples_lidar").get_parameter_value().get<double>();
     resolution_lidar_ = get_parameter("resolution_lidar").get_parameter_value().get<double>();
     noise_level_lidar_ = get_parameter("noise_level_lidar").get_parameter_value().get<double>();
@@ -278,7 +280,7 @@ public:
     theta_ = theta0_;
 
     // Timer timestep [seconds]
-    dt_ = 1.0/static_cast<double>(rate); 
+    dt_ = 1.0 / static_cast<double>(rate);
 
     // Create obstacles
     create_obstacles_array();
@@ -293,7 +295,9 @@ public:
     lidar_noise_ = std::normal_distribution<>{0.0, std::sqrt(noise_level_lidar_)};
 
     // Get transform from robot to world
-    T_world_red_ = turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y}, turtle_.configuration().theta};
+    T_world_red_ =
+      turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y},
+      turtle_.configuration().theta};
     T_red_world_ = T_world_red_.inv();
 
     // Publishers
@@ -410,18 +414,18 @@ private:
     double right_noise = 0.0;
 
     // Convert wheel cmd ticks to rad/sec and add noise if the wheel is commanded to move
-    if (msg.left_velocity!=0)
-    {
-        left_noise = noise_(get_random());
+    if (msg.left_velocity != 0) {
+      left_noise = noise_(get_random());
     }
 
-    if (msg.right_velocity!=0)
-    {
-        right_noise = noise_(get_random());
+    if (msg.right_velocity != 0) {
+      right_noise = noise_(get_random());
     }
 
-    new_wheel_vel_.left = static_cast<double>(msg.left_velocity)*motor_cmd_per_rad_sec_ + left_noise;
-    new_wheel_vel_.right = static_cast<double>(msg.right_velocity)*motor_cmd_per_rad_sec_ + right_noise;
+    new_wheel_vel_.left = static_cast<double>(msg.left_velocity) * motor_cmd_per_rad_sec_ +
+      left_noise;
+    new_wheel_vel_.right = static_cast<double>(msg.right_velocity) * motor_cmd_per_rad_sec_ +
+      right_noise;
   }
 
   /// \brief Updates the red turtle's configuration
@@ -429,13 +433,13 @@ private:
   {
     double left_slip = slip_(get_random());  // Add slip to wheel position
     double right_slip = slip_(get_random());
-    delta_wheel_pos_.left = new_wheel_vel_.left*(1 + left_slip)*dt_;  // Change in position
-    delta_wheel_pos_.right = new_wheel_vel_.right*(1 + right_slip)*dt_;
+    delta_wheel_pos_.left = new_wheel_vel_.left * (1 + left_slip) * dt_;  // Change in position
+    delta_wheel_pos_.right = new_wheel_vel_.right * (1 + right_slip) * dt_;
     turtle_.ForwardKinematics(delta_wheel_pos_);  // Update robot position
     // Check collision with obstacles
     check_collision();
     x_ = turtle_.configuration().x;
-    y_ = turtle_.configuration().y; 
+    y_ = turtle_.configuration().y;
     theta_ = turtle_.configuration().theta;
     update_sensor_data();
   }
@@ -443,27 +447,25 @@ private:
   /// \brief Check collision with obstacles
   void check_collision()
   {
-    for (size_t i = 0; i < obstacles_x_.size(); i++)
-    {
-        double dx = turtle_.configuration().x - obstacles_x_.at(i);
-        double dy = turtle_.configuration().y - obstacles_y_.at(i);
-        double eucl_distance = std::sqrt(std::pow((dx),2) + std::pow((dy),2));
+    for (size_t i = 0; i < obstacles_x_.size(); i++) {
+      double dx = turtle_.configuration().x - obstacles_x_.at(i);
+      double dy = turtle_.configuration().y - obstacles_y_.at(i);
+      double eucl_distance = std::sqrt(std::pow((dx), 2) + std::pow((dy), 2));
 
-        // Check if collision occured
-        if (eucl_distance < collision_radius_ + obstacles_r_)
-        {
-            // // Vector between robot and obstacle
-            turtlelib::Vector2D V{dx, dy};
-            turtlelib::Vector2D V_normal = turtlelib::normalize(V);
-            // Distance to move back
-            double collision_dis = collision_radius_ + obstacles_r_ - eucl_distance;
-            // New robot configuration
-            turtlelib::Robot_configuration after_collision{};
-            after_collision.x = turtle_.configuration().x + collision_dis*V_normal.x;
-            after_collision.y = turtle_.configuration().y + collision_dis*V_normal.y;
-            after_collision.theta = turtle_.configuration().theta;
-            turtle_.set_configuration(after_collision);
-        }
+      // Check if collision occured
+      if (eucl_distance < collision_radius_ + obstacles_r_) {
+        // // Vector between robot and obstacle
+        turtlelib::Vector2D V{dx, dy};
+        turtlelib::Vector2D V_normal = turtlelib::normalize(V);
+        // Distance to move back
+        double collision_dis = collision_radius_ + obstacles_r_ - eucl_distance;
+        // New robot configuration
+        turtlelib::Robot_configuration after_collision{};
+        after_collision.x = turtle_.configuration().x + collision_dis * V_normal.x;
+        after_collision.y = turtle_.configuration().y + collision_dis * V_normal.y;
+        after_collision.theta = turtle_.configuration().theta;
+        turtle_.set_configuration(after_collision);
+      }
     }
   }
 
@@ -524,9 +526,8 @@ private:
     // Send the transformation
     tf_broadcaster_->sendTransform(t_);
 
-    if (timestep_%100 == 1)
-    {
-        red_turtle_NavPath();
+    if (timestep_ % 100 == 1) {
+      red_turtle_NavPath();
     }
   }
 
@@ -647,12 +648,11 @@ private:
     timestep_publisher_->publish(message);
     obstacles_publisher_->publish(obstacles_);
     walls_publisher_->publish(walls_);
-   if (draw_only_ == false)
-    {
-        update_red_turtle_config();
-        sensor_data_publisher_->publish(sensor_data_);
-        broadcast_red_turtle();
-        red_turtle_publisher_->publish(red_path_);
+    if (draw_only_ == false) {
+      update_red_turtle_config();
+      sensor_data_publisher_->publish(sensor_data_);
+      broadcast_red_turtle();
+      red_turtle_publisher_->publish(red_path_);
     }
   }
 
@@ -660,7 +660,9 @@ private:
   void basic_laser_sensor()
   {
     // Get transform from robot to world
-    T_world_red_ = turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y}, turtle_.configuration().theta};
+    T_world_red_ =
+      turtlelib::Transform2D{{turtle_.configuration().x, turtle_.configuration().y},
+      turtle_.configuration().theta};
     T_red_world_ = T_world_red_.inv();
     // Fake laser sensor obstacles
     visualization_msgs::msg::MarkerArray sensor_obstacles_;
@@ -669,22 +671,22 @@ private:
       // Transfrom obstacles to robot frame from world frame
       turtlelib::Vector2D obs{obstacles_x_.at(i), obstacles_y_.at(i)};
       turtlelib::Vector2D obs_red = T_red_world_(obs);
-      turtlelib::Vector2D obs_red_noise = {obs_red.x + laser_noise_(get_random()), obs_red.y + laser_noise_(get_random())};
+      turtlelib::Vector2D obs_red_noise =
+      {obs_red.x + laser_noise_(get_random()), obs_red.y + laser_noise_(get_random())};
 
       visualization_msgs::msg::Marker sensor_obstacle_;
       sensor_obstacle_.header.frame_id = "red/base_footprint";
-    //   sensor_obstacle_.frame_locked = false;
+      //   sensor_obstacle_.frame_locked = false;
       sensor_obstacle_.header.stamp = get_clock()->now();
-    //   sensor_obstacle_.header.stamp.nanosec = -50000000 + sensor_obstacle_.header.stamp.nanosec;
+      //   sensor_obstacle_.header.stamp.nanosec = -50000000 + sensor_obstacle_.header.stamp.nanosec;
       sensor_obstacle_.header.stamp.nanosec = -100000000 + sensor_obstacle_.header.stamp.nanosec; // TODO
       sensor_obstacle_.id = i;
       sensor_obstacle_.type = visualization_msgs::msg::Marker::CYLINDER;
       sensor_obstacle_.pose.position.x = obs_red_noise.x;
       sensor_obstacle_.pose.position.y = obs_red_noise.y;
-      if (std::sqrt(std::pow(obs_red_noise.x, 2) + std::pow(obs_red_noise.y, 2)) > max_range_)
+      if (std::sqrt(std::pow(obs_red_noise.x, 2) + std::pow(obs_red_noise.y, 2)) > max_range_) {
         sensor_obstacle_.action = visualization_msgs::msg::Marker::DELETE; // Delete if further away than max range
-      else
-      {
+      } else {
         sensor_obstacle_.action = visualization_msgs::msg::Marker::ADD;
       }
       sensor_obstacle_.pose.position.z = obstacles_h_ / 2.0;
@@ -711,10 +713,11 @@ private:
   /// \param x2 point 2 x-coordinate (double)
   /// \param y2 point 2 y-coordinate (double)
   /// \return euclidean distance (double)
-  double euclidean_distance(double x1, double y1, double x2, double y2) {
-      double dx = x2 - x1;
-      double dy = y2 - y1;
-      return std::sqrt(dx*dx + dy*dy);
+  double euclidean_distance(double x1, double y1, double x2, double y2)
+  {
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+    return std::sqrt(dx * dx + dy * dy);
   }
 
 
@@ -733,145 +736,149 @@ private:
     lidar_data_.range_max = max_range_lidar_;
     lidar_data_.ranges.resize(num_samples_lidar_);
 
-    for (int j; j < num_samples_lidar_; j++) // Loop through number of samples
-    {
-        // Calculate max [x,y] coordinate at given turtle and laser position and angle
-        double max_x = turtle_.configuration().x + cos(j*angle_increment_lidar_ + turtle_.configuration().theta)*max_range_lidar_;
-        double max_y = turtle_.configuration().y + sin(j*angle_increment_lidar_ + turtle_.configuration().theta)*max_range_lidar_;
-        // Slope
-        double slope = (max_y - turtle_.configuration().y)/(max_x - turtle_.configuration().x);
+    for (int j; j < num_samples_lidar_; j++) { // Loop through number of samples
+      // Calculate max [x,y] coordinate at given turtle and laser position and angle
+      double max_x = turtle_.configuration().x + cos(
+        j * angle_increment_lidar_ + turtle_.configuration().theta) * max_range_lidar_;
+      double max_y = turtle_.configuration().y + sin(
+        j * angle_increment_lidar_ + turtle_.configuration().theta) * max_range_lidar_;
+      // Slope
+      double slope = (max_y - turtle_.configuration().y) / (max_x - turtle_.configuration().x);
 
-        double actual_distance = 1000.0;
-        double min_distance = 1000.0;
+      double actual_distance = 1000.0;
+      double min_distance = 1000.0;
 
-        for (size_t i = 0; i < obstacles_x_.size(); i++) // Loop through number of obstacles
-        {
-            double sub = turtle_.configuration().y - slope*turtle_.configuration().x - obstacles_y_.at(i);
-            double a = 1.0 + std::pow(slope, 2);
-            double b = 2.0*(sub*slope - obstacles_x_.at(i));
-            double c = std::pow(obstacles_x_.at(i), 2) + std::pow(sub, 2) - std::pow(obstacles_r_, 2);
-            double det = std::pow(b, 2) - 4.0*a*c;
+      for (size_t i = 0; i < obstacles_x_.size(); i++) { // Loop through number of obstacles
+        double sub = turtle_.configuration().y - slope * turtle_.configuration().x -
+          obstacles_y_.at(i);
+        double a = 1.0 + std::pow(slope, 2);
+        double b = 2.0 * (sub * slope - obstacles_x_.at(i));
+        double c = std::pow(obstacles_x_.at(i), 2) + std::pow(sub, 2) - std::pow(obstacles_r_, 2);
+        double det = std::pow(b, 2) - 4.0 * a * c;
 
-            if (det<0.0) // No solution
-            {   // Wall coordinates
-                double wall_x = walls_x_/2.0;
-                double wall_y = walls_y_/2.0;
-                // Coordinate at angle for 4 walls
-                double wall_x_neg = ((-wall_y - turtle_.configuration().y)/slope) + turtle_.configuration().x;
-                double wall_x_pos = ((wall_y - turtle_.configuration().y)/slope) + turtle_.configuration().x;
-                double wall_y_neg = slope*(-wall_x-turtle_.configuration().x)+turtle_.configuration().y;
-                double wall_y_pos = slope*(wall_x-turtle_.configuration().x)+turtle_.configuration().y;
-                // Distances to 4 wall intersect wit lidar
-                double distance1 = euclidean_distance(wall_x_neg, -wall_y, turtle_.configuration().x, turtle_.configuration().y);
-                double distance2 = euclidean_distance(wall_x_pos, wall_y, turtle_.configuration().x, turtle_.configuration().y);
-                double distance3 = euclidean_distance(-wall_x, wall_y_neg, turtle_.configuration().x, turtle_.configuration().y);
-                double distance4 = euclidean_distance(wall_x, wall_y_pos, turtle_.configuration().x, turtle_.configuration().y);
+        if (det < 0.0) { // No solution
+          // Wall coordinates
+          double wall_x = walls_x_ / 2.0;
+          double wall_y = walls_y_ / 2.0;
+          // Coordinate at angle for 4 walls
+          double wall_x_neg = ((-wall_y - turtle_.configuration().y) / slope) +
+            turtle_.configuration().x;
+          double wall_x_pos = ((wall_y - turtle_.configuration().y) / slope) +
+            turtle_.configuration().x;
+          double wall_y_neg = slope * (-wall_x - turtle_.configuration().x) +
+            turtle_.configuration().y;
+          double wall_y_pos = slope * (wall_x - turtle_.configuration().x) +
+            turtle_.configuration().y;
+          // Distances to 4 wall intersect wit lidar
+          double distance1 = euclidean_distance(
+            wall_x_neg, -wall_y,
+            turtle_.configuration().x, turtle_.configuration().y);
+          double distance2 = euclidean_distance(
+            wall_x_pos, wall_y,
+            turtle_.configuration().x, turtle_.configuration().y);
+          double distance3 = euclidean_distance(
+            -wall_x, wall_y_neg,
+            turtle_.configuration().x, turtle_.configuration().y);
+          double distance4 = euclidean_distance(
+            wall_x, wall_y_pos,
+            turtle_.configuration().x, turtle_.configuration().y);
 
-                // Check direction
-                double mm1 = (wall_x_neg - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
-                double nn1 = (-wall_y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-                if (mm1 > 0.0 && nn1 > 0.0)
-                {
-                    if (distance1 < min_distance)
-                    {
-                        // Distance to robot
-                        min_distance = distance1;
-                    }
-                }
-
-                // Check direction
-                double mm2 = (wall_x_pos - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
-                double nn2 = (wall_y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-                if (mm2 > 0.0 && nn2 > 0.0)
-                {   
-                    if (distance2 < min_distance)
-                    {
-                        // Distance to robot
-                        min_distance = distance2;
-                    }
-                }
-
-                // Check direction
-                double mm3 = (-wall_x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
-                double nn3 = (wall_y_neg - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-                if (mm3 > 0.0 && nn3 > 0.0)
-                {
-                    if (distance3 < min_distance)
-                    {
-                        // Distance to robot
-                        min_distance = distance3;
-                    }
-                }
-
-                // Check direction
-                double mm4 = (wall_x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
-                double nn4 = (wall_y_pos - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-                if (mm4 > 0.0 && nn4 > 0.0)
-                {
-                    if (distance4 < min_distance)
-                    {
-                        // Distance to robot
-                        min_distance = distance4;
-                    }
-                }
+          // Check direction
+          double mm1 = (wall_x_neg - turtle_.configuration().x) /
+            (max_x - turtle_.configuration().x);
+          double nn1 = (-wall_y - turtle_.configuration().y) / (max_y - turtle_.configuration().y);
+          if (mm1 > 0.0 && nn1 > 0.0) {
+            if (distance1 < min_distance) {
+              // Distance to robot
+              min_distance = distance1;
             }
-            else if (det == 0.0) // 1 solution
-            {
-                RCLCPP_ERROR_STREAM(get_logger(), "ONE SOLUTION!!!!");
-                // x-solution
-                double x = -b/(2.0*a);
-                // y-solution
-                double y = slope*(x - turtle_.configuration().x) + turtle_.configuration().y;
-                // Check direction
-                double mm = (x - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
-                double nn = (y - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-                if (mm > 0.0 && nn > 0.0)
-                {
-                    // Distance to robot
-                    min_distance = euclidean_distance(x, y, turtle_.configuration().x, turtle_.configuration().y);
-                }
-            }
-            else if (det > 0.0) // 2 solutions
-            {
-                // x-solution
-                double x1 = (-b + std::sqrt(det))/(2.0*a);
-                double x2 = (-b - std::sqrt(det))/(2.0*a);
-                // y-solution
-                double y1 = slope*(x1 - turtle_.configuration().x) + turtle_.configuration().y;
-                double y2 = slope*(x2 - turtle_.configuration().x) + turtle_.configuration().y;
-                // Two solution distances to robot
-                double distance1 = euclidean_distance(x1, y1, turtle_.configuration().x, turtle_.configuration().y);
-                double distance2 = euclidean_distance(x2, y2, turtle_.configuration().x, turtle_.configuration().y);
-                // Get minimum
-                double obs_min_distance = std::min({distance1,distance2});
+          }
 
-                // Choose smallest distance
-                if (obs_min_distance == distance1)
-                {
-                    double mm = (x1 - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
-                    double nn = (y1 - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-                    if (mm > 0.0 && nn > 0.0)
-                    {
-                        min_distance = obs_min_distance;
-                    }
-                }
-                else
-                {
-                    double mm = (x2 - turtle_.configuration().x)/(max_x - turtle_.configuration().x);
-                    double nn = (y2 - turtle_.configuration().y)/(max_y - turtle_.configuration().y);
-                    if (mm > 0.0 && nn > 0.0)
-                    {
-                        min_distance = obs_min_distance;
-                    }
-                }
+          // Check direction
+          double mm2 = (wall_x_pos - turtle_.configuration().x) /
+            (max_x - turtle_.configuration().x);
+          double nn2 = (wall_y - turtle_.configuration().y) / (max_y - turtle_.configuration().y);
+          if (mm2 > 0.0 && nn2 > 0.0) {
+            if (distance2 < min_distance) {
+              // Distance to robot
+              min_distance = distance2;
             }
+          }
 
-            if (min_distance < actual_distance)
-            {
-                actual_distance = min_distance;
+          // Check direction
+          double mm3 = (-wall_x - turtle_.configuration().x) / (max_x - turtle_.configuration().x);
+          double nn3 = (wall_y_neg - turtle_.configuration().y) /
+            (max_y - turtle_.configuration().y);
+          if (mm3 > 0.0 && nn3 > 0.0) {
+            if (distance3 < min_distance) {
+              // Distance to robot
+              min_distance = distance3;
             }
+          }
+
+          // Check direction
+          double mm4 = (wall_x - turtle_.configuration().x) / (max_x - turtle_.configuration().x);
+          double nn4 = (wall_y_pos - turtle_.configuration().y) /
+            (max_y - turtle_.configuration().y);
+          if (mm4 > 0.0 && nn4 > 0.0) {
+            if (distance4 < min_distance) {
+              // Distance to robot
+              min_distance = distance4;
+            }
+          }
+        } else if (det == 0.0) { // 1 solution
+          RCLCPP_ERROR_STREAM(get_logger(), "ONE SOLUTION!!!!");
+          // x-solution
+          double x = -b / (2.0 * a);
+          // y-solution
+          double y = slope * (x - turtle_.configuration().x) + turtle_.configuration().y;
+          // Check direction
+          double mm = (x - turtle_.configuration().x) / (max_x - turtle_.configuration().x);
+          double nn = (y - turtle_.configuration().y) / (max_y - turtle_.configuration().y);
+          if (mm > 0.0 && nn > 0.0) {
+            // Distance to robot
+            min_distance = euclidean_distance(
+              x, y, turtle_.configuration().x,
+              turtle_.configuration().y);
+          }
+        } else if (det > 0.0) { // 2 solutions
+          // x-solution
+          double x1 = (-b + std::sqrt(det)) / (2.0 * a);
+          double x2 = (-b - std::sqrt(det)) / (2.0 * a);
+          // y-solution
+          double y1 = slope * (x1 - turtle_.configuration().x) + turtle_.configuration().y;
+          double y2 = slope * (x2 - turtle_.configuration().x) + turtle_.configuration().y;
+          // Two solution distances to robot
+          double distance1 = euclidean_distance(
+            x1, y1,
+            turtle_.configuration().x, turtle_.configuration().y);
+          double distance2 = euclidean_distance(
+            x2, y2,
+            turtle_.configuration().x, turtle_.configuration().y);
+          // Get minimum
+          double obs_min_distance = std::min({distance1, distance2});
+
+          // Choose smallest distance
+          if (obs_min_distance == distance1) {
+            double mm = (x1 - turtle_.configuration().x) / (max_x - turtle_.configuration().x);
+            double nn = (y1 - turtle_.configuration().y) / (max_y - turtle_.configuration().y);
+            if (mm > 0.0 && nn > 0.0) {
+              min_distance = obs_min_distance;
+            }
+          } else {
+            double mm = (x2 - turtle_.configuration().x) / (max_x - turtle_.configuration().x);
+            double nn = (y2 - turtle_.configuration().y) / (max_y - turtle_.configuration().y);
+            if (mm > 0.0 && nn > 0.0) {
+              min_distance = obs_min_distance;
+            }
+          }
         }
-        lidar_data_.ranges.at(j) = actual_distance + lidar_noise_(get_random());
+
+        if (min_distance < actual_distance) {
+          actual_distance = min_distance;
+        }
+      }
+      lidar_data_.ranges.at(j) = actual_distance + lidar_noise_(get_random());
     }
     fake_lidar_publisher_->publish(lidar_data_);
   }
@@ -879,10 +886,9 @@ private:
   /// \brief Secondary timer loop (5Hz)
   void timer_callback_2()
   {
-   if (draw_only_ == false)
-    {
-        basic_laser_sensor();
-        lidar();
+    if (draw_only_ == false) {
+      basic_laser_sensor();
+      lidar();
     }
   }
 };
