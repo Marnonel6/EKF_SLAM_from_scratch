@@ -8,6 +8,10 @@
   <arg name="use_rviz" default="true"
    description="Specify if rviz needs to start - true, false"/>
 
+  <!-- Argument to specify configuration file for rviz. -->
+  <arg name="rviz_config" default="$(find-pkg-share nuturtle_control)/config/nuturtle_sim.rviz" 
+   description=".rviz file to configure the simulator"/>
+
   <!-- Argument to specify configuration file for robot control. -->
   <arg name="config_file1" default="diff_params.yaml" 
    description=".yaml file to configure robot controls"/>
@@ -15,10 +19,6 @@
  <!-- Argument to specify configuration file for simulator. -->
   <arg name="config_file_world" default="basic_world.yaml" 
    description=".yaml file to configure the simulator"/>
-
-  <!-- Argument to specify configuration file for rviz. -->
-  <arg name="rviz_config" default="$(find-pkg-share nuturtle_control)/config/nuturtle_sim.rviz" 
-   description=".rviz file to configure the simulator"/>
 
   <!-- Localhost turtlebot3 node -->
   <node pkg="numsr_turtlebot" exec="numsr_turtlebot" name="numsr_turtlebot"

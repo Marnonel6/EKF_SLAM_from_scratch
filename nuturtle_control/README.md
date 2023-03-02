@@ -22,25 +22,21 @@ twist message, stopping the publishing, and setting the start position of the ro
         - localhost - Run numsr_turtlebot on physical robot
         - none - No robot
     * `use_rviz`: Launches rviz if true
-    * `body_id`: The name of the body frame of the odometry/blue robot
-    * `odom_id`: The name of the odometry frame. Defaults to odom if not specified
-    * `left_wheel_joint`: The name of the left wheel joint
-    * `left_wheel_joint`: The name of the right wheel joint
 
     * The launch file launches a blue turtlebot3 for odometry representatin with the launch file
       `nuturtle_description/launch/load_one.launch.py`.
     * The node `turtle_control` and `odometry` is always launched.
     * A static broadcaster broadcasts the transform between `nusim/world` and `odom`.
     * Rviz is launched to display the robots and the environment.
-    * `ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=<X> use_rviz:=<Y> robot:=<Z>  body_id:=<A> left_wheel_joint:=<B> right_wheel_joint:=<C>`
+    * `ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=<X> use_rviz:=<Y> robot:=<Z>`
 
 # Simulation
-     ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=true robot:=nusim body_id:=blue/base_footprint left_wheel_joint:=blue/wheel_left_link right_wheel_joint:=blue/wheel_right_link
+     ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=true robot:=nusim
     
 [Screencast from 02-08-2023 09:24:08 PM.webm](https://user-images.githubusercontent.com/60977336/217710169-f161eccf-7cdb-4175-a96f-3732156d67a9.webm)
 
 # Physical robot - Launch on turtlebot3
-     ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=false robot:=localhost body_id:=blue/base_footprint left_wheel_joint:=blue/wheel_left_link right_wheel_joint:=blue/wheel_right_link
+     ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=circle use_rviz:=false robot:=localhost
     
 
 [Screencast from 02-08-2023 09:08:01 PM.webm](https://user-images.githubusercontent.com/60977336/217708150-05fbc153-caa0-4c85-a106-7f2be1badcbd.webm)
@@ -63,12 +59,12 @@ twist message, stopping the publishing, and setting the start position of the ro
 * ```collision_radius``` (float): Robot collision radius [m]
 * ```body_id``` (std::string): The name of the body frame of the robot
 * ```odom_id``` (std::string): The name of the odometry frame
-* ```wheel_left``` (std::string): The name of the left wheel joint
-* ```wheel_right``` (std::string): The name of the right wheel joint
+* ```left_wheel_joint```: The name of the left wheel joint
+* ```left_wheel_joint```: The name of the right wheel joint
 * ```wheelradius``` (float): The radius of the wheels [m]
 * ```track_width``` (float): The distance between the wheels [m]
 
-# Odometry measurement
+# Odometry accuracy test:
 * Start:
     - x = 0.1317 [m]
     - y = -0.0197 [m]

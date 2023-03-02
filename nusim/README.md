@@ -36,6 +36,20 @@ loop runs at a fixed frequency until termination.
 * ```walls.y_lenght``` (float): Inner lenght of walls in y direction [m]
 * ```walls.h``` (float): Walls height [m]
 * ```walls.w``` (float): Walls width [m]
+* ```motor_cmd_per_rad_sec``` (double): Motor command to rad/s conversion factor
+* ```encoder_ticks_per_rad``` (double): Encoder ticks to radians conversion factor
+* ```input_noise``` (double): Noise added to input signals from turtlebot
+* ```slip_fraction``` (double): Wheel slippage factor for turtlebot
+* ```max_range``` (double): Max sensor laser range
+* ```basic_sensor_variance``` (double): Laser sensor variance
+* ```collision_radius``` (double): Robot collision radius [m]
+* ```min_range_lidar``` (double): Minimum range of lidar [m]
+* ```max_range_lidar``` (double): Maximum range of lidar [m]
+* ```angle_increment_lidar``` (double): Lidar angle increment between samples [deg]
+* ```num_samples_lidar``` (double): Number of distance samples per rotation
+* ```resolution_lidar``` (double): Resolution of lidar distance measured
+* ```noise_level_lidar``` (double): Noise on lidar distance samples
+* ```draw_only``` (bool) Only draw obstacles and walls
 
 # Example
 
