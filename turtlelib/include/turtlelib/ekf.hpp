@@ -13,7 +13,7 @@
 namespace turtlelib
 {
     /// \brief maximum number of obstacles
-    constexpr int n=3;
+    constexpr int n=10;
     /// \brief size of robot state vector
     constexpr int m=3;
     /// \brief process noise

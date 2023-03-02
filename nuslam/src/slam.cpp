@@ -29,8 +29,8 @@
 ///     None
 ///
 /// BROADCASTERS:
-///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts green turtle position
-///     \param tf_broadcaster_2_
+///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts green turtle position relative to odom
+///     \param tf_broadcaster_2_ (tf2_ros::TransformBroadcaster): Broadcasts map to odom from SLAM corrections to ensure green turtle is in correct positions
 
 #include <chrono>
 #include <functional>
