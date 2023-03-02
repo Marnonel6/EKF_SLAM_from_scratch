@@ -67,6 +67,7 @@ twist message, stopping the publishing, and setting the start position of the ro
 * ```left_wheel_joint```: The name of the left wheel joint
 * ```left_wheel_joint```: The name of the right wheel joint
 
+
 # Odometry accuracy test:
 * Start:
     - x = 0.1317 [m]
