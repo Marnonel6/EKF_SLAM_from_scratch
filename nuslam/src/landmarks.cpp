@@ -38,6 +38,7 @@
 #include "nav_msgs/msg/path.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "visualization_msgs/msg/marker.hpp"
+#include "sensor_msgs/msg/laser_scan.hpp"
 
 using namespace std::chrono_literals;
 
@@ -52,11 +53,31 @@ public:
   : Node("landmarks")
   {
 
+    // Subscribers
+    lidar_subscriber_ = create_subscription<sensor_msgs::msg::LaserScan>(
+      "/nusim/fake_lidar_scan", 10, std::bind(
+        &landmarks::lidar_sensor_callback,
+        this, std::placeholders::_1));
+
+
 
   }
 
 private:
   // Variables
+
+  // Create objects
+  rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr lidar_subscriber_;
+
+
+
+  /// \brief Lidar sensor topic callback
+  void lidar_sensor_callback(const sensor_msgs::msg::LaserScan & msg)
+  {
+
+    // visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
+
+  }
 
 };
 
