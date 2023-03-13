@@ -213,7 +213,7 @@ private:
     prev_wheel_pos_.right = msg.position[1];
   }
 
-  /// \brief Joint states topic callback
+  /// \brief fake lidar sensor topic callback
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray & msg)
   {
     EKFSlam_.EKFSlam_Predict(
