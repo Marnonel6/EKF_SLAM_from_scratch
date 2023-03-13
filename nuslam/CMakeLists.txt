@@ -48,9 +48,13 @@ endif()
 add_executable(slam src/slam.cpp)
 ament_target_dependencies(slam rclcpp sensor_msgs nav_msgs tf2_ros tf2 geometry_msgs nuturtle_control visualization_msgs)
 target_link_libraries(slam turtlelib::turtlelib "${cpp_typesupport_target}" ${ARMADILLO_LIBRARIES})
+add_executable(landmarks src/landmarks.cpp)
+ament_target_dependencies(landmarks rclcpp sensor_msgs nav_msgs tf2_ros tf2 geometry_msgs nuturtle_control visualization_msgs)
+target_link_libraries(landmarks turtlelib::turtlelib "${cpp_typesupport_target}" ${ARMADILLO_LIBRARIES})
 
 install(TARGETS
   slam
+  landmarks
   DESTINATION lib/${PROJECT_NAME}
 )
 
