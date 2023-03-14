@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /Clustering_estimate1/Status1
       Splitter Ratio: 0.5
     Tree Height: 746
   - Class: rviz_common/Selection
@@ -531,6 +532,18 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /slam/obstacles
       Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: false
+      Name: Clustering_estimate
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /landmarks/clusters
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -592,10 +605,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0047969818115234
+      Pitch: 0.879797101020813
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.5835635662078857
+      Yaw: 2.623563766479492
     Saved: ~
 Window Geometry:
   Displays:

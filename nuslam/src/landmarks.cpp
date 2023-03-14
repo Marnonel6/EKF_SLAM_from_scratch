@@ -1,23 +1,26 @@
 /// \file
-/// \brief The slam node subscribes to joint_states and publishes to the green/odom navigation
-///        topic. The node handles the SLAM calculations of the green robot.
+/// \brief
 ///
 /// PARAMETERS:
-///     \param body_id (std::string): The name of the body frame of the robot
+///     \param obstacles.r (double): Radius of cylindrical obstacles [m]
+///     \param obstacles.h (double): Height of cylindrical obstacles [m]
 ///
 /// PUBLISHES:
-///     \param /odom (nav_msgs::msg::Odometry): Odometry publisher
+///     \param ~/clusters (visualization_msgs::msg::MarkerArray): Clusters MarkerArray as seen by
+///                                                               Clustering algorithm
 ///
 /// SUBSCRIBES:
-///     \param /joint_states (sensor_msgs::msg::JointState): Subscribes joint states for green robot
+///     \param /nusim/fake_lidar_scan (sensor_msgs::msg::LaserScan): Subscribes to the fake lidar
+///                                                                  points
 ///
 /// SERVERS:
+///     None
 ///
 /// CLIENTS:
 ///     None
 ///
 /// BROADCASTERS:
-///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts green turtle position relative to odom
+///     None
 
 #include <chrono>
 #include <functional>
@@ -42,9 +45,10 @@
 
 using namespace std::chrono_literals;
 
-/// \brief The class subscribes to
+/// \brief
 ///
-///  \param body_id_ (std::string): The name of the body frame of the robot
+///  \param obstacles_r_ (double): Radius of cylindrical obstacles [m]
+///  \param obstacles_h_ (double): Height of cylindrical obstacles [m]
 
 class landmarks : public rclcpp::Node
 {
@@ -52,6 +56,17 @@ public:
   landmarks()
   : Node("landmarks")
   {
+    // Parameter descirption
+    auto obstacles_r_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto obstacles_h_des = rcl_interfaces::msg::ParameterDescriptor{};
+    obstacles_r_des.description = "Radius of cylindrical obstacles [m]";
+    obstacles_h_des.description = "Height of cylindrical obstacles [m]";
+    // Declare default parameters values
+    declare_parameter("obstacles.r", 0.0, obstacles_r_des);
+    declare_parameter("obstacles.h", 0.0, obstacles_h_des);
+    // Get params - Read params from yaml file that is passed in the launch file
+    obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<double>();
+    obstacles_h_ = get_parameter("obstacles.h").get_parameter_value().get<double>();
 
     // Subscribers
     lidar_subscriber_ = create_subscription<sensor_msgs::msg::LaserScan>(
@@ -59,7 +74,9 @@ public:
         &landmarks::lidar_sensor_callback,
         this, std::placeholders::_1));
 
-
+    // Publishers
+    cluster_publisher_ =
+      create_publisher<visualization_msgs::msg::MarkerArray>("~/clusters", 10);
 
   }
 
@@ -67,9 +84,12 @@ private:
   // Variables
   bool Flag_cluster = true;
   double threshold_dist_ = 0.1; // Threshold for clustering lidar data
+  double obstacles_r_;    // Size of obstacles
+  double obstacles_h_;
 
   // Create objects
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr lidar_subscriber_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr cluster_publisher_;
 
 
   /// \brief Lidar sensor topic callback
@@ -99,7 +119,6 @@ private:
                 if (distance_to_next < threshold_dist_)
                 {
                     // Save to vector
-                    RCLCPP_ERROR_STREAM(get_logger(), (i+count)%360 << " " << (i+1+count)%360 << " ");
                     temp_cluster.push_back(point_next_i);
                     // Check next point in lidar scan
                     count++;
@@ -153,6 +172,50 @@ private:
     //     }
     // }
 
+    create_clusters_array(clusters); // Publish clusters
+
+  }
+
+  /// \brief Create clusters MarkerArray as seen by Clustering algorithm and publish them to a topic to display them in Rviz
+  void create_clusters_array(std::vector<std::vector<turtlelib::Vector2D>> clusters)
+  {
+    visualization_msgs::msg::MarkerArray clusters_;
+
+    for (size_t i = 0; i < clusters.size(); i++)
+    {
+        auto x_avg = 0.0;
+        auto y_avg = 0.0;
+        auto num_elements = 0.0;
+        for (size_t j = 0; j < clusters.at(i).size(); j++)
+        {
+            x_avg += clusters.at(i).at(j).x;
+            y_avg += clusters.at(i).at(j).y;
+            num_elements += 1.0;
+        }
+
+        visualization_msgs::msg::Marker cluster_;
+        cluster_.header.frame_id = "green/base_footprint";
+        cluster_.header.stamp = get_clock()->now();
+        cluster_.id = i;
+        cluster_.type = visualization_msgs::msg::Marker::CYLINDER;
+        cluster_.action = visualization_msgs::msg::Marker::ADD;
+        cluster_.pose.position.x = x_avg/num_elements;
+        cluster_.pose.position.y = y_avg/num_elements;
+        cluster_.pose.position.z = obstacles_h_/2.0;
+        cluster_.pose.orientation.x = 0.0;
+        cluster_.pose.orientation.y = 0.0;
+        cluster_.pose.orientation.z = 0.0;
+        cluster_.pose.orientation.w = 1.0;
+        cluster_.scale.x = obstacles_r_ * 2.0;       // Diameter in x
+        cluster_.scale.y = obstacles_r_ * 2.0;       // Diameter in y
+        cluster_.scale.z = obstacles_h_;             // Height
+        cluster_.color.r = 1.0f;
+        cluster_.color.g = 0.0f;
+        cluster_.color.b = 1.0f;
+        cluster_.color.a = 1.0;
+        clusters_.markers.push_back(cluster_);
+    }
+    cluster_publisher_->publish(clusters_);
   }
 
   /// \brief Calculate the euclidean distance

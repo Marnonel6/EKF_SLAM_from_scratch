@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- Argument to specify configuration file for simulator. -->
+  <arg name="config_file_world" default="basic_world.yaml" 
+   description=".yaml file to configure the simulator"/>
+
+  <!-- Landmakrs node -->
+  <node pkg="nuslam" exec="landmarks" name="landmarks">
+      <param from="$(find-pkg-share nusim)/config/$(var config_file_world)"/>
+  </node>
+
+</launch>
