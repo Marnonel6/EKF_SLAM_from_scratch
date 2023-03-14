@@ -82,7 +82,7 @@ void EKFSlam::EKFSlam_Predict(Twist2D twist)
 void EKFSlam::EKFSlam_Correct(double x, double y, size_t j)
 {
   // Convert relative measurements to range bearing
-  double r_j = std::sqrt(x * x + y * y);
+    double r_j = std::sqrt(x * x + y * y); //!const auto
   double phi_j = std::atan2(y, x);      // Normalize ?? TODO ??
 
   // Check if landmark has been seen before
