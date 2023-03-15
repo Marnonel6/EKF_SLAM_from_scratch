@@ -124,7 +124,7 @@ private:
                     // Check next point in lidar scan
                     count++;
                 }
-                else if (count>=2) // We have atleast 3 points in the cluster
+                else if (count>=3) // We have atleast 4 points in the cluster
                 {
                     // End of cluster
                     Flag_cluster = false;
@@ -175,7 +175,10 @@ private:
     for (size_t i = 0; i < clusters.size(); i++)
     {
         turtlelib::Circle circle_params = turtlelib::circle_fitting(clusters.at(i));
-        RCLCPP_ERROR_STREAM(get_logger(), "\n Circle " << i << " x " << circle_params.x << " y " << circle_params.y << " R " << circle_params.R);
+        if (circle_params.R < 0.1) // Filter circle for radii smaller than 0.1
+        {
+            RCLCPP_ERROR_STREAM(get_logger(), "\n Circle " << i << " x " << circle_params.x << " y " << circle_params.y << " R " << circle_params.R);
+        }
     }
 
     RCLCPP_ERROR_STREAM(get_logger(), "\n\n\n");
