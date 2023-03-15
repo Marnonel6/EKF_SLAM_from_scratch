@@ -1,6 +1,7 @@
 #include <iostream>
 #include <armadillo>
 #include "turtlelib/circle_fitting.hpp"
+#include "turtlelib/rigid2d.hpp"
 
 namespace turtlelib
 {
@@ -38,7 +39,7 @@ namespace turtlelib
         /*
             Step 5: Data matrix
         */
-        arma::mat Z{cluster.size(), 4, arma::fill::zeros};
+        arma::mat Z{};
 
         for (size_t i = 0; i < cluster.size(); i++)
         {
@@ -71,16 +72,6 @@ namespace turtlelib
         H(2,2) = 1.0;
 
         /*
-            Step 8: Constraint matrix inverse
-        */
-        arma::mat H_inv(4, 4, arma::fill::zeros);
-        H(3,3) = -2.0*z_mean;    // eq...(8)
-        H(3,0) = 0.5;
-        H(0,3) = 0.5;
-        H(1,1) = 1.0;
-        H(2,2) = 1.0;
-
-        /*
             Step 9: Singular Value Decomposition of Z
         */
         arma::mat U{};
@@ -94,10 +85,6 @@ namespace turtlelib
             /*
                 Step 10: sigma4 < 10^-12
             */
-            // A(0) = V(0,3);
-            // A(1) = V(1,3);
-            // A(2) = V(2,3);
-            // A(3) = V(3,3);
             A = V.col(3);
         }
         else
@@ -106,22 +93,26 @@ namespace turtlelib
                 Step 11: sigma4 > 10^-12
             */
             arma::mat Y = V*arma::diagmat(s)*trans(V);    // eq...(10)
-            arma::mat Q = Y*H_inv*Y;
+            /*
+                Step 8: Constraint matrix inverse
+            */
+            arma::mat Q = Y*H.i()*Y;
             // eig vec & val Q
             arma::cx_vec eigval{};
             arma::cx_mat eigvec{};
             arma::eig_gen(eigval, eigvec, Q);
             // Get real
-            arma::vec real_eigval = arma::real(eigval);
+            arma::mat real_eigval = arma::real(eigval);
             arma::mat real_eigvec = arma::real(eigvec);
             // Set A* = smallest eig value's vec
             auto min = 1000000.0;
             size_t min_index = 0;
+
             for (size_t i = 0; i < real_eigval.size(); i++)
             {
-                if (real_eigval(0) < min) // Find the smallest eigval
+                if (real_eigval(i) < min && real_eigval(i) > 0.0) // Find the smallest positive eigval
                 {
-                    min = real_eigval(0);
+                    min = real_eigval(i);
                     min_index = i;
                 }
             }
@@ -133,11 +124,16 @@ namespace turtlelib
         /*
             Step 12: Equation for circle eq...(11)
         */
-        const auto a = -A(1)/(2.0*A(0));    // eq...(12)
-        const auto b = -A(2)/(2.0*A(0));    // eq...(13)
-        const auto R = std::sqrt((A(1)*A(1) + A(2)*A(2) - 4.0*A(0)*A(3)) / (4.0*A(0)*A(0))); // eq...(14)
+        double a = -A(1)/(2.0*A(0));    // eq...(12)
+        double b = -A(2)/(2.0*A(0));    // eq...(13)
+        double R = std::sqrt((A(1)*A(1) + A(2)*A(2) - 4.0*A(0)*A(3)) / (4.0*A(0)*A(0))); // eq...(14)
 
-    return {a, b, R};
+        /*
+            Step 13: Get centroid coordinates
+        */
+        double cx = a + centroid_x_hat;
+        double cy = b + centroid_y_hat;
+
+    return {cx, cy, R};
     }
-
 }

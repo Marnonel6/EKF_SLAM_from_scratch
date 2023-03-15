@@ -10,6 +10,7 @@ add_library(turtlelib src/rigid2d.cpp src/diff_drive.cpp src/ekf.cpp src/circle_
 # find dependencies
 find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
+target_link_libraries(turtlelib ${ARMADILLO_LIBRARIES})
 
 # Public include directories can be used by other targets that link against turtlelib
 # By adding include/ to the include path, this means that files in e.g., include/turtlelib

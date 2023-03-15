@@ -8,8 +8,10 @@ Contributers:
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <sstream>
+#include <armadillo>
 #include "turtlelib/rigid2d.hpp"
 #include "turtlelib/diff_drive.hpp"
+#include "turtlelib/circle_fitting.hpp"
 
 using Catch::Matchers::WithinAbs;
 using turtlelib::Transform2D;
@@ -22,6 +24,8 @@ using turtlelib::almost_equal;
 using turtlelib::deg2rad;
 using turtlelib::normalize_angle;
 using turtlelib::PI;
+using turtlelib::Circle;
+using turtlelib::circle_fitting;
 
 
 TEST_CASE("rotation()","[transform]") // Marno, Nel
@@ -266,4 +270,19 @@ TEST_CASE("InverseKinematics(), Wheel slip/Impossible twist", "[diff_drive]") //
     DiffDrive Raphael(1.0,4.0);
     Twist2D arc_ccw{0, 0, 1};
     REQUIRE_THROWS_AS(Raphael.InverseKinematics(arc_ccw), std::logic_error);
+}
+
+TEST_CASE("circle_fitting()", "[circle_fitting]") // Marno, Nel
+{
+    std::vector<turtlelib::Vector2D> cluster_1{{1,7},{2,6},{5,8},{7,7},{9,5},{3,7}};
+    Circle circle_1 = circle_fitting(cluster_1);
+    REQUIRE_THAT(circle_1.x, Catch::Matchers::WithinAbs(4.615482, 10e-4));
+    REQUIRE_THAT(circle_1.y, Catch::Matchers::WithinAbs(2.807354, 10e-4));
+    REQUIRE_THAT(circle_1.R, Catch::Matchers::WithinAbs(4.8275, 10e-4));
+
+    std::vector<turtlelib::Vector2D> cluster_2{{-1,0},{-0.3,-0.06},{0.3,0.1},{1,0}};
+    Circle circle_2 = circle_fitting(cluster_2);
+    REQUIRE_THAT(circle_2.x, Catch::Matchers::WithinAbs(0.4908357, 10e-4));
+    REQUIRE_THAT(circle_2.y, Catch::Matchers::WithinAbs(-22.15212, 10e-4));
+    REQUIRE_THAT(circle_2.R, Catch::Matchers::WithinAbs(22.17979, 10e-4));
 }

@@ -7,10 +7,8 @@
 
 #include <iosfwd>
 #include <cmath>
-#include "turtlelib/rigid2d.hpp"
-#include "turtlelib/diff_drive.hpp"
 #include <armadillo>
-#include <unordered_set>
+#include "turtlelib/rigid2d.hpp"
 
 namespace turtlelib
 {
@@ -19,10 +17,10 @@ namespace turtlelib
     struct Circle
     {
         /// \brief the x coordinate of the circle's centroid
-        double a = 0.0;
+        double x = 0.0;
 
         /// \brief the y coordinate of the circle's centroid
-        double b = 0.0;
+        double y = 0.0;
 
         /// \brief the radius of the circle
         double R = 0.0;
