@@ -79,7 +79,7 @@ namespace turtlelib
         arma::mat V{};
         arma::svd(U, s, V, Z);    // eq...(9)
 
-        arma::colvec A{4, arma::fill::zeros};
+        arma::colvec A{};
         if (s(3) < 10e-12)
         {
             /*
