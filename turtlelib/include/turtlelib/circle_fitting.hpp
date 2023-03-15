@@ -12,7 +12,6 @@
 
 namespace turtlelib
 {
-
     /// \brief Circle size and location
     struct Circle
     {
@@ -26,11 +25,9 @@ namespace turtlelib
         double R = 0.0;
     };
 
-    // void centroid_coordinates
-
-
     /// \brief circle fitting algorithm
     /// \param cluster (std::vector<turtlelib::Vector2D>) pass one cluster in to fit a circle to
+    /// \return radius and x,y coordinates of circle (turtlelib::Circle)
     Circle circle_fitting(std::vector<turtlelib::Vector2D> cluster);
 
 }
