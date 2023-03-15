@@ -34,6 +34,7 @@
 #include "tf2_ros/transform_broadcaster.h"
 #include "turtlelib/diff_drive.hpp"
 #include "turtlelib/ekf.hpp"
+#include "turtlelib/circle_fitting.hpp"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -163,17 +164,21 @@ private:
         // }
     }
 
+    circle_fit(clusters); // Fit circle to clusters
+    create_clusters_array(clusters); // Create and publish clusters
+  }
 
-    // for (size_t i = 0; i<clusters.size(); i++)
-    // {
-    //     for (size_t j = 0; j<clusters.at(i).size(); j++)
-    //     {
-    //         RCLCPP_ERROR_STREAM(get_logger(), "\n" << clusters.at(i).at(j));
-    //     }
-    // }
+  /// \brief Run the circle fitting algorithm to get the circle radius and location (x,y)
+  void circle_fit(std::vector<std::vector<turtlelib::Vector2D>> clusters)
+  {
+    // Iterate through clusters and pass to circle fitting function
+    for (size_t i = 0; i < clusters.size(); i++)
+    {
+        turtlelib::Circle circle_params = turtlelib::circle_fitting(clusters.at(i));
+        RCLCPP_ERROR_STREAM(get_logger(), "\n Circle " << i << " x " << circle_params.x << " y " << circle_params.y << " R " << circle_params.R);
+    }
 
-    create_clusters_array(clusters); // Publish clusters
-
+    RCLCPP_ERROR_STREAM(get_logger(), "\n\n\n");
   }
 
   /// \brief Create clusters MarkerArray as seen by Clustering algorithm and publish them to a topic to display them in Rviz
