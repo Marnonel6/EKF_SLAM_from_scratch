@@ -175,7 +175,7 @@ private:
     for (size_t i = 0; i < clusters.size(); i++)
     {
         turtlelib::Circle circle_params = turtlelib::circle_fitting(clusters.at(i));
-        if (circle_params.R < 0.1) // Filter circle for radii smaller than 0.1
+        if (circle_params.R < 0.1 && circle_params.R > 0.01) // Filter circle for radii smaller than 0.1 and greater than 0.01
         {
             RCLCPP_ERROR_STREAM(get_logger(), "\n Circle " << i << " x " << circle_params.x << " y " << circle_params.y << " R " << circle_params.R);
         }

@@ -3,6 +3,8 @@
   <!-- Argument to specify configuration file for simulator. -->
   <arg name="config_file_world" default="basic_world.yaml" 
    description=".yaml file to configure the simulator"/>
+  <arg name="robot" default="nusim"
+   description="Where to launch the nodes - robot, nusim, nothing"/>
 
   <!-- Landmakrs node -->
   <node pkg="nuslam" exec="landmarks" name="landmarks">
@@ -12,6 +14,7 @@
   <!-- Launch the SLAM simulation launch file -->
   <include file="$(find-pkg-share nuslam)/launch/slam.launch.xml">
       <arg name="cmd_src" value="teleop"/>
+      <arg name="robot" value="$(var robot)"/>
   </include>
 
 </launch>
