@@ -9,4 +9,9 @@
       <param from="$(find-pkg-share nusim)/config/$(var config_file_world)"/>
   </node>
 
+  <!-- Launch the SLAM simulation launch file -->
+  <include file="$(find-pkg-share nuslam)/launch/slam.launch.xml">
+      <arg name="cmd_src" value="teleop"/>
+  </include>
+
 </launch>
