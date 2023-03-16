@@ -21,6 +21,11 @@
 ///
 /// SUBSCRIBES:
 ///     \param /joint_states (sensor_msgs::msg::JointState): Subscribes joint states for green robot
+///     \param /nusim/fake_sensor (visualization_msgs::msg::MarkerArray): Fake sensor circles
+///                                                                       MarkerArray as published
+///                                                                       by the simulator (NUSIM)
+///     \param /landmarks/circle_fit (visualization_msgs::msg::MarkerArray): Fitted circles MarkerArray as
+///                                                                 seen by circle fitting algorithm
 ///
 /// SERVERS:
 ///     \param /initial_pose (std_srvs::srv::Empty): Sets initial pose of the turtle
@@ -29,8 +34,11 @@
 ///     None
 ///
 /// BROADCASTERS:
-///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts green turtle position relative to odom
-///     \param tf_broadcaster_2_ (tf2_ros::TransformBroadcaster): Broadcasts map to odom from SLAM corrections to ensure green turtle is in correct positions
+///     \param tf_broadcaster_ (tf2_ros::TransformBroadcaster): Broadcasts green turtle position
+///                                                             relative to odom
+///     \param tf_broadcaster_2_ (tf2_ros::TransformBroadcaster): Broadcasts map to odom from SLAM
+///                                                               corrections to ensure green turtle
+///                                                               is in correct positions
 
 #include <chrono>
 #include <functional>
