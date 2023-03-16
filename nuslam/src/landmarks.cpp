@@ -8,6 +8,8 @@
 /// PUBLISHES:
 ///     \param ~/clusters (visualization_msgs::msg::MarkerArray): Clusters MarkerArray as seen by
 ///                                                               Clustering algorithm
+///     \param ~/circle_fit (visualization_msgs::msg::MarkerArray): Fitted circles MarkerArray as
+///                                                                 seen by circle fitting algorithm
 ///
 /// SUBSCRIBES:
 ///     \param /nusim/fake_lidar_scan (sensor_msgs::msg::LaserScan): Subscribes to the fake lidar
@@ -78,6 +80,8 @@ public:
     // Publishers
     cluster_publisher_ =
       create_publisher<visualization_msgs::msg::MarkerArray>("~/clusters", 10);
+    circle_fit_publisher_ =
+      create_publisher<visualization_msgs::msg::MarkerArray>("~/circle_fit", 10);
 
   }
 
@@ -91,6 +95,7 @@ private:
   // Create objects
   rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr lidar_subscriber_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr cluster_publisher_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr circle_fit_publisher_;
 
 
   /// \brief Lidar sensor topic callback
@@ -171,6 +176,8 @@ private:
   /// \brief Run the circle fitting algorithm to get the circle radius and location (x,y)
   void circle_fit(std::vector<std::vector<turtlelib::Vector2D>> clusters)
   {
+    std::vector<turtlelib::Circle> circle_list{};
+
     // Iterate through clusters and pass to circle fitting function
     for (size_t i = 0; i < clusters.size(); i++)
     {
@@ -178,10 +185,45 @@ private:
         if (circle_params.R < 0.1 && circle_params.R > 0.01) // Filter circle for radii smaller than 0.1 and greater than 0.01
         {
             RCLCPP_ERROR_STREAM(get_logger(), "\n Circle " << i << " x " << circle_params.x << " y " << circle_params.y << " R " << circle_params.R);
+            circle_list.push_back(circle_params);
         }
     }
 
+    create_circles_array(circle_list); // Publish fitted circles as a MarkerArray
+
     RCLCPP_ERROR_STREAM(get_logger(), "\n\n\n");
+  }
+
+  /// \brief Create circle fitted MarkerArray as seen by Circle fitting algorithm and publish them to a topic to display them in Rviz
+  void create_circles_array(std::vector<turtlelib::Circle> circle_list)
+  {
+    visualization_msgs::msg::MarkerArray circles_;
+
+    for (size_t i = 0; i < circle_list.size(); i++)
+    {
+        visualization_msgs::msg::Marker circle_;
+        circle_.header.frame_id = "green/base_footprint";
+        circle_.header.stamp = get_clock()->now();
+        circle_.id = i;
+        circle_.type = visualization_msgs::msg::Marker::CYLINDER;
+        circle_.action = visualization_msgs::msg::Marker::ADD;
+        circle_.pose.position.x = circle_list.at(i).x;
+        circle_.pose.position.y = circle_list.at(i).y;
+        circle_.pose.position.z = obstacles_h_/2.0;
+        circle_.pose.orientation.x = 0.0;
+        circle_.pose.orientation.y = 0.0;
+        circle_.pose.orientation.z = 0.0;
+        circle_.pose.orientation.w = 1.0;
+        circle_.scale.x = circle_list.at(i).R * 2.0; //obstacles_r_ * 2.0;       // Diameter in x
+        circle_.scale.y = circle_list.at(i).R * 2.0; //obstacles_r_ * 2.0;       // Diameter in y
+        circle_.scale.z = obstacles_h_;             // Height
+        circle_.color.r = 0.0f;
+        circle_.color.g = 0.0f;
+        circle_.color.b = 1.0f;
+        circle_.color.a = 1.0;
+        circles_.markers.push_back(circle_);
+    }
+    circle_fit_publisher_->publish(circles_);
   }
 
   /// \brief Create clusters MarkerArray as seen by Clustering algorithm and publish them to a topic to display them in Rviz

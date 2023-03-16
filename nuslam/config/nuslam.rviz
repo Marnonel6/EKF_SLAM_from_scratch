@@ -5,7 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Clustering_estimate1/Status1
+        - /Fitted circles1/Topic1
       Splitter Ratio: 0.5
     Tree Height: 746
   - Class: rviz_common/Selection
@@ -544,6 +544,18 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /landmarks/clusters
       Value: false
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: false
+      Name: Fitted circles
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /landmarks/circle_fit
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -590,25 +602,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 4.297802925109863
+      Distance: 2.9288322925567627
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.16425222158432007
-        Y: -0.005364128388464451
-        Z: -0.2546766698360443
+        X: 0.39343100786209106
+        Y: -0.16600045561790466
+        Z: -0.04351804405450821
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.879797101020813
+      Pitch: 1.2697967290878296
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.623563766479492
+      Yaw: 2.6785645484924316
     Saved: ~
 Window Geometry:
   Displays:
