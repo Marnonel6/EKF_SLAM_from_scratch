@@ -7,6 +7,8 @@
    description="Where to launch the nodes - robot, nusim, nothing"/>
   <arg name="use_rviz" default="false"
    description="Specify if rviz needs to start - true, false"/>
+  <arg name="use_landmarks" default="false"
+   description="Use output of landmarks (circle fitting) for SLAM"/>
 
   <!-- Argument to specify configuration file for robot control. -->
   <arg name="config_file1" default="diff_params.yaml" 
@@ -25,6 +27,7 @@
   <node pkg="nuslam" exec="slam" name="slam">
       <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file1)"/>
       <param from="$(find-pkg-share nusim)/config/$(var config_file_world)"/>
+      <param name="use_landmarks" value="$(var use_landmarks)"/>
       <remap from="/joint_states" to="blue/joint_states"/>
       <!-- Remap jsp to get wheels to rotate -->
   </node>

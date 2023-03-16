@@ -91,6 +91,7 @@ public:
     auto track_width_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto obstacles_r_des = rcl_interfaces::msg::ParameterDescriptor{};
     auto obstacles_h_des = rcl_interfaces::msg::ParameterDescriptor{};
+    auto use_landmarks_des = rcl_interfaces::msg::ParameterDescriptor{};
     body_id_des.description = "The name of the body frame of the robot";
     odom_id_des.description = "The name of the odometry frame";
     wheel_left_des.description = "The name of the left wheel joint";
@@ -99,6 +100,7 @@ public:
     track_width_des.description = "The distance between the wheels [m]";
     obstacles_r_des.description = "Radius of cylindrical obstacles [m]";
     obstacles_h_des.description = "Height of cylindrical obstacles [m]";
+    use_landmarks_des.description = "Use the clustering and circle fitting node for landmarks";
 
     // Declare default parameters values
     declare_parameter("body_id", "green/base_footprint", body_id_des);
@@ -109,6 +111,7 @@ public:
     declare_parameter("track_width", -1.0, track_width_des);
     declare_parameter("obstacles.r", 0.0, obstacles_r_des);
     declare_parameter("obstacles.h", 0.0, obstacles_h_des);
+    declare_parameter("use_landmarks", false, use_landmarks_des);
     // Get params - Read params from yaml file that is passed in the launch file
     body_id_ = get_parameter("body_id").get_parameter_value().get<std::string>();
     odom_id_ = get_parameter("odom_id").get_parameter_value().get<std::string>();
@@ -118,6 +121,7 @@ public:
     track_width_ = get_parameter("track_width").get_parameter_value().get<double>();
     obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<double>();
     obstacles_h_ = get_parameter("obstacles.h").get_parameter_value().get<double>();
+    use_landmarks_ = get_parameter("use_landmarks").get_parameter_value().get<bool>();
 
     // Ensures all values are passed via the launch file
     check_frame_params();
@@ -137,16 +141,22 @@ public:
     obstacles_publisher_ =
       create_publisher<visualization_msgs::msg::MarkerArray>("~/obstacles", 10);
 
-
     // Subscribers
     joint_states_subscriber_ = create_subscription<sensor_msgs::msg::JointState>(
       "joint_states", 10, std::bind(
         &slam::joint_states_callback,
         this, std::placeholders::_1));
-    fake_sensor_subscriber_ = create_subscription<visualization_msgs::msg::MarkerArray>(
-      "/nusim/fake_sensor", 10, std::bind(
-        &slam::fake_sensor_callback,
-        this, std::placeholders::_1));
+    if (use_landmarks_ == false) // Use fake sensor markers
+    {
+        fake_sensor_subscriber_ = create_subscription<visualization_msgs::msg::MarkerArray>(
+          "/nusim/fake_sensor", 10, std::bind(
+            &slam::fake_sensor_callback,
+            this, std::placeholders::_1));
+    }
+    else // Use landmarks node - Clustering and circle fitting output
+    {
+
+    }
 
     // Initial pose service
     initial_pose_server_ = create_service<nuturtle_control::srv::InitialConfig>(
@@ -170,6 +180,7 @@ private:
   double track_width_;
   double obstacles_r_;    // Size of obstacles
   double obstacles_h_;
+  bool use_landmarks_ = false;
   bool Flag_obstacle_seen_ = false;
   int step_ = 0;
   turtlelib::Wheel new_wheel_pos_;
