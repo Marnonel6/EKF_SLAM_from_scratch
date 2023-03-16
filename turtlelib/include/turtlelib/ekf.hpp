@@ -66,6 +66,10 @@ namespace turtlelib
         arma::mat R{2*n,2*n,arma::fill::eye};
         /// \brief Noise for j landmark
         arma::mat Rj{};
+        /// \brief Data association index
+        int N = 0;
+        /// \brief Temporary State of the robot at time t
+        arma::colvec zai_temp{};
 
     public:
         /// \brief start at origin and default the uncertainty
@@ -91,6 +95,12 @@ namespace turtlelib
         /// \param y - landmark y-coordinate
         /// \param j - landmark index j
         void EKFSlam_Correct(double x, double y, size_t j);
+
+        /// \brief data association with the Mahalanobis distance
+        /// \param x - landmark x-coordinate
+        /// \param y - landmark y-coordinate
+        /// \return landmark index j (size_t)
+        size_t Data_association(double x, double y);
 
         /// \brief get SLAM corrected configuration
         Robot_configuration EKFSlam_config();

@@ -153,9 +153,12 @@ public:
             &slam::fake_sensor_callback,
             this, std::placeholders::_1));
     }
-    else // Use landmarks node - Clustering and circle fitting output
+    else // Use landmarks node - Clustering and circle fitting output (Preform data association)
     {
-
+        circle_fitting_subscriber_ = create_subscription<visualization_msgs::msg::MarkerArray>(
+          "/landmarks/circle_fit", 10, std::bind(
+            &slam::circle_fitting_callback,
+            this, std::placeholders::_1));
     }
 
     // Initial pose service
@@ -207,6 +210,7 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_subscriber_;
   rclcpp::Subscription<visualization_msgs::msg::MarkerArray>::SharedPtr fake_sensor_subscriber_;
+  rclcpp::Subscription<visualization_msgs::msg::MarkerArray>::SharedPtr circle_fitting_subscriber_;
   rclcpp::Service<nuturtle_control::srv::InitialConfig>::SharedPtr initial_pose_server_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_2_;
@@ -248,6 +252,32 @@ private:
           sensed_landmarks.markers[j].pose.position.y, j);
       }
     }
+  }
+
+  /// \brief circle fitting topic callback (Preform data association)
+  void circle_fitting_callback(const visualization_msgs::msg::MarkerArray & msg)
+  {
+    EKFSlam_.EKFSlam_Predict(
+      {turtle_.configuration().theta,
+        turtle_.configuration().x, turtle_.configuration().y});
+
+    visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
+
+    for (size_t j = 0; j < sensed_landmarks.markers.size(); j++)
+    {
+        // Preform data association
+        size_t index = EKFSlam_.Data_association(sensed_landmarks.markers[j].pose.position.x,
+                                                 sensed_landmarks.markers[j].pose.position.y);
+
+        RCLCPP_ERROR_STREAM(get_logger(), "\n index: " << index);
+
+        // Pass x,y and the ID output from data association to the Correction step of EKF SLAM
+        EKFSlam_.EKFSlam_Correct(
+          sensed_landmarks.markers[j].pose.position.x,
+          sensed_landmarks.markers[j].pose.position.y, index);
+    }
+
+    RCLCPP_ERROR_STREAM(get_logger(), "\n\n\n");
   }
 
   /// \brief Ensures all values are passed via the launch file

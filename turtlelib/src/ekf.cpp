@@ -86,7 +86,6 @@ void EKFSlam::EKFSlam_Correct(double x, double y, size_t j)
   double phi_j = std::atan2(y, x);      // Normalize ?? TODO ??
 
   // Check if landmark has been seen before
-  // if (auto search = seen_landmarks.find(j); search != seen_landmarks.end())
   if (seen_landmarks.find(j) == seen_landmarks.end()) {
     // Initialize the landmark estimate x and y coordinates in zai
     zai(m + 2 * j) = zai(1) + r_j * cos(phi_j + zai(0));
@@ -141,6 +140,114 @@ void EKFSlam::EKFSlam_Correct(double x, double y, size_t j)
 
   // Update covariance
   covariance = (I - Ki * Hj) * covariance;
+}
+
+size_t EKFSlam::Data_association(double x, double y)
+{
+  // Convert relative measurements to range bearing
+  double r_j = std::sqrt(x * x + y * y);
+  double phi_j = std::atan2(y, x);      // Normalize ?? TODO ??
+
+  // Create a temp zai with new temp landmark
+  zai_temp = zai;
+  // Add N+1
+  // Initialize the landmark estimate x and y coordinates in zai
+  zai_temp(m + 2 * N+1) = zai_temp(1) + r_j * cos(phi_j + zai_temp(0));
+  zai_temp(m + 2 * N+1 + 1) = zai_temp(2) + r_j * sin(phi_j + zai_temp(0));
+
+
+  // Actual measurements
+  zj(0) = r_j;
+  zj(1) = phi_j;
+
+  std::vector<arma::mat> distances{}; // Mahalanobis distance for each landmark
+
+  for (int k = 0; k < N+1; k++)
+  {
+    /*
+        Step 4.1.1
+    */
+    // Estimate measurements
+    Vector2D estimate_rel_dist_j;
+    estimate_rel_dist_j.x = zai_temp(m + 2 * k) - zai_temp(1);
+    estimate_rel_dist_j.y = zai_temp(m + 2 * k + 1) - zai_temp(2);
+    double d_j = estimate_rel_dist_j.x * estimate_rel_dist_j.x + estimate_rel_dist_j.y *
+        estimate_rel_dist_j.y;
+
+    // Calculate H matrix
+    arma::mat zeros_1j(2, 2 * k);
+    arma::mat zeros_1nj(2, 2 * n - 2 * (k + 1));
+    arma::mat temp1(2, 3);
+    arma::mat temp2(2, 2);
+
+    temp1(1, 0) = -1;
+    temp1(0, 1) = -estimate_rel_dist_j.x / std::sqrt(d_j);
+    temp1(1, 1) = estimate_rel_dist_j.y / d_j;
+    temp1(0, 2) = -estimate_rel_dist_j.y / std::sqrt(d_j);
+    temp1(1, 2) = -estimate_rel_dist_j.x / d_j;
+
+    temp2(0, 0) = estimate_rel_dist_j.x / std::sqrt(d_j);
+    temp2(1, 0) = -estimate_rel_dist_j.y / d_j;
+    temp2(0, 1) = estimate_rel_dist_j.y / std::sqrt(d_j);
+    temp2(1, 1) = estimate_rel_dist_j.x / d_j;
+
+    arma::mat Hk = arma::join_rows(arma::join_rows(temp1, zeros_1j), arma::join_rows(temp2, zeros_1nj));
+
+
+    /*
+        Step 4.1.2
+    */
+    // Noise
+    R = arma::mat{2 * n, 2 * n, arma::fill::eye} *R_noise;
+    arma::mat Rk = R.submat(k, k, k + 1, k + 1);
+
+    arma::mat covariance_k = Hk*covariance*Hk.t() + Rk;
+
+
+    /*
+        Step 4.1.3
+    */
+    double r_j_hat = std::sqrt(d_j);
+    double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai(0));
+    zj_hat(0) = r_j_hat;
+    zj_hat(1) = phi_j_hat;
+
+
+    /*
+        Step 4.1.4 -> Calc Mahalanobis distance
+    */
+    arma::mat dist_k = ((zj - zj_hat).t())*(covariance_k.i())*(zj - zj_hat);
+
+    distances.push_back(dist_k);
+  }
+
+  /*
+      Step 4.2 & 4.3
+  */
+  // Set distance threshold to distance N+1
+  arma::mat distance_threshold = distances.at(distances.size()-1);
+  size_t index = N+1;
+  bool new_landmark = true;
+
+  for (size_t i = 0; i<distances.size(); i++)
+  {
+    if (distances.at(i)(0) < distance_threshold(0))
+    {
+        distance_threshold = distances.at(i);
+        index = i;
+        new_landmark = false; // Not a new landmark
+    }
+  }
+
+  /*
+      Step 4.4
+  */
+  if (new_landmark == true) // If it is a new landmark increase N
+  {
+    N++;
+  }
+
+  return index;
 }
 
 Robot_configuration EKFSlam::EKFSlam_config()
