@@ -475,7 +475,7 @@ Visualization Manager:
         Value: /green/path
       Value: true
     - Class: rviz_default_plugins/MarkerArray
-      Enabled: true
+      Enabled: false
       Name: FakeSensor Obstacles
       Namespaces:
         {}
@@ -485,7 +485,7 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /nusim/fake_sensor
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -524,7 +524,7 @@ Visualization Manager:
       Enabled: true
       Name: SLAM Landmarks
       Namespaces:
-        {}
+        "": true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -617,10 +617,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.2697967290878296
+      Pitch: 0.5197974443435669
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.6785645484924316
+      Yaw: 2.328558921813965
     Saved: ~
 Window Geometry:
   Displays:
