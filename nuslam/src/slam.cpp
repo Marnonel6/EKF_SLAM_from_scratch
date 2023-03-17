@@ -146,19 +146,16 @@ public:
       "joint_states", 10, std::bind(
         &slam::joint_states_callback,
         this, std::placeholders::_1));
-    if (use_landmarks_ == false) // Use fake sensor markers
-    {
-        fake_sensor_subscriber_ = create_subscription<visualization_msgs::msg::MarkerArray>(
-          "/nusim/fake_sensor", 10, std::bind(
-            &slam::fake_sensor_callback,
-            this, std::placeholders::_1));
-    }
-    else // Use landmarks node - Clustering and circle fitting output (Preform data association)
-    {
-        circle_fitting_subscriber_ = create_subscription<visualization_msgs::msg::MarkerArray>(
-          "/landmarks/circle_fit", 10, std::bind(
-            &slam::circle_fitting_callback,
-            this, std::placeholders::_1));
+    if (use_landmarks_ == false) { // Use fake sensor markers
+      fake_sensor_subscriber_ = create_subscription<visualization_msgs::msg::MarkerArray>(
+        "/nusim/fake_sensor", 10, std::bind(
+          &slam::fake_sensor_callback,
+          this, std::placeholders::_1));
+    } else { // Use landmarks node - Clustering and circle fitting output (Preform data association)
+      circle_fitting_subscriber_ = create_subscription<visualization_msgs::msg::MarkerArray>(
+        "/landmarks/circle_fit", 10, std::bind(
+          &slam::circle_fitting_callback,
+          this, std::placeholders::_1));
     }
 
     // Initial pose service
@@ -263,16 +260,16 @@ private:
 
     visualization_msgs::msg::MarkerArray sensed_landmarks = msg;
 
-    for (size_t j = 0; j < sensed_landmarks.markers.size(); j++)
-    {
-        // Preform data association
-        size_t index = EKFSlam_.Data_association(sensed_landmarks.markers[j].pose.position.x,
-                                                 sensed_landmarks.markers[j].pose.position.y);
+    for (size_t j = 0; j < sensed_landmarks.markers.size(); j++) {
+      // Preform data association
+      size_t index = EKFSlam_.Data_association(
+        sensed_landmarks.markers[j].pose.position.x,
+        sensed_landmarks.markers[j].pose.position.y);
 
-        // Pass x,y and the ID output from data association to the Correction step of EKF SLAM
-        EKFSlam_.EKFSlam_Correct(
-          sensed_landmarks.markers[j].pose.position.x,
-          sensed_landmarks.markers[j].pose.position.y, index);
+      // Pass x,y and the ID output from data association to the Correction step of EKF SLAM
+      EKFSlam_.EKFSlam_Correct(
+        sensed_landmarks.markers[j].pose.position.x,
+        sensed_landmarks.markers[j].pose.position.y, index);
     }
   }
 

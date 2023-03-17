@@ -106,69 +106,67 @@ private:
     std::vector<std::vector<turtlelib::Vector2D>> clusters; // Vector of clusters
     bool Flag_cluster_wrap_around = false; // Flag that notifies if wrap around of a cluster has occured
 
-    for (size_t i = 0; i < msg.ranges.size(); i++) //  Loop through one cycle of lidar points
-    {
-        if (msg.ranges.at(i) > 0.01) // Check if the lidar point hit an object
-        {
-            std::vector<turtlelib::Vector2D> temp_cluster{}; // Create a possible cluster
-            Flag_cluster = true;
-            size_t count = 0;
+    for (size_t i = 0; i < msg.ranges.size(); i++) { //  Loop through one cycle of lidar points
+      if (msg.ranges.at(i) > 0.01) { // Check if the lidar point hit an object
+        std::vector<turtlelib::Vector2D> temp_cluster{};     // Create a possible cluster
+        Flag_cluster = true;
+        size_t count = 0;
 
-            while(Flag_cluster)
-            {
-                turtlelib::Vector2D point_i = PolarToCartesian(msg.ranges.at((i + count)%360), turtlelib::normalize_angle(((i+count)%360)*turtlelib::PI/180.0));
-                if (count == 0)
-                {
-                    temp_cluster.push_back(point_i);
-                }
-                turtlelib::Vector2D point_next_i = PolarToCartesian(msg.ranges.at((i + 1 + count)%360), turtlelib::normalize_angle(((i+1+count)%360)*turtlelib::PI/180.0));
-                double distance_to_next = euclidean_distance(point_i.x, point_i.y, point_next_i.x, point_next_i.y);
+        while (Flag_cluster) {
+          turtlelib::Vector2D point_i = PolarToCartesian(
+            msg.ranges.at(
+              (i + count) % 360),
+            turtlelib::normalize_angle(((i + count) % 360) * turtlelib::PI / 180.0));
+          if (count == 0) {
+            temp_cluster.push_back(point_i);
+          }
+          turtlelib::Vector2D point_next_i = PolarToCartesian(
+            msg.ranges.at(
+              (i + 1 + count) % 360),
+            turtlelib::normalize_angle(((i + 1 + count) % 360) * turtlelib::PI / 180.0));
+          double distance_to_next = euclidean_distance(
+            point_i.x, point_i.y, point_next_i.x,
+            point_next_i.y);
 
-                if (distance_to_next < threshold_dist_)
-                {
-                    // Save to vector
-                    temp_cluster.push_back(point_next_i);
-                    // Check next point in lidar scan
-                    count++;
-                }
-                else if (count>=3) // We have atleast 4 points in the cluster
-                {
-                    // End of cluster
-                    Flag_cluster = false;
-                    i = i + count - 1;
+          if (distance_to_next < threshold_dist_) {
+            // Save to vector
+            temp_cluster.push_back(point_next_i);
+            // Check next point in lidar scan
+            count++;
+          } else if (count >= 3) { // We have atleast 4 points in the cluster
+            // End of cluster
+            Flag_cluster = false;
+            i = i + count - 1;
 
-                    // Save cluster to list of clusters
-                    clusters.push_back(temp_cluster);
-                }
-                else
-                {
-                    Flag_cluster = false;
-                }
+            // Save cluster to list of clusters
+            clusters.push_back(temp_cluster);
+          } else {
+            Flag_cluster = false;
+          }
 
-                // Check if wrap around of clusters has occured > 360 Degree
-                if (i+1+count >= 360)
-                {
-                    Flag_cluster_wrap_around = true;
-                }
-            }
+          // Check if wrap around of clusters has occured > 360 Degree
+          if (i + 1 + count >= 360) {
+            Flag_cluster_wrap_around = true;
+          }
         }
+      }
     }
 
     // If wrap around has occured check if the last cluster contains the first cluster
-    if (Flag_cluster_wrap_around == true)
-    {
-        if (clusters.at(0).back().x == clusters.back().back().x && clusters.at(0).back().y == clusters.back().back().y) //  Only delete if if there is an encapsuled cluster
-        {
-            clusters.at(0) = clusters.back(); // Save last cluster as first
-            clusters.pop_back(); // Delete last cluster
-        }
+    if (Flag_cluster_wrap_around == true) {
+      if (clusters.at(0).back().x == clusters.back().back().x &&
+        clusters.at(0).back().y == clusters.back().back().y)                                                            //  Only delete if if there is an encapsuled cluster
+      {
+        clusters.at(0) = clusters.back();     // Save last cluster as first
+        clusters.pop_back();     // Delete last cluster
+      }
 
-        // TODO - Better than checking exact values above???????
-        // if (euclidean_distance(clusters.at(0).back().x, clusters.at(0).back().y, clusters.back().back().x, clusters.back().back().y) < threshold_dist_)
-        // {
-        //     clusters.at(0) = clusters.back(); // Save last cluster as first
-        //     clusters.pop_back(); // Delete last cluster
-        // }
+      // TODO - Better than checking exact values above???????
+      // if (euclidean_distance(clusters.at(0).back().x, clusters.at(0).back().y, clusters.back().back().x, clusters.back().back().y) < threshold_dist_)
+      // {
+      //     clusters.at(0) = clusters.back(); // Save last cluster as first
+      //     clusters.pop_back(); // Delete last cluster
+      // }
     }
 
     circle_fit(clusters); // Fit circle to clusters
@@ -181,13 +179,11 @@ private:
     std::vector<turtlelib::Circle> circle_list{};
 
     // Iterate through clusters and pass to circle fitting function
-    for (size_t i = 0; i < clusters.size(); i++)
-    {
-        turtlelib::Circle circle_params = turtlelib::circle_fitting(clusters.at(i));
-        if (circle_params.R < 0.1 && circle_params.R > 0.01) // Filter circle for radii smaller than 0.1 and greater than 0.01
-        {
-            circle_list.push_back(circle_params);
-        }
+    for (size_t i = 0; i < clusters.size(); i++) {
+      turtlelib::Circle circle_params = turtlelib::circle_fitting(clusters.at(i));
+      if (circle_params.R < 0.1 && circle_params.R > 0.01) { // Filter circle for radii smaller than 0.1 and greater than 0.01
+        circle_list.push_back(circle_params);
+      }
     }
 
     create_circles_array(circle_list); // Publish fitted circles as a MarkerArray
@@ -199,29 +195,28 @@ private:
   {
     visualization_msgs::msg::MarkerArray circles_;
 
-    for (size_t i = 0; i < circle_list.size(); i++)
-    {
-        visualization_msgs::msg::Marker circle_;
-        circle_.header.frame_id = "green/base_footprint";
-        circle_.header.stamp = get_clock()->now();
-        circle_.id = i;
-        circle_.type = visualization_msgs::msg::Marker::CYLINDER;
-        circle_.action = visualization_msgs::msg::Marker::ADD;
-        circle_.pose.position.x = circle_list.at(i).x;
-        circle_.pose.position.y = circle_list.at(i).y;
-        circle_.pose.position.z = obstacles_h_/2.0;
-        circle_.pose.orientation.x = 0.0;
-        circle_.pose.orientation.y = 0.0;
-        circle_.pose.orientation.z = 0.0;
-        circle_.pose.orientation.w = 1.0;
-        circle_.scale.x = circle_list.at(i).R * 2.0; //obstacles_r_ * 2.0;       // Diameter in x
-        circle_.scale.y = circle_list.at(i).R * 2.0; //obstacles_r_ * 2.0;       // Diameter in y
-        circle_.scale.z = obstacles_h_;             // Height
-        circle_.color.r = 0.0f;
-        circle_.color.g = 0.0f;
-        circle_.color.b = 1.0f;
-        circle_.color.a = 1.0;
-        circles_.markers.push_back(circle_);
+    for (size_t i = 0; i < circle_list.size(); i++) {
+      visualization_msgs::msg::Marker circle_;
+      circle_.header.frame_id = "green/base_footprint";
+      circle_.header.stamp = get_clock()->now();
+      circle_.id = i;
+      circle_.type = visualization_msgs::msg::Marker::CYLINDER;
+      circle_.action = visualization_msgs::msg::Marker::ADD;
+      circle_.pose.position.x = circle_list.at(i).x;
+      circle_.pose.position.y = circle_list.at(i).y;
+      circle_.pose.position.z = obstacles_h_ / 2.0;
+      circle_.pose.orientation.x = 0.0;
+      circle_.pose.orientation.y = 0.0;
+      circle_.pose.orientation.z = 0.0;
+      circle_.pose.orientation.w = 1.0;
+      circle_.scale.x = circle_list.at(i).R * 2.0;   //obstacles_r_ * 2.0;       // Diameter in x
+      circle_.scale.y = circle_list.at(i).R * 2.0;   //obstacles_r_ * 2.0;       // Diameter in y
+      circle_.scale.z = obstacles_h_;               // Height
+      circle_.color.r = 0.0f;
+      circle_.color.g = 0.0f;
+      circle_.color.b = 1.0f;
+      circle_.color.a = 1.0;
+      circles_.markers.push_back(circle_);
     }
     circle_fit_publisher_->publish(circles_);
   }
@@ -231,39 +226,37 @@ private:
   {
     visualization_msgs::msg::MarkerArray clusters_;
 
-    for (size_t i = 0; i < clusters.size(); i++)
-    {
-        auto x_avg = 0.0;
-        auto y_avg = 0.0;
-        auto num_elements = 0.0;
-        for (size_t j = 0; j < clusters.at(i).size(); j++)
-        {
-            x_avg += clusters.at(i).at(j).x;
-            y_avg += clusters.at(i).at(j).y;
-            num_elements += 1.0;
-        }
+    for (size_t i = 0; i < clusters.size(); i++) {
+      auto x_avg = 0.0;
+      auto y_avg = 0.0;
+      auto num_elements = 0.0;
+      for (size_t j = 0; j < clusters.at(i).size(); j++) {
+        x_avg += clusters.at(i).at(j).x;
+        y_avg += clusters.at(i).at(j).y;
+        num_elements += 1.0;
+      }
 
-        visualization_msgs::msg::Marker cluster_;
-        cluster_.header.frame_id = "green/base_footprint";
-        cluster_.header.stamp = get_clock()->now();
-        cluster_.id = i;
-        cluster_.type = visualization_msgs::msg::Marker::CYLINDER;
-        cluster_.action = visualization_msgs::msg::Marker::ADD;
-        cluster_.pose.position.x = x_avg/num_elements;
-        cluster_.pose.position.y = y_avg/num_elements;
-        cluster_.pose.position.z = obstacles_h_/2.0;
-        cluster_.pose.orientation.x = 0.0;
-        cluster_.pose.orientation.y = 0.0;
-        cluster_.pose.orientation.z = 0.0;
-        cluster_.pose.orientation.w = 1.0;
-        cluster_.scale.x = obstacles_r_ * 2.0;       // Diameter in x
-        cluster_.scale.y = obstacles_r_ * 2.0;       // Diameter in y
-        cluster_.scale.z = obstacles_h_;             // Height
-        cluster_.color.r = 1.0f;
-        cluster_.color.g = 0.0f;
-        cluster_.color.b = 1.0f;
-        cluster_.color.a = 1.0;
-        clusters_.markers.push_back(cluster_);
+      visualization_msgs::msg::Marker cluster_;
+      cluster_.header.frame_id = "green/base_footprint";
+      cluster_.header.stamp = get_clock()->now();
+      cluster_.id = i;
+      cluster_.type = visualization_msgs::msg::Marker::CYLINDER;
+      cluster_.action = visualization_msgs::msg::Marker::ADD;
+      cluster_.pose.position.x = x_avg / num_elements;
+      cluster_.pose.position.y = y_avg / num_elements;
+      cluster_.pose.position.z = obstacles_h_ / 2.0;
+      cluster_.pose.orientation.x = 0.0;
+      cluster_.pose.orientation.y = 0.0;
+      cluster_.pose.orientation.z = 0.0;
+      cluster_.pose.orientation.w = 1.0;
+      cluster_.scale.x = obstacles_r_ * 2.0;         // Diameter in x
+      cluster_.scale.y = obstacles_r_ * 2.0;         // Diameter in y
+      cluster_.scale.z = obstacles_h_;               // Height
+      cluster_.color.r = 1.0f;
+      cluster_.color.g = 0.0f;
+      cluster_.color.b = 1.0f;
+      cluster_.color.a = 1.0;
+      clusters_.markers.push_back(cluster_);
     }
     cluster_publisher_->publish(clusters_);
   }
@@ -287,7 +280,7 @@ private:
   /// \return 2D vector x and y (turtlelib::Vector2D)
   turtlelib::Vector2D PolarToCartesian(double range, double theta)
   {
-    return {range*cos(theta), range*sin(theta)};
+    return {range * cos(theta), range * sin(theta)};
   }
 
 };

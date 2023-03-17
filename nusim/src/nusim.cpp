@@ -878,12 +878,9 @@ private:
           actual_distance = min_distance;
         }
       }
-      if (actual_distance > max_range_lidar_) // Check lidar max range
-      {
+      if (actual_distance > max_range_lidar_) { // Check lidar max range
         lidar_data_.ranges.at(j) = 0.0;
-      }
-      else
-      {
+      } else {
         lidar_data_.ranges.at(j) = actual_distance + lidar_noise_(get_random());
       }
     }
