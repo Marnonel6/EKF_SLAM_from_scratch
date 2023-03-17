@@ -150,7 +150,6 @@ size_t EKFSlam::Data_association(double x, double y)
 
   // Create a temp zai with new temp landmark
   zai_temp = zai;
-  // Add N+1
   // Initialize the landmark estimate x and y coordinates in zai
   zai_temp(m + 2*N + 1) = zai_temp(1) + r_j * cos(phi_j + zai_temp(0));
   zai_temp(m + 2*N + 1 + 1) = zai_temp(2) + r_j * sin(phi_j + zai_temp(0));
