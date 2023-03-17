@@ -3,7 +3,8 @@
 * Published: Winter 2023
 # Package description
 This is a package to implement and run an Extended Kalman Filter SLAM algorithm in a simulated/real
-world environment. The algorithm is designed to compute the pose of the robot and landmarks relative
+world environment. It uses a clustering, circle fitting and data association algorithm frim the custom
+`ekf library`. The algorithm is designed to compute the pose of the robot and landmarks relative
 to a map frame, and it publishes a transform from map to odom such that map to base_footprint
 reflects the pose of the (green) robot in the map frame. The launchfile includes the necessary nodes
 for running the algorithm and controlling the robot. The data association is assumed to be known,
@@ -25,6 +26,19 @@ larger project on robot mapping and localization.
     * The `slam` node is launched and the green robot that preforms EKF Slam with the ekf library.
     * Rviz is launched to display the robots and the environment.
     * `ros2 launch nuslam slam.launch.xml cmd_src:=<X> use_rviz:=<Y> robot:=<Z>`
+
+- `landmark_detect.launch.xml`:
+    ### Launch arguments:
+    * `robot`: Specifies if the simulation or physical robot is used.
+        - nusim - Launch simulation launch file
+        - localhost - Run numsr_turtlebot on physical robot
+        - none - Displays SLAM obstacles, actual obstacles, walls and odometry (blue) robot
+    * `use_landmarks`: Use output of landmarks (circle fitting) for SLAM.
+        - true - Use output of landmarks (circle fitting) for SLAM.
+        - false - Use fake sensor data.
+    * The `slam.launch.xml` launchfile is launched and the green robot that preforms EKF Slam with the ekf library.
+    * Rviz is launched to display the robots and the environment.
+    * `ros2 launch nuslam landmark_detect.launch.xml use_landmarks:=<X>`
 
 # Parameters
 * ```body_id``` (std::string): The name of the body frame of the robot
