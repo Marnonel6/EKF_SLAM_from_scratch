@@ -1,5 +1,6 @@
 /// \file
-/// \brief
+/// \brief Preforms clustering and circle fitting on the lidar data and then data association for
+///        landmark association for EKF SLAM.
 ///
 /// PARAMETERS:
 ///     \param obstacles.r (double): Radius of cylindrical obstacles [m]
@@ -48,7 +49,8 @@
 
 using namespace std::chrono_literals;
 
-/// \brief
+/// \brief Preforms clustering and circle fitting on the lidar data and then data association for
+///        landmark association for EKF SLAM.
 ///
 ///  \param obstacles_r_ (double): Radius of cylindrical obstacles [m]
 ///  \param obstacles_h_ (double): Height of cylindrical obstacles [m]
