@@ -65,6 +65,10 @@ larger project on robot mapping and localization.
 * ```obstacles.r``` (double): Radius of cylindrical obstacles [m]
 * ```obstacles.h``` (double): Height of cylindrical obstacles [m]
 
+# Example Video
+
+[Screencast from 03-16-2023 08:02:09 PM.webm](https://user-images.githubusercontent.com/60977336/225795689-4396b79f-5ccc-493c-8a90-72d061bc1e6e.webm)
+
 # Example
 
 ![Screenshot from 2023-03-01 19-48-34](https://user-images.githubusercontent.com/60977336/222309949-d921b76a-55d2-4852-8559-c2b7599159ab.png)
