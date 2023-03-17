@@ -152,8 +152,8 @@ size_t EKFSlam::Data_association(double x, double y)
   zai_temp = zai;
   // Add N+1
   // Initialize the landmark estimate x and y coordinates in zai
-  zai_temp(m + 2 * N+1) = zai_temp(1) + r_j * cos(phi_j + zai_temp(0));
-  zai_temp(m + 2 * N+1 + 1) = zai_temp(2) + r_j * sin(phi_j + zai_temp(0));
+  zai_temp(m + 2*N + 1) = zai_temp(1) + r_j * cos(phi_j + zai_temp(0));
+  zai_temp(m + 2*N + 1 + 1) = zai_temp(2) + r_j * sin(phi_j + zai_temp(0));
 
 
   // Actual measurements
@@ -208,7 +208,7 @@ size_t EKFSlam::Data_association(double x, double y)
         Step 4.1.3
     */
     double r_j_hat = std::sqrt(d_j);
-    double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai(0));
+    double phi_j_hat = normalize_angle(atan2(estimate_rel_dist_j.y, estimate_rel_dist_j.x) - zai_temp(0));
     zj_hat(0) = r_j_hat;
     zj_hat(1) = phi_j_hat;
 
