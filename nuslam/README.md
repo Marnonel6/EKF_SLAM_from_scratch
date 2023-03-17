@@ -11,7 +11,7 @@ for running the algorithm and controlling the robot. The data association is ass
 meaning that the algorithm knows which measurement goes with which landmark. This task is part of a
 larger project on robot mapping and localization.
 
-# Launchfile description
+# SLAM launchfile description
 - `slam.launch.xml`:
     ### Launch arguments:
     * `cmd_src`: Specifies which node publishes to the cmd_vel topic.
@@ -27,6 +27,7 @@ larger project on robot mapping and localization.
     * Rviz is launched to display the robots and the environment.
     * `ros2 launch nuslam slam.launch.xml cmd_src:=<X> use_rviz:=<Y> robot:=<Z>`
 
+# Landmark launchfile description
 - `landmark_detect.launch.xml`:
     ### Launch arguments:
     * `robot`: Specifies if the simulation or physical robot is used.
@@ -39,6 +40,20 @@ larger project on robot mapping and localization.
     * The `slam.launch.xml` launchfile is launched and the green robot that preforms EKF Slam with the ekf library.
     * Rviz is launched to display the robots and the environment.
     * `ros2 launch nuslam landmark_detect.launch.xml use_landmarks:=<X>`
+
+# Unknown data association launchfile description
+- `unknown_data_assoc.launch.xml`:
+    ### Launch arguments:
+    * `robot`: Specifies if the simulation or physical robot is used.
+        - nusim - Launch simulation launch file
+        - localhost - Run numsr_turtlebot on physical robot
+        - none - Displays SLAM obstacles, actual obstacles, walls and odometry (blue) robot
+    * `use_landmarks`: Use output of landmarks (circle fitting) for SLAM.
+        - true - Use output of landmarks (circle fitting) for SLAM.
+        - false - Use fake sensor data.
+    * The `landmark_detect.launch.xml` launchfile is launched and the green robot that preforms clustering, circle fitting, unknown data association and EKF Slam with the ekf library.
+    * Rviz is launched to display the robots and the environment.
+    * `ros2 launch nuslam unknown_data_assoc.launch.xml use_landmarks:=<X>`
 
 # Parameters
 * ```body_id``` (std::string): The name of the body frame of the robot
