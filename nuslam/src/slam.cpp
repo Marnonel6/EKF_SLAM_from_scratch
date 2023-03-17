@@ -1,6 +1,6 @@
 /// \file
 /// \brief The slam node subscribes to joint_states and publishes to the green/odom navigation
-///        topic. The node handles the SLAM calculations of the green robot.
+///        topic. The node handles the Data association and SLAM calculations of the green robot.
 ///
 /// PARAMETERS:
 ///     \param body_id (std::string): The name of the body frame of the robot
@@ -269,15 +269,11 @@ private:
         size_t index = EKFSlam_.Data_association(sensed_landmarks.markers[j].pose.position.x,
                                                  sensed_landmarks.markers[j].pose.position.y);
 
-        RCLCPP_ERROR_STREAM(get_logger(), "\n index: " << index);
-
         // Pass x,y and the ID output from data association to the Correction step of EKF SLAM
         EKFSlam_.EKFSlam_Correct(
           sensed_landmarks.markers[j].pose.position.x,
           sensed_landmarks.markers[j].pose.position.y, index);
     }
-
-    RCLCPP_ERROR_STREAM(get_logger(), "\n\n\n");
   }
 
   /// \brief Ensures all values are passed via the launch file
