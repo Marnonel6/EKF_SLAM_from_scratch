@@ -8,7 +8,7 @@
   <arg name="use_landmarks" default="true"
    description="Use output of landmarks (circle fitting) for SLAM"/>
 
-  <!-- Landmakrs node -->
+  <!-- Landmarks node -->
   <node pkg="nuslam" exec="landmarks" name="landmarks">
       <param from="$(find-pkg-share nusim)/config/$(var config_file_world)"/>
   </node>
