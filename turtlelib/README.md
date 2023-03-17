@@ -5,7 +5,8 @@ A library for handling transformations in SE(2) and other turtlebot-related math
 - rigid2d - Handles 2D rigid body transformations
 - frame_main - Perform some rigid body computations based on user input
 - diff_drive - Handles Inverse and Forward Kinematics of a robot
-- ekf - Implementation of a Extended Kalman Filter (SLAM)
+- ekf - Implementation of a Extended Kalman Filter (SLAM) with data association
+- circle_fitting - Implementation of a clustering and circle fitting algorithms
 
 # Conceptual Questions
 1. We need to be able to ~normalize~ Vector2D objects (i.e., find the unit vector in the direction of a given Vector2D):

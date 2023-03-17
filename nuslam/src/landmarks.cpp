@@ -184,14 +184,12 @@ private:
         turtlelib::Circle circle_params = turtlelib::circle_fitting(clusters.at(i));
         if (circle_params.R < 0.1 && circle_params.R > 0.01) // Filter circle for radii smaller than 0.1 and greater than 0.01
         {
-            RCLCPP_ERROR_STREAM(get_logger(), "\n Circle " << i << " x " << circle_params.x << " y " << circle_params.y << " R " << circle_params.R);
             circle_list.push_back(circle_params);
         }
     }
 
     create_circles_array(circle_list); // Publish fitted circles as a MarkerArray
 
-    RCLCPP_ERROR_STREAM(get_logger(), "\n\n\n");
   }
 
   /// \brief Create circle fitted MarkerArray as seen by Circle fitting algorithm and publish them to a topic to display them in Rviz

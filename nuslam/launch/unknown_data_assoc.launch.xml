@@ -1,0 +1,15 @@
+<launch>
+
+  <!-- Argument to specify configuration file for simulator. -->
+  <arg name="robot" default="nusim"
+   description="Where to launch the nodes - robot, nusim, nothing"/>
+  <arg name="use_landmarks" default="true"
+   description="Use output of landmarks (circle fitting) for SLAM"/>
+
+  <!-- Launch the Landmarks simulation launch file -->
+  <include file="$(find-pkg-share nuslam)/launch/landmark_detect.launch.xml">
+      <arg name="robot" value="$(var robot)"/>
+      <arg name="use_landmarks" value="$(var use_landmarks)"/>
+  </include>
+
+</launch>
